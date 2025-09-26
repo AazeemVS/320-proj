@@ -1,10 +1,11 @@
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class player_movement : MonoBehaviour
 {
-
-    // Players movement speed
-    public float moveSpeed = 5f; 
+    public float moveSpeed = 5f;
+    public GameObject bulletPrefab;
+    public Transform firePoint;       // Where the bullet shoots from
+    public float bulletSpeed = 10f;
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
@@ -12,26 +13,40 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        if (rb == null)
-        {
-            Debug.LogError("No Rigidbody2D found! Add one to your Player object.");
-        }
     }
 
     void Update()
     {
-        // Get input from arrow keys / WASD
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveY = Input.GetAxisRaw("Vertical");
-
-        moveInput = new Vector2(moveX, moveY).normalized;
+        HandleMovement();
+        HandleShooting();
     }
 
-    void FixedUpdate()
+    void HandleMovement()
     {
-        if (rb != null)
+        float moveX = 0f;
+        float moveY = 0f;
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            moveX = -1f;
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            moveX = 1f;
+
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            moveY = -1f;
+        else if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            moveY = 1f;
+
+        moveInput = new Vector2(moveX, moveY).normalized;
+        rb.linearVelocity = moveInput * moveSpeed;
+    }
+
+    void HandleShooting()
+    {
+        if (Input.GetKeyDown(KeyCode.H))
         {
-            rb.linearVelocity = moveInput * moveSpeed;
+            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+            bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
         }
     }
 }
