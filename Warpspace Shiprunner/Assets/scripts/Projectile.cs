@@ -6,7 +6,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] float lifetime = 5f;
     [SerializeField] int damage = 1;
 
-    Vector2 _direction = Vector2.down;
+    Vector2 _direction = Vector2.left;
     float _age;
 
     public void Fire(Vector2 worldDirection, float overrideSpeed = -1f)

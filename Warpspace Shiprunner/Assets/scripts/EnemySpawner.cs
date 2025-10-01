@@ -3,11 +3,16 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] GameObject enemyPrefab;
-    [SerializeField] Vector2 xRange = new(-8f, 8f);
-    [SerializeField] float ySpawn = 5.5f;
+    [SerializeField] float xSpawn = 7.5f;
     [SerializeField] float interval = 1.5f;
+    float borderY;
 
     float _t;
+    private void Start() {
+        Camera cam = Camera.main;
+        borderY = cam.orthographicSize;
+        borderY -= enemyPrefab.GetComponent<SpriteRenderer>().bounds.size.y / 2;
+    }
 
     void Update()
     {
@@ -15,8 +20,8 @@ public class EnemySpawner : MonoBehaviour
         if (_t >= interval)
         {
             _t = 0f;
-            float x = Random.Range(xRange.x, xRange.y);
-            Instantiate(enemyPrefab, new Vector3(x, ySpawn, 0f), Quaternion.identity);
+            float y = Random.Range(-borderY, borderY);
+            Instantiate(enemyPrefab, new Vector3(xSpawn, y, 0f), Quaternion.identity);
         }
     }
 }

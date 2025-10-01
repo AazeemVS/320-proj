@@ -67,11 +67,11 @@ public class Enemy : MonoBehaviour
     {
         if (bulletPool == null || firePoint == null) return;
 
-        var go = bulletPool.Spawn(firePoint.position, Quaternion.identity);
+        var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, 270));
         var proj = go.GetComponent<Projectile>(); // or Projectile2D if that’s your script
         if (proj == null) return;
 
-        Vector2 dir = useLocalDown ? -(Vector2)transform.up : Vector2.down;
+        Vector2 dir = useLocalDown ? -(Vector2)transform.right : Vector2.left;
         proj.Fire(dir, bulletSpeed);
     }
 }
