@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 710420285}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -286,6 +286,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 882272320456516901, guid: 23d704f81c0af8948a5a837ba9dddf56, type: 3}
   firePoint: {fileID: 1458179338}
   bulletSpeed: 10
+  health: 0
 --- !u!50 &710420284
 Rigidbody2D:
   serializedVersion: 5

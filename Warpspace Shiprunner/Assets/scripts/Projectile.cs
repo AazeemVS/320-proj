@@ -28,13 +28,14 @@ public class Projectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         // Example: only hit Player layer
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (other.CompareTag("Player"))
         {
-            // TODO: call player.TakeDamage(damage);
-            gameObject.SetActive(false);
+            player_movement player = other.GetComponent<player_movement>();
+            player.ChangeHealth(-1);
+            Destroy(gameObject);
         }
 
         // Optionally despawn on walls/kill zones
-        if (other.CompareTag("KillZone")) gameObject.SetActive(false);
+        if (other.CompareTag("KillZone")) Destroy(gameObject);
     }
 }

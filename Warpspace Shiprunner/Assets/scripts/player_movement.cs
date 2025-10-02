@@ -11,6 +11,8 @@ public class player_movement : MonoBehaviour
     private Vector2 moveInput;
     private float borderX;
     private float borderY;
+    private GameStateManager stateManager;
+    [SerializeField] private float health;
 
     void Start()
     {
@@ -20,12 +22,15 @@ public class player_movement : MonoBehaviour
         borderX = borderY * cam.aspect;
         borderX -= GetComponent<SpriteRenderer>().bounds.size.x/2;
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
+        stateManager = GameStateManager.Instance;
+        health = 5;
     }
 
     void Update()
     {
         HandleMovement();
         HandleShooting();
+        HandleHealth();
     }
 
     void HandleMovement()
@@ -55,6 +60,7 @@ public class player_movement : MonoBehaviour
         transform.position = adjustedPos;
     }
 
+
     void HandleShooting()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -63,5 +69,12 @@ public class player_movement : MonoBehaviour
             Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
             bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
         }
+    }
+
+    public void ChangeHealth(float healthChange) {
+        health += healthChange;
+    }
+    private void HandleHealth() {
+        if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
     }
 }
