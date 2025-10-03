@@ -1,17 +1,19 @@
+using NUnit.Framework;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] GameObject enemyPrefab;
     [SerializeField] float xSpawn = 7.5f;
     [SerializeField] float interval = 1.5f;
     float borderY;
+    [SerializeField] List<GameObject> enemyPrefabs;
 
     float _t;
     private void Start() {
         Camera cam = Camera.main;
         borderY = cam.orthographicSize;
-        borderY -= enemyPrefab.GetComponent<SpriteRenderer>().bounds.size.y / 2;
+        borderY -= enemyPrefabs[0].GetComponent<SpriteRenderer>().bounds.size.y / 2;
     }
 
     void Update()
@@ -21,7 +23,8 @@ public class EnemySpawner : MonoBehaviour
         {
             _t = 0f;
             float y = Random.Range(-borderY, borderY);
-            Instantiate(enemyPrefab, new Vector3(xSpawn, y, 0f), Quaternion.identity);
+            GameObject enemy = enemyPrefabs[Random.Range(0,enemyPrefabs.Count)];
+            Instantiate(enemy, new Vector3(xSpawn, y, 0f), Quaternion.identity);
         }
     }
 }

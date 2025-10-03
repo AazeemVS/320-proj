@@ -1,15 +1,16 @@
 using System.Collections;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
     [Header("Firing")]
-    [SerializeField] SimplePool bulletPool;  // ok if left empty on prefab
-    [SerializeField] Transform firePoint;    // ok if missing; we'll create one
-    [SerializeField] float shotsPerSecond = 2f;
-    [SerializeField] float bulletSpeed = 10f;
-    [SerializeField] float warmupDelay = 0.25f;
-    [SerializeField] bool useLocalDown = false;
+    [SerializeField] protected SimplePool bulletPool;  // ok if left empty on prefab
+    [SerializeField] protected Transform firePoint;    // ok if missing; we'll create one
+    [SerializeField] protected float shotsPerSecond = 2f;
+    [SerializeField] protected float bulletSpeed = 10f;
+    [SerializeField] protected float warmupDelay = 0.25f;
+    [SerializeField] protected bool useLocalDown = false;
+    [SerializeField] protected float health = 3;
 
     Coroutine _loop;
 
@@ -26,6 +27,13 @@ public class Enemy : MonoBehaviour
         // Fallbacks so spawned copies work without manual wiring
         if (bulletPool == null) bulletPool = FindObjectOfType<SimplePool>();
         EnsureFirePoint();
+    }
+
+    protected virtual void Update() {
+        if (health <= 0) Destroy(gameObject);
+    }
+    public void ChangeHealth(float healthChange) {
+        health += healthChange;
     }
 
     void OnEnable() => RestartFireLoop();
@@ -63,15 +71,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void FireOnce()
-    {
-        if (bulletPool == null || firePoint == null) return;
 
-        var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, 270));
-        var proj = go.GetComponent<Projectile>(); // or Projectile2D if that’s your script
-        if (proj == null) return;
-
-        Vector2 dir = useLocalDown ? -(Vector2)transform.right : Vector2.left;
-        proj.Fire(dir, bulletSpeed);
-    }
+    public abstract void FireOnce();
 }

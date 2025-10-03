@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class player_movement : MonoBehaviour
@@ -13,6 +14,7 @@ public class player_movement : MonoBehaviour
     private float borderY;
     private GameStateManager stateManager;
     [SerializeField] private float health;
+    private float playerDamage = 1;
 
     void Start()
     {
@@ -67,14 +69,26 @@ public class player_movement : MonoBehaviour
         {
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+            Bullet bulletScript = bulletRb.GetComponent<Bullet>();
             bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
+            bulletScript.bulletDamage = playerDamage;
+            
         }
     }
 
     public void ChangeHealth(float healthChange) {
         health += healthChange;
+        if(healthChange < 0) {
+            StartCoroutine(TakeDamage());
+        }
     }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
+    }
+
+    IEnumerator TakeDamage() {
+        GetComponent<SpriteRenderer>().color = Color.red;
+        yield return new WaitForSeconds(.5f);
+        GetComponent<SpriteRenderer>().color = Color.white;
     }
 }
