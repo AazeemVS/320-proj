@@ -4,6 +4,7 @@ public class Bullet : MonoBehaviour {
 
     public float speed = 10f;
     private float borderX;
+    public float bulletDamage;
 
     private void Start() {
         Camera cam = Camera.main;
@@ -18,7 +19,11 @@ public class Bullet : MonoBehaviour {
     }
 
     //requires either additional checking or a proper collision matrix
-    private void OnCollisionEnter2D(Collision2D collision) {
-        //do damage
+    private void OnTriggerEnter2D(Collider2D other) {
+        if (other.CompareTag("Enemy")) {
+            Enemy enemy = other.gameObject.GetComponent<Enemy>();
+            enemy.ChangeHealth(-bulletDamage);
+            Destroy(gameObject);
+        }
     }
 }
