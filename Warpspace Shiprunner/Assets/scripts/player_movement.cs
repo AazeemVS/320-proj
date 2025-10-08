@@ -8,10 +8,15 @@ public class player_movement : MonoBehaviour
     public Transform firePoint;       // Where the bullet shoots from
 
     //Modifiable Stats
+    public float moveSpeed = 5f;
+        //Gun stats
     public float bulletSpeed = 10f;
     public float playerDamage = 1;
-    public float moveSpeed = 5f;
     public float shootTimerMax = .25f;
+    public int projectileAmt = 1;
+        //Dash stats
+    public bool canDash = true;
+    public float DashCooldown = 1.5f;
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
@@ -20,6 +25,12 @@ public class player_movement : MonoBehaviour
     private GameStateManager stateManager;
     [SerializeField] private float health;
     private float shootTimer = 0;
+    //Dash Logic
+    private float dashTimer = 0;
+    private float dashStrength = 5f;
+    private float dashing = 0f;
+    private Vector2 dashDirection;
+
 
     void Start()
     {
@@ -56,6 +67,19 @@ public class player_movement : MonoBehaviour
             moveY = 1f;
 
         moveInput = new Vector2(moveX, moveY).normalized;
+
+        if (canDash) {
+            if(Input.GetKey(KeyCode.LeftShift) && dashTimer < 0) {
+                dashing = .1f;
+                dashDirection = moveInput;
+            }
+            dashTimer -= Time.deltaTime;
+        }
+        
+        if(dashing > 0) {
+            rb.linearVelocity = dashDirection * moveSpeed * dashStrength;
+            dashing -= Time.deltaTime;
+        }
         rb.linearVelocity = moveInput * moveSpeed;
 
         //Adjust player position to stay in camera bounds

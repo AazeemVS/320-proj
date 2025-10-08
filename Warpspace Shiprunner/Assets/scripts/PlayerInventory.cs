@@ -46,6 +46,7 @@ public class PlayerInventory : MonoBehaviour
     }
     //Unequip a currently active upgrade
     public void UnequipUpgrade(Upgrade newUpgrade) {
+        //Make sure were not calling an unequipped item and nerfing the player
         if (activeUpgrades.Contains(newUpgrade)) {
             activeUpgrades.Remove(newUpgrade);
             newUpgrade.OnUnequip(player);
