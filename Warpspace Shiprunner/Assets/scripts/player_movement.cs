@@ -3,10 +3,15 @@ using UnityEngine;
 
 public class player_movement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    
     public GameObject bulletPrefab;
     public Transform firePoint;       // Where the bullet shoots from
+
+    //Modifiable Stats
     public float bulletSpeed = 10f;
+    public float playerDamage = 1;
+    public float moveSpeed = 5f;
+    public float shootTimerMax = .25f;
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
@@ -14,7 +19,7 @@ public class player_movement : MonoBehaviour
     private float borderY;
     private GameStateManager stateManager;
     [SerializeField] private float health;
-    private float playerDamage = 1;
+    private float shootTimer = 0;
 
     void Start()
     {
@@ -65,14 +70,16 @@ public class player_movement : MonoBehaviour
 
     void HandleShooting()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
+        if (Input.GetKey(KeyCode.Space) && shootTimer <= 0) {
             GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
             Bullet bulletScript = bulletRb.GetComponent<Bullet>();
             bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
             bulletScript.bulletDamage = playerDamage;
-            
+            shootTimer = shootTimerMax;
+
+        } else {
+            shootTimer -= Time.deltaTime;
         }
     }
 
