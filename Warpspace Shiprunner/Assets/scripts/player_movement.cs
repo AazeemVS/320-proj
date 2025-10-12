@@ -15,8 +15,10 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
         //Dash stats
-    public bool canDash = true;
-    public float DashCooldown = 1.5f;
+    public bool dashEnabled = true;
+    public float dashCooldown = 1.5f;
+    public float maxHealth = 5;
+
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
@@ -25,10 +27,13 @@ public class player_movement : MonoBehaviour
     private GameStateManager stateManager;
     [SerializeField] private float health;
     private float shootTimer = 0;
+    private float iFrameMax = 1f;
+    [SerializeField] private float iFrameTimer = 0f;
     //Dash Logic
     private float dashTimer = 0;
-    private float dashStrength = 5f;
+    private float dashStrength = 2.5f;
     private float dashing = 0f;
+    private float dashLength = .15f;
     private Vector2 dashDirection;
 
 
@@ -41,7 +46,7 @@ public class player_movement : MonoBehaviour
         borderX -= GetComponent<SpriteRenderer>().bounds.size.x/2;
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
-        health = 5;
+        health = maxHealth;
     }
 
     void Update()
@@ -68,18 +73,20 @@ public class player_movement : MonoBehaviour
 
         moveInput = new Vector2(moveX, moveY).normalized;
 
-        if (canDash) {
+        if (dashEnabled) {
             if(Input.GetKey(KeyCode.LeftShift) && dashTimer < 0) {
-                dashing = .1f;
+                dashing = dashLength;
                 dashDirection = moveInput;
+                dashTimer = dashCooldown;
+            }
+            if (dashing > 0) {
+                moveInput = dashDirection * dashStrength;
+                dashing -= Time.deltaTime;
             }
             dashTimer -= Time.deltaTime;
         }
         
-        if(dashing > 0) {
-            rb.linearVelocity = dashDirection * moveSpeed * dashStrength;
-            dashing -= Time.deltaTime;
-        }
+        
         rb.linearVelocity = moveInput * moveSpeed;
 
         //Adjust player position to stay in camera bounds
@@ -107,19 +114,32 @@ public class player_movement : MonoBehaviour
         }
     }
 
-    public void ChangeHealth(float healthChange) {
-        health += healthChange;
-        if(healthChange < 0) {
-            StartCoroutine(TakeDamage());
+    public void ChangeHealth(float healthChange, bool beatsIFrames = false) {
+        
+        if(healthChange < 0 && (iFrameTimer<=0 || beatsIFrames)) {
+            health += healthChange;
+            StartCoroutine(TakeDamage(beatsIFrames));
+            if (!beatsIFrames) {
+                iFrameTimer = iFrameMax;
+            }
+            
+        } else if(healthChange > 0) {
+            health += healthChange;
+            if(health > maxHealth) health = maxHealth;
         }
     }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
+        iFrameTimer -= Time.deltaTime;
     }
 
-    IEnumerator TakeDamage() {
+    IEnumerator TakeDamage(bool piercing) {
         GetComponent<SpriteRenderer>().color = Color.red;
-        yield return new WaitForSeconds(.5f);
+        if (piercing) {
+            yield return new WaitForSeconds(.1f);
+        } else {
+            yield return new WaitForSeconds(iFrameMax);
+        }
         GetComponent<SpriteRenderer>().color = Color.white;
     }
 }

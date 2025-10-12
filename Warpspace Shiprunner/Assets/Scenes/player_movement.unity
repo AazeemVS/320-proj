@@ -260,6 +260,7 @@ GameObject:
   - component: {fileID: 710420283}
   - component: {fileID: 710420284}
   - component: {fileID: 710420285}
+  - component: {fileID: 710420286}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -362,11 +363,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3353ae40f24f7454884a2ae4fa7c8242, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
   bulletPrefab: {fileID: 882272320456516901, guid: 23d704f81c0af8948a5a837ba9dddf56, type: 3}
   firePoint: {fileID: 1458179338}
+  moveSpeed: 10
   bulletSpeed: 10
+  playerDamage: 1
+  shootTimerMax: 0.25
+  projectileAmt: 1
+  dashEnabled: 1
+  dashCooldown: 1.5
+  maxHealth: 5
   health: 0
+  iFrameTimer: 0
 --- !u!50 &710420284
 Rigidbody2D:
   serializedVersion: 5
@@ -431,6 +439,20 @@ CapsuleCollider2D:
   m_Offset: {x: -0.5, y: 0}
   m_Size: {x: 4, y: 4}
   m_Direction: 0
+--- !u!114 &710420286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710420279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 993c6f3d288a9e4439e60772d17559e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventory: []
+  activeUpgrades: []
 --- !u!1 &1024567600
 GameObject:
   m_ObjectHideFlags: 0
