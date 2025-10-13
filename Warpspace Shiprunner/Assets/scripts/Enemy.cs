@@ -31,6 +31,7 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Update() {
         if (health <= 0) Destroy(gameObject);
+        Movement();
     }
     public void ChangeHealth(float healthChange) {
         health += healthChange;
@@ -71,6 +72,6 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-
+    public abstract void Movement();
     public abstract void FireOnce();
 }

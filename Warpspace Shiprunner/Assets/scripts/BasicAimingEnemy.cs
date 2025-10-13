@@ -25,4 +25,7 @@ public class BasicAimingEnemy : Enemy
         
         proj.Fire(dir, bulletSpeed);
     }
+
+    public override void Movement() {
+    }
 }
