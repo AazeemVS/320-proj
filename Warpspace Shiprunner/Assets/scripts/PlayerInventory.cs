@@ -5,11 +5,11 @@ using System.Collections.Generic;
 public class PlayerInventory : MonoBehaviour
 {
     //currently assumes no slot specific/incompatible upgrades
-    public List<Upgrade> inventory;
-    public List<Upgrade> activeUpgrades;
+    public List<Upgrade> inventory = new List<Upgrade>();
+    public List<Upgrade> activeUpgrades = new List<Upgrade>();
     private player_movement player;
-    private int maxInventory;
-    private int maxUpgrades;
+    private int maxInventory =20;
+    private int maxUpgrades = 5;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -36,13 +36,15 @@ public class PlayerInventory : MonoBehaviour
         inventory.Remove(newUpgrade);
     }
     //Equip an upgrade from the player inventory
-    public bool EquipUpgrade(Upgrade newUpgrade) {
-        if (activeUpgrades.Count < maxUpgrades) {
+    public bool EquipUpgrade(Upgrade newUpgrade, bool removeIfActive = false) {
+        if (activeUpgrades.Count < maxUpgrades && !activeUpgrades.Contains(newUpgrade)) {
             activeUpgrades.Add(newUpgrade);
             newUpgrade.OnEquip(player);
             return true;
+        } else if (removeIfActive && activeUpgrades.Contains(newUpgrade)) {
+            UnequipUpgrade(newUpgrade);
         }
-        return false;
+            return false;
     }
     //Unequip a currently active upgrade
     public void UnequipUpgrade(Upgrade newUpgrade) {

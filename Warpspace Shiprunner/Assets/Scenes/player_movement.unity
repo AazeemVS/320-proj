@@ -451,8 +451,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 993c6f3d288a9e4439e60772d17559e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory: []
-  activeUpgrades: []
 --- !u!1 &1024567600
 GameObject:
   m_ObjectHideFlags: 0
