@@ -13,6 +13,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected float health = 3;
 
     Coroutine _loop;
+    public player_movement playerMovement;
 
     // Allow spawner to inject dependencies if you want
     public void Init(SimplePool pool)
@@ -26,12 +27,34 @@ public abstract class Enemy : MonoBehaviour
     {
         // Fallbacks so spawned copies work without manual wiring
         if (bulletPool == null) bulletPool = FindObjectOfType<SimplePool>();
+
+        // Finds playerMovement script
+        if (playerMovement == null)
+        {
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null)
+            {
+                playerMovement = player.GetComponent<player_movement>();
+            }
+            else
+            {
+                Debug.LogWarning("Player GameObject not found! Make sure it's tagged 'Player'");
+            }
+        }
+
         EnsureFirePoint();
     }
 
-    protected virtual void Update() {
-        if (health <= 0) Destroy(gameObject);
-        Movement();
+    protected virtual void Update()
+    {
+        if (health <= 0)
+        {
+            // Gives money
+            playerMovement.AddCredits(1f);
+            // Kills enemy
+            Destroy(gameObject);
+            Movement();
+        }
     }
     public void ChangeHealth(float healthChange) {
         health += healthChange;

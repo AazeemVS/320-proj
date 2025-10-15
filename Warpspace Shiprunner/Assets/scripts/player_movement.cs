@@ -18,6 +18,7 @@ public class player_movement : MonoBehaviour
     public bool dashEnabled = true;
     public float dashCooldown = 1.5f;
     public float maxHealth = 5;
+    public float credits = 0;
 
 
     private Rigidbody2D rb;
@@ -131,6 +132,11 @@ public class player_movement : MonoBehaviour
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         iFrameTimer -= Time.deltaTime;
+    }
+
+    public void AddCredits(float amount)
+    {
+        credits += amount;
     }
 
     IEnumerator TakeDamage(bool piercing) {
