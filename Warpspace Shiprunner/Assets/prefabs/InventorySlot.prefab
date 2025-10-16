@@ -149,6 +149,7 @@ MonoBehaviour:
   group: 0
   index: 0
   icon: {fileID: 7100381649532740804}
+  frame: {fileID: 0}
 --- !u!1 &8494027995039427557
 GameObject:
   m_ObjectHideFlags: 0
