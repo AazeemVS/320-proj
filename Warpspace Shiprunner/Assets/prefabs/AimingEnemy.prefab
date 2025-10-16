@@ -170,3 +170,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91fc053e875fc3741a9397adcd6a174e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletPool: {fileID: 0}
+  firePoint: {fileID: 0}
+  shotsPerSecond: 2
+  bulletSpeed: 10
+  warmupDelay: 0.25
+  useLocalDown: 0
+  health: 3
+  spawnWeight: 3
