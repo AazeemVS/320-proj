@@ -520,10 +520,11 @@ MonoBehaviour:
   bulletPrefab: {fileID: 882272320456516901, guid: 23d704f81c0af8948a5a837ba9dddf56, type: 3}
   firePoint: {fileID: 2021606673}
   moveSpeed: 10
-  bulletSpeed: 10
+  bulletSpeed: 20
   playerDamage: 1
   shootTimerMax: 0.25
   projectileAmt: 1
+  piercing: 1
   dashEnabled: 0
   dashCooldown: 1.5
   maxHealth: 5

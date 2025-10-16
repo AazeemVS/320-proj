@@ -5,6 +5,7 @@ public class Bullet : MonoBehaviour {
     public float speed = 10f;
     private float borderX;
     public float bulletDamage;
+    public int piercing = 1;
 
     private void Start() {
         Camera cam = Camera.main;
@@ -13,7 +14,6 @@ public class Bullet : MonoBehaviour {
     }
     void Update()
     {
-        transform.Translate(Vector2.right * speed * Time.deltaTime);
         //destroy bullet if it goes fully off screen
         if (transform.position.x > borderX) Destroy(gameObject);
     }
@@ -23,7 +23,14 @@ public class Bullet : MonoBehaviour {
         if (other.CompareTag("Enemy")) {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
             enemy.ChangeHealth(-bulletDamage);
-            Destroy(gameObject);
+           
+            //check if projectile can pierce
+            if(piercing == 1) {
+                Destroy(gameObject);
+            } else {
+                piercing--;
+            }
+            
         }
     }
 }

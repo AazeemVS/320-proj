@@ -10,10 +10,12 @@ public class player_movement : MonoBehaviour
     //Modifiable Stats
     public float moveSpeed = 5f;
         //Gun stats
-    public float bulletSpeed = 10f;
-    public float playerDamage = 1;
+    public float bulletSpeed = 20f;
+    public float playerDamage = 1, playerDamageMult = 1;
+    public float bulletSize = 1;
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
+    public int piercing = 1;
         //Dash stats
     public bool dashEnabled = true;
     public float dashCooldown = 1.5f;
@@ -102,13 +104,24 @@ public class player_movement : MonoBehaviour
     void HandleShooting()
     {
         if (Input.GetKey(KeyCode.Space) && shootTimer <= 0) {
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
-            Bullet bulletScript = bulletRb.GetComponent<Bullet>();
-            bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
-            bulletScript.bulletDamage = playerDamage;
-            shootTimer = shootTimerMax;
-
+            for (int i = 0; i < projectileAmt; i++) {
+                Vector3 yOffset;
+                //if statement becuase the formula I used for offset divides by 0 when projAmt = 1, will look if theres a cleaner one later
+                if (projectileAmt == 1) { yOffset = Vector3.zero; } 
+                else {
+                    float fireRange = 1f;
+                    yOffset = new Vector3(0, (-fireRange / 2) + (i * fireRange / (projectileAmt - 1)));
+                }
+                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.identity);
+                Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+                Bullet bulletScript = bulletRb.GetComponent<Bullet>();
+                //Set bullet attributes
+                bullet.transform.localScale *= bulletSize;
+                bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
+                bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                bulletScript.piercing = piercing;
+                shootTimer = shootTimerMax;
+            }
         } else {
             shootTimer -= Time.deltaTime;
         }

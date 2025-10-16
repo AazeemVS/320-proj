@@ -22,6 +22,7 @@ public abstract class Upgrade
     public abstract void OnUnequip(player_movement player);
 }
 
+//Movespeed
 public class EngineUpgrade : Upgrade {
     public float modifier;
     public EngineUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier*100, tier + " Engine Upgrade") { modifier = (int)tier * 2; }
@@ -29,6 +30,7 @@ public class EngineUpgrade : Upgrade {
     public override void OnUnequip(player_movement player) { player.moveSpeed -= modifier; }
 }
 
+//Damage
 public class DamageUpgrade : Upgrade {
     public float modifier;
     public DamageUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Improved Munitions") { modifier = (int)tier * .5f; }
@@ -36,6 +38,7 @@ public class DamageUpgrade : Upgrade {
     public override void OnUnequip(player_movement player) { player.playerDamage -= modifier; }
 }
 
+//Attack Rate
 public class AttackUpgrade : Upgrade {
     public float modifier;
     public AttackUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Cannon Loading") { modifier = (int)tier * -.05f; }
@@ -43,8 +46,34 @@ public class AttackUpgrade : Upgrade {
     public override void OnUnequip(player_movement player) { player.shootTimerMax -= modifier; }
 }
 
+//Basic Dash
 public class DashUpgrade : Upgrade {
     public DashUpgrade() : base(Rarity.Uncommon, 250, "Dash Module") { }
     public override void OnEquip(player_movement player) { player.dashEnabled = true; }
     public override void OnUnequip(player_movement player) { player.dashEnabled = false;  }
+}
+
+//Bullet Velocity
+public class BulletSpeedUpgrade : Upgrade {
+    public float modifier;
+    public BulletSpeedUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier, tier + " Shot Velocity") { modifier = (int)tier * 5f; }
+    public override void OnEquip(player_movement player) { player.bulletSpeed += modifier; }
+    public override void OnUnequip(player_movement player) { player.bulletSpeed -= modifier; }
+}
+
+//Second projectile for player
+public class ExtraCannonUpgrade : Upgrade {
+    private float damageReduction = .75f;
+    private float sizeReduction = .8f;
+    public ExtraCannonUpgrade() : base(Rarity.Rare,  400, "Extra Cannon") {}
+    public override void OnEquip(player_movement player) { 
+        player.projectileAmt += 1;
+        player.playerDamageMult *= damageReduction;
+        player.bulletSize *= sizeReduction;
+    }
+    public override void OnUnequip(player_movement player) {
+        player.projectileAmt -= 1;
+        player.playerDamageMult /= damageReduction;
+        player.bulletSize /= sizeReduction;
+    }
 }

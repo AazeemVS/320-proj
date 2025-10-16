@@ -17,9 +17,12 @@ public class DebugInventory : MonoBehaviour
         playerLogic = gameObject.GetComponent<player_movement>();
         if (playerLogic == null) enabled = false;
         playerUpgrades.Add(new EngineUpgrade());
+        playerUpgrades.Add(new EngineUpgrade(Rarity.Rare));
         playerUpgrades.Add(new DamageUpgrade());
         playerUpgrades.Add(new AttackUpgrade());
+        playerUpgrades.Add(new BulletSpeedUpgrade());
         playerUpgrades.Add(new DashUpgrade());
+        playerUpgrades.Add(new ExtraCannonUpgrade());
 
         Canvas canvas = FindAnyObjectByType<Canvas> ();
         for(int i = 0; i <playerUpgrades.Count; i++) {
