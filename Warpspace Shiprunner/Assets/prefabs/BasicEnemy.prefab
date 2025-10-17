@@ -177,3 +177,7 @@ MonoBehaviour:
   warmupDelay: 0.25
   useLocalDown: 0
   health: 3
+  spawnWeight: 1
+  stationary: 1
+  upperLimit: 0
+  lowerLimit: 0

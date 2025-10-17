@@ -3,10 +3,24 @@ using UnityEngine;
 
 public class player_movement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
+    
     public GameObject bulletPrefab;
     public Transform firePoint;       // Where the bullet shoots from
-    public float bulletSpeed = 10f;
+
+    //Modifiable Stats
+    public float moveSpeed = 5f;
+        //Gun stats
+    public float bulletSpeed = 20f;
+    public float playerDamage = 1, playerDamageMult = 1;
+    public float bulletSize = 1;
+    public float shootTimerMax = .25f;
+    public int projectileAmt = 1;
+    public int piercing = 1;
+        //Dash stats
+    public bool dashEnabled = true;
+    public float dashCooldown = 1.5f;
+    public float maxHealth = 5;
+
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
@@ -14,7 +28,16 @@ public class player_movement : MonoBehaviour
     private float borderY;
     private GameStateManager stateManager;
     [SerializeField] private float health;
-    private float playerDamage = 1;
+    private float shootTimer = 0;
+    private float iFrameMax = 1f;
+    [SerializeField] private float iFrameTimer = 0f;
+    //Dash Logic
+    private float dashTimer = 0;
+    private float dashStrength = 2.5f;
+    private float dashing = 0f;
+    private float dashLength = .15f;
+    private Vector2 dashDirection;
+
 
     void Start()
     {
@@ -25,7 +48,7 @@ public class player_movement : MonoBehaviour
         borderX -= GetComponent<SpriteRenderer>().bounds.size.x/2;
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
-        health = 5;
+        health = maxHealth;
     }
 
     void Update()
@@ -51,6 +74,21 @@ public class player_movement : MonoBehaviour
             moveY = 1f;
 
         moveInput = new Vector2(moveX, moveY).normalized;
+
+        if (dashEnabled) {
+            if(Input.GetKey(KeyCode.LeftShift) && dashTimer < 0) {
+                dashing = dashLength;
+                dashDirection = moveInput;
+                dashTimer = dashCooldown;
+            }
+            if (dashing > 0) {
+                moveInput = dashDirection * dashStrength;
+                dashing -= Time.deltaTime;
+            }
+            dashTimer -= Time.deltaTime;
+        }
+        
+        
         rb.linearVelocity = moveInput * moveSpeed;
 
         //Adjust player position to stay in camera bounds
@@ -65,30 +103,56 @@ public class player_movement : MonoBehaviour
 
     void HandleShooting()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
-            Bullet bulletScript = bulletRb.GetComponent<Bullet>();
-            bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
-            bulletScript.bulletDamage = playerDamage;
-            
+        if (Input.GetKey(KeyCode.Space) && shootTimer <= 0) {
+            for (int i = 0; i < projectileAmt; i++) {
+                Vector3 yOffset;
+                //if statement becuase the formula I used for offset divides by 0 when projAmt = 1, will look if theres a cleaner one later
+                if (projectileAmt == 1) { yOffset = Vector3.zero; } 
+                else {
+                    float fireRange = 1f;
+                    yOffset = new Vector3(0, (-fireRange / 2) + (i * fireRange / (projectileAmt - 1)));
+                }
+                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.identity);
+                Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+                Bullet bulletScript = bulletRb.GetComponent<Bullet>();
+                //Set bullet attributes
+                bullet.transform.localScale *= bulletSize;
+                bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
+                bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                bulletScript.piercing = piercing;
+                shootTimer = shootTimerMax;
+            }
+        } else {
+            shootTimer -= Time.deltaTime;
         }
     }
 
-    public void ChangeHealth(float healthChange) {
-        health += healthChange;
-        if(healthChange < 0) {
-            StartCoroutine(TakeDamage());
+    public void ChangeHealth(float healthChange, bool beatsIFrames = false) {
+        
+        if(healthChange < 0 && (iFrameTimer<=0 || beatsIFrames)) {
+            health += healthChange;
+            StartCoroutine(TakeDamage(beatsIFrames));
+            if (!beatsIFrames) {
+                iFrameTimer = iFrameMax;
+            }
+            
+        } else if(healthChange > 0) {
+            health += healthChange;
+            if(health > maxHealth) health = maxHealth;
         }
     }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
+        iFrameTimer -= Time.deltaTime;
     }
 
-    IEnumerator TakeDamage() {
+    IEnumerator TakeDamage(bool piercing) {
         GetComponent<SpriteRenderer>().color = Color.red;
-        yield return new WaitForSeconds(.5f);
+        if (piercing) {
+            yield return new WaitForSeconds(.1f);
+        } else {
+            yield return new WaitForSeconds(iFrameMax);
+        }
         GetComponent<SpriteRenderer>().color = Color.white;
     }
 }

@@ -42,9 +42,11 @@ GameObject:
   - component: {fileID: 2527782354732350292}
   - component: {fileID: 4682450575590341652}
   - component: {fileID: 8005549224328498090}
-  - component: {fileID: 6245554652395766367}
+  - component: {fileID: -233752766569619369}
+  - component: {fileID: 4656590578741353073}
+  - component: {fileID: -2707318744994822663}
   m_Layer: 0
-  m_Name: AimingEnemy
+  m_Name: BasicEnemyMoving
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -148,7 +150,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 484935225551943318, guid: 8b27eb71c6fccf14d95e9522c1b1f4a1, type: 3}
-  m_Color: {r: 0, g: 1, b: 0.39525962, a: 1}
+  m_Color: {r: 1, g: 0.18867922, b: 0.18867922, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -158,7 +160,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6245554652395766367
+--- !u!114 &-233752766569619369
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -167,7 +169,46 @@ MonoBehaviour:
   m_GameObject: {fileID: 6016493182574296120}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91fc053e875fc3741a9397adcd6a174e, type: 3}
+  m_Script: {fileID: 11500000, guid: 47e42d28cda46b34cb7f8804e6db4c25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!50 &4656590578741353073
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6016493182574296120}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &-2707318744994822663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6016493182574296120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ceb35fa6ef10194b98a6165f923a056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPool: {fileID: 0}
@@ -177,4 +218,7 @@ MonoBehaviour:
   warmupDelay: 0.25
   useLocalDown: 0
   health: 3
-  spawnWeight: 3
+  spawnWeight: 1.5
+  stationary: 0
+  upperLimit: 0
+  lowerLimit: 0
