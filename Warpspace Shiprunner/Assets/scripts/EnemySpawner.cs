@@ -42,7 +42,6 @@ public class EnemySpawner : MonoBehaviour
     void SpawnWave(int level, float difficulty) {
         //completely arbitrary formula, will need a balance pass later
         float pointsThisWave = baseWaveStrength + wavesThisLevel + (level * difficulty);
-        Debug.Log(pointsThisWave);
         float pointsUsed = 0;
         //currently allows an enemy with high points to overflow the point limit, which adds some unpredictability to spawn patterns
         while (pointsUsed < pointsThisWave) {
