@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: gold_pump_1
   displayName: Gold Pump
-  description: Gives the fortnite legendary PUMP.
+  description: Gives the fortnite legendary PUMP. (+1 projectile)
   icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  tempUpgradeID: 5

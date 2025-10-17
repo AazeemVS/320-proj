@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MockItem 4
   m_EditorClassIdentifier: 
   id: storm_surge_1
-  displayName: Storm Surge
-  description: Damages enemies under damage threshold
+  displayName: AttackSpeed
+  description: Increases attack speed
   icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  tempUpgradeID: 0

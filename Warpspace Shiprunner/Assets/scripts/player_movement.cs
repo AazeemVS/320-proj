@@ -50,6 +50,10 @@ public class player_movement : MonoBehaviour
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
         health = maxHealth;
+        InventoryManager inv = InventoryManager.Instance;
+        for (int i = 0; i < inv.Active.Count; i++) {
+            inv.Active[i].upgrade.OnEquip(this);
+        }
     }
 
     void Update()

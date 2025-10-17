@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MockItem 1
   m_EditorClassIdentifier: 
   id: shield_upgrade_1
-  displayName: ShieldUpgrade
-  description: Gives a shield upgrade
+  displayName: DamageUpgrade
+  description: Gives a Damage Upgrade
   icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  tempUpgradeID: 2

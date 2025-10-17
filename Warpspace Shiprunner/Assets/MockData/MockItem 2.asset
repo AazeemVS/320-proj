@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: MockItem 2
   m_EditorClassIdentifier: 
   id: double_points_1
-  displayName: Double Points
-  description: Gives double points
+  displayName: Dash
+  description: Press SHIFT to dash
   icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  tempUpgradeID: 3

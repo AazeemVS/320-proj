@@ -5,6 +5,7 @@ public enum GameState {
     Start,
     Playing,
     GameOver,
+    Inventory,
     Menu,
     Pause
 }
@@ -42,7 +43,7 @@ public sealed class GameStateManager : MonoBehaviour
         switch (state) {
             case GameState.Start:
                 if (Input.GetKey(KeyCode.Return)) {
-                    ChangeState(GameState.Playing);
+                    LoadInventory();
                 }
                 break;
             case GameState.Playing:
@@ -54,6 +55,11 @@ public sealed class GameStateManager : MonoBehaviour
                 if (Input.GetKey(KeyCode.Escape)) {
                     ChangeState(GameState.Start);
                 }
+                break;
+            case GameState.Inventory:
+                if (Input.GetKey(KeyCode.Return)) {
+                    ChangeState(GameState.Playing);
+                } 
                 break;
         }
     }
@@ -77,17 +83,17 @@ public sealed class GameStateManager : MonoBehaviour
     private void LoadPlaying() {
         SceneManager.LoadScene("player_movement");
         state = GameState.Playing;
-        InventoryManager inv = InventoryManager.Instance;
-        foreach(UpgradeItem u in inv.Active) {
-            u.upgrade.OnEquip(GameObject.FindGameObjectWithTag("Player").GetComponent<player_movement>());
-        }
+        
     }
 
     private void LoadGameOver() {
         SceneManager.LoadScene("GameOverScreen");
         state = GameState.GameOver;
     }
-
+    private void LoadInventory() {
+        SceneManager.LoadScene("UpgradeUIPage");
+        state = GameState.Inventory;
+    }
     private void LoadStart() {
         SceneManager.LoadScene("StartMenu");
         state = GameState.Start;

@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/player_movement.unity
     guid: e78aae2272478574c8c338642c4d1b01
+  - enabled: 1
+    path: Assets/Scenes/UpgradeUIPage.unity
+    guid: 6526f33a109e57841941b1f0589d584a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
