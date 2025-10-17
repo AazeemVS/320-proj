@@ -71,8 +71,15 @@ public class InventoryManager : MonoBehaviour
   // Fill with mock data when game starts
   void Start()
   {
-    foreach (var it in seedInventory) TryAddToInventory(it);
-    foreach (var it in seedActive) TryAddToActive(it);
+        foreach (var it in seedInventory) { 
+            it.upgrade = it.tempUpgrades[it.tempUpgradeID];
+            TryAddToInventory(it); };
+        foreach (var it in seedActive) {
+            TryAddToActive(it);
+            it.upgrade = it.tempUpgrades[it.tempUpgradeID];
+
+        }
+        ;
   }
 
   // Moves an item between inventory and active grids

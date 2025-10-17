@@ -77,6 +77,10 @@ public sealed class GameStateManager : MonoBehaviour
     private void LoadPlaying() {
         SceneManager.LoadScene("player_movement");
         state = GameState.Playing;
+        InventoryManager inv = InventoryManager.Instance;
+        foreach(UpgradeItem u in inv.Active) {
+            u.upgrade.OnEquip(GameObject.FindGameObjectWithTag("Player").GetComponent<player_movement>());
+        }
     }
 
     private void LoadGameOver() {
