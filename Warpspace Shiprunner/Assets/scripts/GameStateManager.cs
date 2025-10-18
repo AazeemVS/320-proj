@@ -83,7 +83,6 @@ public sealed class GameStateManager : MonoBehaviour
     private void LoadPlaying() {
         SceneManager.LoadScene("player_movement");
         state = GameState.Playing;
-        
     }
 
     private void LoadGameOver() {

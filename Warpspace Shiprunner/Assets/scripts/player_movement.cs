@@ -51,9 +51,12 @@ public class player_movement : MonoBehaviour
         stateManager = GameStateManager.Instance;
         health = maxHealth;
         InventoryManager inv = InventoryManager.Instance;
-        for (int i = 0; i < inv.Active.Count; i++) {
-            inv.Active[i].upgrade.OnEquip(this);
+        if (inv != null) {
+            for (int i = 0; i < inv.Active.Count; i++) {
+                inv.Active[i].upgrade.OnEquip(this);
+            }
         }
+        
     }
 
     void Update()

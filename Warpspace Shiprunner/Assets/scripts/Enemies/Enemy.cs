@@ -48,13 +48,13 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Update()
     {
+        Movement();
         if (health <= 0)
         {
             // Gives money
             playerMovement.AddCredits(1f);
             // Kills enemy
             Destroy(gameObject);
-            Movement();
         }
     }
     public void ChangeHealth(float healthChange) {
