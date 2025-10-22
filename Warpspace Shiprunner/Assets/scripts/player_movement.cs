@@ -20,8 +20,12 @@ public class player_movement : MonoBehaviour
     public bool dashEnabled = true;
     public float dashCooldown = 1.5f;
     public float maxHealth = 5;
+    // Credits
     public static int credits = 0;
     public static int roundCredits = 0;
+
+    // gameRound
+    public static int gameRound = 1;
 
 
     private Rigidbody2D rb;
