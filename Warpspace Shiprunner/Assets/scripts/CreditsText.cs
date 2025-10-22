@@ -3,14 +3,21 @@ using TMPro;
 
 public class CreditsText : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI creditsText; // Assign this in the Inspector
-    [SerializeField] private player_movement player; // Drag your player object here
+    [SerializeField] private TextMeshProUGUI creditsText;
+    [SerializeField] private TextMeshProUGUI roundCreditsText;
+    [SerializeField] private player_movement player;
 
     void Update()
     {
-        if (player != null && creditsText != null)
+        if (creditsText != null)
         {
-            creditsText.text = "Credits: " + Mathf.FloorToInt(player.credits).ToString();
+            creditsText.text = "Total credits: " + player_movement.credits.ToString();
         }
+
+        if (roundCreditsText != null)
+        {
+            roundCreditsText.text = "Credits this round: " + player_movement.roundCredits.ToString();
+        }
+        
     }
 }
