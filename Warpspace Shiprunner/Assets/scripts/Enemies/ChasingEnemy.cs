@@ -53,7 +53,7 @@ public class ChasingEnemy : Enemy
         turnTime -= Time.deltaTime * baseTurnSpeed * turnSpeed;
         if (turnTime < 0) {
             state = 1;
-            chaseTimer = chaseLength;
+            chaseTimer = chaseLength + chaseStartup;
         }
     }
     private void ChasePlayer() {

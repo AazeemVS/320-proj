@@ -655,18 +655,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2903026695658428604, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
-      propertyPath: speed
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 2903026695658428604, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
-      propertyPath: turnSpeed
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2903026695658428604, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
-      propertyPath: baseTurnSpeed
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4155491973887891366, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
       propertyPath: m_Name
       value: ChasingEnemy
