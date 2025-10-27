@@ -8,7 +8,7 @@ public class player_movement : MonoBehaviour
     public Transform firePoint;       // Where the bullet shoots from
 
     //Modifiable Stats
-    public float moveSpeed = 5f;
+    public float moveSpeed = 3f;
         //Gun stats
     public float bulletSpeed = 20f;
     public float playerDamage = 1, playerDamageMult = 1;
