@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Bullet : MonoBehaviour {
 
@@ -6,6 +7,7 @@ public class Bullet : MonoBehaviour {
     private float borderX;
     public float bulletDamage;
     public int piercing = 1;
+    public List<Enemy> hitEnemies = new List<Enemy>();
 
     private void Start() {
         Camera cam = Camera.main;
@@ -22,14 +24,18 @@ public class Bullet : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Enemy")) {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
-            enemy.ChangeHealth(-bulletDamage);
-           
-            //check if projectile can pierce
-            if(piercing == 1) {
-                Destroy(gameObject);
-            } else {
-                piercing--;
+            if (!hitEnemies.Contains(enemy)) {
+                enemy.ChangeHealth(-bulletDamage);
+                hitEnemies.Add(enemy);
+                //check if projectile can pierce
+                if (piercing == 1) {
+                    Destroy(gameObject);
+                } else {
+                    piercing--;
+                }
             }
+            
+            
             
         }
     }
