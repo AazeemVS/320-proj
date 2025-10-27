@@ -378,9 +378,11 @@ MonoBehaviour:
   projectileAmt: 1
   piercing: 1
   dashEnabled: 0
+  dashHasDodge: 0
   dashCooldown: 1.5
   maxHealth: 5
   health: 0
+  iFrameMax: 1
   iFrameTimer: 0
 --- !u!50 &710420284
 Rigidbody2D:
@@ -850,7 +852,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -798.81775, y: 461.25726}
+  m_AnchoredPosition: {x: -571, y: 309.07}
   m_SizeDelta: {x: 246.3644, y: 83.4855}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1508219508
@@ -1135,7 +1137,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 792.0222, y: 456.74963}
+  m_AnchoredPosition: {x: 591, y: 304.56}
   m_SizeDelta: {x: 257.9556, y: 92.5007}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1801912098
