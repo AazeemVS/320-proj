@@ -3,8 +3,9 @@ using UnityEngine;
 public class ChasingEnemy : Enemy
 {
     //0 = turning, 1 = moving, 2 = cooldown after hit
-    public int state = 0;
+    public int state = 1;
     [SerializeField] protected float chaseLength;
+    [SerializeField] protected float chaseStartup;
     [SerializeField] protected float speed;
     [SerializeField] protected float damage;
     float chaseTimer = 0;
@@ -12,7 +13,8 @@ public class ChasingEnemy : Enemy
     float turnTime = 0;
     Quaternion startingRotation;
     Vector2 towardsPlayer;
-    [SerializeField] float turnSpeed = 10f;
+    [SerializeField] float baseTurnSpeed = 10f;
+    float turnSpeed = 1;
     Transform playerPosition; 
     Rigidbody2D rb;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -47,22 +49,27 @@ public class ChasingEnemy : Enemy
 
     private void TurnTowardsPlayer() {
         float targetAngle = Mathf.Atan2(towardsPlayer.y, towardsPlayer.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Slerp(Quaternion.Euler(0, 0, targetAngle), startingRotation, turnTime/turnSpeed);
-        turnTime -= Time.deltaTime;
+        transform.rotation = Quaternion.Slerp(Quaternion.Euler(0, 0, targetAngle), startingRotation, turnTime);
+        turnTime -= Time.deltaTime * baseTurnSpeed * turnSpeed;
         if (turnTime < 0) {
             state = 1;
-            chaseTimer = chaseLength;
+            chaseTimer = chaseLength + chaseStartup;
         }
     }
     private void ChasePlayer() {
-        rb.linearVelocity = -towardsPlayer * speed * Time.deltaTime;
+        if (chaseTimer <= chaseLength - chaseStartup) {
+            rb.linearVelocity = -towardsPlayer * speed;
+        }
         chaseTimer -= Time.deltaTime;
         if(chaseTimer <= 0) {
             state = 0;
             rb.linearVelocity = Vector2.zero;
             towardsPlayer = (transform.position - playerPosition.position).normalized;
             startingRotation = transform.rotation;
-            turnTime = Quaternion.Angle(startingRotation, Quaternion.Euler(0, 0, Mathf.Atan2(towardsPlayer.y, towardsPlayer.x) * Mathf.Rad2Deg)) *turnSpeed/ 180;
+            turnTime = 1;
+            turnSpeed = 1/(Quaternion.Angle(startingRotation, Quaternion.Euler(0, 0, Mathf.Atan2(towardsPlayer.y, towardsPlayer.x) * Mathf.Rad2Deg))/180);
+            rb.linearVelocity = Vector2.zero;
+            Debug.Log(turnSpeed);
         }
     }
 
@@ -80,7 +87,8 @@ public class ChasingEnemy : Enemy
         if (other.CompareTag("Player") && state != 2) {
             player_movement player = other.GetComponent<player_movement>();
             player.ChangeHealth(-damage);
-            state = 2;
+            state = 1;
+            chaseTimer = 0;
             damageCooldown = 3;
         }
     }
