@@ -17,7 +17,8 @@ public class DebugInventory : MonoBehaviour
         playerLogic = gameObject.GetComponent<player_movement>();
         if (playerLogic == null) enabled = false;
         playerUpgrades.Add(new EngineUpgrade());
-        playerUpgrades.Add(new EngineUpgrade(Rarity.Rare));
+        playerUpgrades.Add(new SuperDashUpgrade());
+        playerUpgrades.Add(new BulletPierceUpgrade());
         playerUpgrades.Add(new DamageUpgrade());
         playerUpgrades.Add(new AttackUpgrade());
         playerUpgrades.Add(new BulletSpeedUpgrade());

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6959602878486954788}
   m_Layer: 0
   m_Name: ChasingEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 4155491973887891366}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 6.3534613, y: -0.87, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -111,11 +111,13 @@ MonoBehaviour:
   useLocalDown: 0
   health: 3
   spawnWeight: 1
+  playerMovement: {fileID: 0}
   state: 0
   chaseLength: 2
-  speed: 10
+  chaseStartup: 0.2
+  speed: 5
   damage: 1
-  turnSpeed: 10
+  baseTurnSpeed: 1
 --- !u!50 &7288952593411414111
 Rigidbody2D:
   serializedVersion: 5
@@ -128,7 +130,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 5
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0

@@ -52,7 +52,7 @@ public abstract class Enemy : MonoBehaviour
         if (health <= 0)
         {
             // Gives money
-            playerMovement.AddCredits(1f);
+            playerMovement.AddCredits(1);
             // Kills enemy
             Destroy(gameObject);
         }
