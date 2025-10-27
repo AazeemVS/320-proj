@@ -18,6 +18,7 @@ public class player_movement : MonoBehaviour
     public int piercing = 1;
         //Dash stats
     public bool dashEnabled = true;
+    public bool dashHasDodge = false;
     public float dashCooldown = 1.5f;
     public float maxHealth = 5;
     public float credits = 0;
@@ -30,7 +31,7 @@ public class player_movement : MonoBehaviour
     private GameStateManager stateManager;
     [SerializeField] private float health;
     private float shootTimer = 0;
-    private float iFrameMax = 1f;
+    public float iFrameMax = 1f;
     [SerializeField] private float iFrameTimer = 0f;
     //Dash Logic
     private float dashTimer = 0;
@@ -85,6 +86,9 @@ public class player_movement : MonoBehaviour
 
         if (dashEnabled) {
             if(Input.GetKey(KeyCode.LeftShift) && dashTimer < 0) {
+                if (dashHasDodge && dashLength > iFrameTimer) {
+                    iFrameTimer = dashLength;
+                }
                 dashing = dashLength;
                 dashDirection = moveInput;
                 dashTimer = dashCooldown;
