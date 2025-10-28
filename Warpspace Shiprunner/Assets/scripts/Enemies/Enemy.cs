@@ -11,6 +11,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected float warmupDelay = 0.25f;
     [SerializeField] protected bool useLocalDown = false;
     [SerializeField] protected float health = 3;
+    [SerializeField] public float spawnCost;
     [SerializeField] public float spawnWeight;
 
     Coroutine _loop;

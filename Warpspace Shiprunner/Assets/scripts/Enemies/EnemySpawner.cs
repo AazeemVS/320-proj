@@ -29,9 +29,9 @@ public class EnemySpawner : MonoBehaviour
         else { LevelSpawning(); };
     }
 
-    void LevelSpawning(int level = 1, float difficulty = 1) {
+    void LevelSpawning(int level = 1) {
         if(waveTimer < 0) {
-            SpawnWave(level, difficulty);
+            SpawnWave(level);
             waveTimer = waveInterval;
             wavesThisLevel++;
         } else {
@@ -39,9 +39,9 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    void SpawnWave(int level, float difficulty) {
+    void SpawnWave(int level) {
         //completely arbitrary formula, will need a balance pass later
-        float pointsThisWave = baseWaveStrength + wavesThisLevel + (level * difficulty);
+        float pointsThisWave = baseWaveStrength + wavesThisLevel + level;
         float pointsUsed = 0;
         //currently allows an enemy with high points to overflow the point limit, which adds some unpredictability to spawn patterns
         while (pointsUsed < pointsThisWave) {

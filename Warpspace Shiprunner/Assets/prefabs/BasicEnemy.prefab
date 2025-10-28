@@ -177,7 +177,8 @@ MonoBehaviour:
   warmupDelay: 0.25
   useLocalDown: 0
   health: 3
-  spawnWeight: 1
+  spawnCost: 0.5
+  spawnWeight: 0.8
   playerMovement: {fileID: 0}
   stationary: 1
   upperLimit: 0
