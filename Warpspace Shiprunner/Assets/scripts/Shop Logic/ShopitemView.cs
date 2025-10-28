@@ -1,34 +1,26 @@
-// In ShopItemView.cs
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
+using UnityEngine.EventSystems;
 
-public partial class ShopItemView : MonoBehaviour
+public class ShopItemView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private Image icon;
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI costText;
-    [SerializeField] private TextMeshProUGUI rarityText;
-    [SerializeField] private Button buyButton;
 
-    public void BindForMock(Sprite icon, string name, string cost, string rarityText, Action onBuyClicked)
+    private System.Action onClick;
+
+    public void SetIcon(Sprite sprite)
     {
-        if (this.icon) this.icon.sprite = icon;
-        if (nameText) nameText.text = name;
-        if (costText) costText.text = cost;
-        if (this.rarityText) this.rarityText.text = rarityText;
-
-        buyButton.onClick.RemoveAllListeners();
-        buyButton.onClick.AddListener(() => onBuyClicked?.Invoke());
+        icon.sprite = sprite;
+        icon.preserveAspect = true;
     }
 
-    public void SetPurchased()
+    public void SetOnClick(System.Action click)
     {
-        if (buyButton)
-        {
-            buyButton.interactable = false;
-            buyButton.GetComponentInChildren<TextMeshProUGUI>()?.SetText("Bought");
-        }
+        onClick = click;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        onClick?.Invoke();
     }
 }

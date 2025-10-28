@@ -22,12 +22,13 @@ public class ShopGridController : MonoBehaviour
 
     void OnEnable()
     {
-        if (rerollOnEnable) BuildShopFromMock();
+        if (rerollOnEnable)
+            BuildShopFromMock();
     }
 
     public void BuildShopFromMock()
     {
-        // clear old
+        // clear old icons
         for (int i = gridParent.childCount - 1; i >= 0; i--)
             Destroy(gridParent.GetChild(i).gameObject);
 
@@ -41,7 +42,9 @@ public class ShopGridController : MonoBehaviour
 
         // choose unique random items
         var pool = new List<int>();
-        for (int i = 0; i < mockCatalog.Count; i++) pool.Add(i);
+        for (int i = 0; i < mockCatalog.Count; i++)
+            pool.Add(i);
+
         int take = Mathf.Min(itemsToShow, pool.Count);
 
         for (int k = 0; k < take; k++)
@@ -52,52 +55,30 @@ public class ShopGridController : MonoBehaviour
             var mock = mockCatalog[pool[k]];
             _current.Add(mock);
 
-            // Ensure the Upgrade reference is set from your temp fields if needed
+            // Ensure upgrade data is valid
             if (mock.upgrade == null && mock.tempUpgrades != null &&
                 mock.tempUpgradeID >= 0 && mock.tempUpgradeID < mock.tempUpgrades.Length)
             {
                 mock.upgrade = mock.tempUpgrades[mock.tempUpgradeID];
             }
 
-            // Build UI card
-            var view = Instantiate(itemPrefab, gridParent);
+            // Spawn the icon prefab
+            var view = Instantiate(itemPrefab, gridParent, false);
 
-            string displayName = !string.IsNullOrEmpty(mock.displayName) ? mock.displayName
-                                 : mock.upgrade != null ? mock.upgrade.name
-                                 : $"Item {k + 1}";
+            // Assign the icon sprite
+            view.SetIcon(mock.icon);
 
-            int price = (mock.upgrade != null) ? mock.upgrade.value : defaultPrice;
-            string rarityLabel = (mock.upgrade != null) ? ((Rarity)mock.upgrade.rarity).ToString() : "Common";
-
-            view.BindForMock(
-                icon: mock.icon,
-                name: displayName,
-                cost: price.ToString(),
-                rarityText: rarityLabel,
-                onBuyClicked: () => OnBuyMock(mock, price, view)
-            );
+            // Hook up click event to show details panel
+            view.SetOnClick(() => OnShopItemClicked(mock));
         }
     }
 
-    private void OnBuyMock(UpgradeItem mock, int price, ShopItemView view)
+    private void OnShopItemClicked(UpgradeItem mock)
     {
-        if (player_movement.credits < price)
-        {
-            Debug.Log("Not enough credits.");
-            return;
-        }
+        // Call your existing logic for showing item details here.
+        // Example (if you have a panel script like UpgradeDetailsPanel):
+        // UpgradeDetailsPanel.Instance.Show(mock);
 
-        // Pay and add to inventory
-        player_movement.credits -= price;
-        if (mock.upgrade == null && mock.tempUpgrades != null &&
-            mock.tempUpgradeID >= 0 && mock.tempUpgradeID < mock.tempUpgrades.Length)
-        {
-            mock.upgrade = mock.tempUpgrades[mock.tempUpgradeID];
-        }
-
-        if (InventoryManager.Instance != null)
-            InventoryManager.Instance.AddUpgrade(mock.upgrade);
-
-        view.SetPurchased();
+        Debug.Log($"Clicked on shop item: {mock.displayName}");
     }
 }

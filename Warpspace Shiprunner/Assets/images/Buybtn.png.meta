@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 545cc354461338d46a745b1316b2da2c
+guid: 057bbeec00ab12c44931657f0e82b49b
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -155,10 +155,10 @@ TextureImporter:
       name: StationScreenDescriptionBuy_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1920
-        height: 1080
+        x: 1636
+        y: 294
+        width: 186
+        height: 63
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
