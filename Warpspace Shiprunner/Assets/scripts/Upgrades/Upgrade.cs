@@ -81,6 +81,13 @@ public class PlayerRecoveryUpgrade : Upgrade {
     public override void OnEquip(player_movement player) { player.iFrameMax += modifier; }
     public override void OnUnequip(player_movement player) { player.iFrameMax -= modifier; }
 }
+//Damage after taking hit
+public class EnrageUpgrade : Upgrade {
+    public float modifier;
+    public EnrageUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Reactive Munitions") { modifier = rarity; }
+    public override void OnEquip(player_movement player) { player.enragesOnHit = true; player.enrageDamage += modifier; }
+    public override void OnUnequip(player_movement player) { player.enragesOnHit = false; player.enrageDamage -= modifier; }
+}
 //Second projectile for player
 public class ExtraCannonUpgrade : Upgrade {
     private float damageReduction = .75f;

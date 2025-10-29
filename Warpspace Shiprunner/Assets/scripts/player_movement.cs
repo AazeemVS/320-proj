@@ -16,7 +16,11 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
     public int piercing = 1;
-        //Dash stats
+    public bool enragesOnHit = false;
+    public float enrageLength = 5f, enrageTimer = 0;
+    public float enrageDamage = 0;
+
+    //Dash stats
     public bool dashEnabled = true;
     public bool dashHasDodge = false;
     public float dashCooldown = 1.5f;
@@ -155,7 +159,12 @@ public class player_movement : MonoBehaviour
             if (!beatsIFrames) {
                 iFrameTimer = iFrameMax;
             }
-            
+            if (enragesOnHit) {
+                if (enrageTimer <= 0) {
+                    playerDamage += enrageDamage;
+                }
+                enrageTimer = enrageLength;
+            }
         } else if(healthChange > 0) {
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
@@ -164,6 +173,13 @@ public class player_movement : MonoBehaviour
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         iFrameTimer -= Time.deltaTime;
+        if (enrageTimer > 0) {
+            enrageTimer -= Time.deltaTime;
+            if (enrageTimer <= 0) {
+                playerDamage -= enrageDamage;
+            }
+        }
+
     }
 
     public void AddCredits(int amount)
