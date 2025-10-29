@@ -64,12 +64,6 @@ public class ShopGridController : MonoBehaviour
 
             // Spawn the icon prefab
             var view = Instantiate(itemPrefab, gridParent, false);
-
-            // Assign the icon sprite
-            view.SetIcon(mock.icon);
-
-            // Hook up click event to show details panel
-            view.SetOnClick(() => OnShopItemClicked(mock));
         }
     }
 
