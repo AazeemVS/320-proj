@@ -6,6 +6,18 @@ public enum Rarity {
     Rare = 3,
     Legendary = 4
 }
+public enum upgradeID {
+    EngineUpgrade = 0, //increases move speed
+    DamageUpgrade = 1, //increases bullet damage
+    AttackUpgrade = 2, //increases player attack speed
+    DashUpgrade = 3, //enables player dash
+    SuperDashUpgrade = 4, //enables player dash with Iframe
+    BulletSpeedUpgrade = 5, //increases player bullet velocity
+    BulletPierceUpgrade = 6, //increases bullet piercing
+    PlayerRecoveryUpgrade = 7, //increases I-frames after being hit
+    EnrageUpgrade = 8, //increases damage after being hit
+    ExtraCannonUpgrade = 9, //1 extra projectile
+}
 
 public abstract class Upgrade
 {

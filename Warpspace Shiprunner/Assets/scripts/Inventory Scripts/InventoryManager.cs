@@ -151,4 +151,42 @@ public class InventoryManager : MonoBehaviour
     return true;
   }
 
+  public Upgrade generateUpgradeFromID(int id, int rarity = 0) {
+    Upgrade newUpgrade = null;
+    Rarity tier = (Rarity)rarity;
+    switch ((upgradeID)id) {
+        case upgradeID.EngineUpgrade:
+            newUpgrade = new EngineUpgrade(tier);
+            break;
+        case upgradeID.DamageUpgrade: 
+            newUpgrade = new DamageUpgrade(tier);
+            break;
+        case upgradeID.AttackUpgrade: 
+            newUpgrade = new AttackUpgrade(tier);
+            break;
+        case upgradeID.DashUpgrade:
+            newUpgrade = new DashUpgrade();
+            break;
+        case upgradeID.SuperDashUpgrade: 
+            newUpgrade = new SuperDashUpgrade();
+            break;
+        case upgradeID.BulletSpeedUpgrade: 
+            newUpgrade = new BulletSpeedUpgrade(tier);
+            break;
+        case upgradeID.BulletPierceUpgrade: 
+            newUpgrade = new BulletPierceUpgrade(tier);
+            break;
+        case upgradeID.PlayerRecoveryUpgrade: 
+            newUpgrade = new PlayerRecoveryUpgrade(tier);
+            break;
+        case upgradeID.EnrageUpgrade: 
+            newUpgrade = new EnrageUpgrade(tier);
+            break;
+        case upgradeID.ExtraCannonUpgrade:
+            newUpgrade = new ExtraCannonUpgrade();
+            break;
+        }
+        return newUpgrade;
+    }
+
 }
