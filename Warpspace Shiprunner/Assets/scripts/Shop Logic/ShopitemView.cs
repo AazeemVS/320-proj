@@ -30,18 +30,35 @@ public class ShopItemView : MonoBehaviour, IPointerClickHandler
         if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
     }
 
+    
     private void RefreshUI()
     {
         if (!item) return;
+
         if (icon) { icon.enabled = item.icon; icon.sprite = item.icon; }
+
+
         if (title) title.text = item.displayName;
     }
+
 
     private void OnValidate() { if (item) RefreshUI(); }
 
     public void OnPointerClick(PointerEventData e)
     {
-        if (!detailsPanel) { Debug.LogWarning($"{name}: detailsPanel not assigned."); return; }
-        detailsPanel.Show(item);
+        if (!detailsPanel)
+        {
+            Debug.LogWarning($"{name}: detailsPanel not assigned.");
+            return;
+        }
+        if (!item)
+        {
+            Debug.LogWarning($"{name}: item is null on click.");
+            return;
+        }
+
+        detailsPanel.Show(item);     // fill icon/title/description
+        detailsPanel.ShowBuyOnly();  // <-- show only the Buy button
     }
+
 }

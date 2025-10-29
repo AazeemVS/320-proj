@@ -14,15 +14,20 @@ public class InventoryUI : MonoBehaviour
   private UISlot selected;       // Currently selected slot
   private bool rebuildQueued;    // Prevents multiple rebuilds in one frame
 
-  // Subscribe to inventory updates and build the UI
-  void OnEnable()
-  {
-    InventoryManager.Instance.OnChanged += QueueRebuild;
-    Rebuild();
-  }
+    // Subscribe to inventory updates and build the UI
+    void OnEnable()
+    {
+        InventoryManager.Instance.OnChanged += QueueRebuild;
 
-  // Rebuilds both grids (active and inventory grids)
-  public void Rebuild()
+        // ensure the panel starts clean when the inventory opens
+        if (detailsPanel) detailsPanel.Clear();
+
+        Rebuild();
+    }
+
+
+    // Rebuilds both grids (active and inventory grids)
+    public void Rebuild()
   {
     // Clear old slots
     foreach (Transform t in inventoryGrid) Destroy(t.gameObject);
@@ -51,15 +56,27 @@ public class InventoryUI : MonoBehaviour
     }
   }
 
-  // Called when a slot is clicked — shows details in the info panel
-  private void HandleSlotClicked(UpgradeItem item, UISlot slot)
-  {
-    selected = slot;
-    if (detailsPanel) detailsPanel.Show(item);
-  }
+    // Called when a slot is clicked — shows details in the info panel
+    private void HandleSlotClicked(UpgradeItem item, UISlot slot)
+    {
+        selected = slot;
 
-  // Unsubscribe from events when disabled
-  void OnDisable()
+        if (!detailsPanel) return;
+
+        if (item != null)
+        {
+            detailsPanel.Show(item);        // fills icon/title/description
+            detailsPanel.ShowSellOnly();    // <- show only Sell for inventory items
+        }
+        else
+        {
+            detailsPanel.Clear();           // <- hides both buttons + default message
+        }
+    }
+
+
+    // Unsubscribe from events when disabled
+    void OnDisable()
   {
     if (InventoryManager.Instance != null)
       InventoryManager.Instance.OnChanged -= QueueRebuild;
