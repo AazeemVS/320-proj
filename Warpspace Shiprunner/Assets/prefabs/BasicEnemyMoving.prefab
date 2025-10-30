@@ -207,6 +207,7 @@ MonoBehaviour:
   health: 3
   spawnCost: 1
   spawnWeight: 1.4
+  unlockRound: 1
   playerMovement: {fileID: 0}
   stationary: 0
   upperLimit: 0

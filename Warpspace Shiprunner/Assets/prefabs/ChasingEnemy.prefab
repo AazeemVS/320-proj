@@ -112,6 +112,7 @@ MonoBehaviour:
   health: 3
   spawnCost: 2.5
   spawnWeight: 0.4
+  unlockRound: 4
   playerMovement: {fileID: 0}
   state: 0
   chaseLength: 2

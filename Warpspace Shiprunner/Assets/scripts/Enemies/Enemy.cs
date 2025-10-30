@@ -13,6 +13,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected float health = 3;
     [SerializeField] public float spawnCost;
     [SerializeField] public float spawnWeight;
+    [SerializeField] public int unlockRound;
 
     Coroutine _loop;
     public player_movement playerMovement;
