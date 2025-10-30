@@ -11,8 +11,6 @@ public class BasicEnemy : Enemy
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        float borderY = Camera.main.orthographicSize;
-        borderY -= gameObject.GetComponent<SpriteRenderer>().bounds.size.y / 2;
         if (transform.position.y + (totalRange / 2) > borderY) {
             upperLimit = borderY;
             lowerLimit = borderY - totalRange;

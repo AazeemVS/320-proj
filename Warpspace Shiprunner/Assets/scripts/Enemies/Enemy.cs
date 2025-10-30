@@ -15,6 +15,8 @@ public abstract class Enemy : MonoBehaviour
 
     Coroutine _loop;
     public player_movement playerMovement;
+    protected float borderX;
+    protected float borderY;
 
     // Allow spawner to inject dependencies if you want
     public void Init(SimplePool pool)
@@ -44,6 +46,11 @@ public abstract class Enemy : MonoBehaviour
         }
 
         EnsureFirePoint();
+        Camera cam = Camera.main;
+        borderY = cam.orthographicSize;
+        borderX = borderY * cam.aspect;
+        borderX -= GetComponent<SpriteRenderer>().bounds.size.x / 2;
+        borderY -= GetComponent<SpriteRenderer>().bounds.size.y / 2;
     }
 
     protected virtual void Update()
