@@ -157,7 +157,19 @@ MonoBehaviour:
   - {fileID: 6016493182574296120, guid: da769faec2bf367449b24031b19222c4, type: 3}
   - {fileID: 4155491973887891366, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
   enemyWarningPrefab: {fileID: 6106048496685461405, guid: c72bfd5218b3ce94487e7fb21546c442, type: 3}
-  waveInterval: 5
+  minWaveInterval: 2.5
+  waveInterval: 7
+  intervalDecayPerLevel: 0.15
+  budgetPerLevel: 1
+  budgetPerWave: 0.5
+  basicMin: 0.4
+  movingMax: 1.5
+  aimingMax: 1.6
+  chasingMax: 2
+  basicDeltaPerLevel: -0.04
+  movingPerLevel: 0.03
+  aimingDeltaPerLevel: 0.04
+  chasingDeltaPerLevel: 0.06
 --- !u!4 &56867880
 Transform:
   m_ObjectHideFlags: 0
