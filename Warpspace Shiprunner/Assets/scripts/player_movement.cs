@@ -42,6 +42,7 @@ public class player_movement : MonoBehaviour
     private float borderX;
     private float borderY;
     private GameStateManager stateManager;
+    [SerializeField] PlayerAnimation animManager;
     [SerializeField] private float health;
     private float shootTimer = 0;
     public float iFrameMax = 1f;
@@ -118,6 +119,8 @@ public class player_movement : MonoBehaviour
         
         
         rb.linearVelocity = moveInput * moveSpeed;
+        if (animManager != null) { animManager.HandleMovementAnimation(moveInput); }
+        
 
         //Adjust player position to stay in camera bounds
         Vector3 adjustedPos = transform.position;
