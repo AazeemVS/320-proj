@@ -100,6 +100,22 @@ public class EnrageUpgrade : Upgrade {
     public override void OnEquip(player_movement player) { player.enragesOnHit = true; player.enrageDamage += modifier; }
     public override void OnUnequip(player_movement player) { player.enragesOnHit = false; player.enrageDamage -= modifier; }
 }
+//Converts bullet hits to explosions
+public class ExplosiveHitUpgrade : Upgrade {
+    public float modifier;
+    public ExplosiveHitUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Explosive Shells") { modifier = (rarity - 1) / 2; }
+    public override void OnEquip(player_movement player) { player.explodeOnHit = true; player.hitExplosionScale += modifier; }
+    public override void OnUnequip(player_movement player) { player.explodeOnHit = false; player.hitExplosionScale -= modifier; }
+}
+
+//Explosion on kill
+public class ExplosiveKillUpgrade : Upgrade {
+    public float modifier;
+    public ExplosiveKillUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Reactor Destabilization") { modifier = (rarity - 1) / 2; }
+    public override void OnEquip(player_movement player) { player.explodeOnKill = true; player.killExplosionScale += modifier; }
+    public override void OnUnequip(player_movement player) { player.explodeOnKill = false; player.killExplosionScale -= modifier; }
+}
+
 //Second projectile for player
 public class ExtraCannonUpgrade : Upgrade {
     private float damageReduction = .75f;

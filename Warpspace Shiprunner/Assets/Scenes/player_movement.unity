@@ -377,6 +377,16 @@ MonoBehaviour:
   shootTimerMax: 0.25
   projectileAmt: 1
   piercing: 1
+  enragesOnHit: 0
+  enrageLength: 5
+  enrageTimer: 0
+  enrageDamage: 0
+  killExplosion: {fileID: 576971340935551234, guid: 96f716e1fb487c24bb9177766f409f2d, type: 3}
+  hitExplosion: {fileID: 3935942349622363729, guid: bf9bbcdc737e1534ab1dc6dfca203cf8, type: 3}
+  explodeOnKill: 1
+  explodeOnHit: 1
+  killExplosionScale: 1
+  hitExplosionScale: 1
   dashEnabled: 0
   dashHasDodge: 0
   dashCooldown: 1.5

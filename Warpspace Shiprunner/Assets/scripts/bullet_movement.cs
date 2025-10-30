@@ -8,6 +8,8 @@ public class Bullet : MonoBehaviour {
     public float bulletDamage;
     public int piercing = 1;
     public List<Enemy> hitEnemies = new List<Enemy>();
+    public bool explosive = false;
+    [SerializeField] private GameObject Explosion;
 
     private void Start() {
         Camera cam = Camera.main;
@@ -21,10 +23,11 @@ public class Bullet : MonoBehaviour {
     }
 
     //requires either additional checking or a proper collision matrix
-    private void OnTriggerEnter2D(Collider2D other) {
+    protected void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Enemy")) {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
             if (!hitEnemies.Contains(enemy)) {
+                FindAnyObjectByType<player_movement>().TriggerHitEffects(this, enemy);
                 enemy.ChangeHealth(-bulletDamage);
                 hitEnemies.Add(enemy);
                 //check if projectile can pierce
@@ -34,9 +37,6 @@ public class Bullet : MonoBehaviour {
                     piercing--;
                 }
             }
-            
-            
-            
         }
     }
 }

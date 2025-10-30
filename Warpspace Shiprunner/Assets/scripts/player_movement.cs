@@ -19,6 +19,10 @@ public class player_movement : MonoBehaviour
     public bool enragesOnHit = false;
     public float enrageLength = 5f, enrageTimer = 0;
     public float enrageDamage = 0;
+    // Damaging Upgrades
+    [SerializeField] GameObject killExplosion, hitExplosion;
+    public bool explodeOnKill, explodeOnHit = false;
+    public float killExplosionScale, hitExplosionScale = 1;
 
     //Dash stats
     public bool dashEnabled = true;
@@ -143,6 +147,7 @@ public class player_movement : MonoBehaviour
                 bullet.transform.localScale *= bulletSize;
                 bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
                 bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
                 shootTimer = shootTimerMax;
             }
@@ -182,6 +187,23 @@ public class player_movement : MonoBehaviour
 
     }
 
+    public void TriggerHitEffects(Bullet bullet, Enemy hitEnemy) {
+        if(explodeOnHit == true && bullet.GetType() != typeof(PlayerExplosion)) {
+            GameObject hitObj = Instantiate(hitExplosion, bullet.transform.position, Quaternion.identity);
+            PlayerExplosion hitExp = hitObj.GetComponent<PlayerExplosion>();
+            hitExp.bulletDamage = playerDamage * playerDamageMult;
+            hitObj.transform.localScale *= hitExplosionScale;
+        }
+    }
+    public void TriggerKill(Enemy killedEnemy) {
+        AddCredits((int)killedEnemy.spawnWeight);
+        if (explodeOnHit == true ) {
+            GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
+            PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
+            killExp.bulletDamage *= hitExplosionScale;
+            killObj.transform.localScale *= hitExplosionScale;
+        }
+    }
     public void AddCredits(int amount)
     {
         credits += amount;

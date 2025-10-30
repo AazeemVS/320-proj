@@ -27,7 +27,7 @@ public abstract class Enemy : MonoBehaviour
     void Awake()
     {
         // Fallbacks so spawned copies work without manual wiring
-        if (bulletPool == null) bulletPool = FindObjectOfType<SimplePool>();
+        if (bulletPool == null) bulletPool = FindAnyObjectByType<SimplePool>();
 
         // Finds playerMovement script
         if (playerMovement == null)
@@ -52,7 +52,7 @@ public abstract class Enemy : MonoBehaviour
         if (health <= 0)
         {
             // Gives money
-            playerMovement.AddCredits(1);
+            playerMovement.TriggerKill(this);
             // Kills enemy
             Destroy(gameObject);
         }
