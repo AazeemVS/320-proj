@@ -15,5 +15,5 @@ MonoBehaviour:
   id: upgrade_speed_1
   displayName: Speed Boost
   description: Increases ship speed by 10%.
-  icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
   tempUpgradeID: 1

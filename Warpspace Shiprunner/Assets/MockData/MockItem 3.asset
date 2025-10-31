@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MockItem 3
   m_EditorClassIdentifier: 
   id: gold_pump_1
-  displayName: Gold Pump
-  description: Gives the fortnite legendary PUMP. (+1 projectile)
-  icon: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  displayName: Multishot
+  description: +1 projectile, but slightly reduce damage
+  icon: {fileID: 21300000, guid: 6f063b7905fdb1b4d81e32d597b67075, type: 3}
   tempUpgradeID: 5

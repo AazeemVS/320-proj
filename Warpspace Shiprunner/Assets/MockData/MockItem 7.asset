@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 518ea517fa3d0324d855653977a74285, type: 3}
-  m_Name: MockItem 4
+  m_Name: MockItem 7
   m_EditorClassIdentifier: 
   id: storm_surge_1
-  displayName: Attack Speed
-  description: Increases attack speed
+  displayName: Reactive Munitions
+  description: Briefly Increases Damage After Being Hit
   icon: {fileID: 21300000, guid: 6f063b7905fdb1b4d81e32d597b67075, type: 3}
-  tempUpgradeID: 0
+  tempUpgradeID: 8

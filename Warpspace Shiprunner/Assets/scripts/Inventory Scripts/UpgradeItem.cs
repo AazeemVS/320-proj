@@ -8,6 +8,6 @@ public class UpgradeItem : ScriptableObject
   [TextArea] public string description;
   public Sprite icon;
     public int tempUpgradeID;
-    public Upgrade[] tempUpgrades = { new AttackUpgrade(), new EngineUpgrade(), new DamageUpgrade(), new DashUpgrade(), new BulletSpeedUpgrade(), new ExtraCannonUpgrade() };
+    public Upgrade[] tempUpgrades = { new AttackUpgrade(), new EngineUpgrade(), new DamageUpgrade(), new DashUpgrade(), new BulletSpeedUpgrade(), new ExtraCannonUpgrade(), new ExplosiveHitUpgrade(), new ExplosiveKillUpgrade(), new EnrageUpgrade(), new PlayerRecoveryUpgrade(), new SuperDashUpgrade() };
     public Upgrade upgrade;
 }

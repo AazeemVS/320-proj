@@ -34,7 +34,7 @@ public class UISlot : MonoBehaviour,
     if (icon)
     {
       if (i == null || i.icon == null) { icon.enabled = false; icon.sprite = null; }
-      else { icon.enabled = true; icon.sprite = i.icon; }
+      else { icon.enabled = true; icon.sprite = i.icon; icon.transform.localScale *= .5f; }
     }
     SetHighlight(false);
   }

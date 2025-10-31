@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class player_movement : MonoBehaviour
@@ -43,6 +44,7 @@ public class player_movement : MonoBehaviour
     private float borderY;
     private GameStateManager stateManager;
     [SerializeField] PlayerAnimation animManager;
+    [SerializeField] TextMeshProUGUI healthUI;
     [SerializeField] private float health;
     private float shootTimer = 0;
     public float iFrameMax = 1f;
@@ -177,6 +179,7 @@ public class player_movement : MonoBehaviour
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
         }
+        if (healthUI != null) { healthUI.text = ("Health:" + health); }
     }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);

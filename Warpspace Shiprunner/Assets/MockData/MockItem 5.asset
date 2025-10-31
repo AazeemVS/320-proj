@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 518ea517fa3d0324d855653977a74285, type: 3}
-  m_Name: MockItem 4
+  m_Name: MockItem 5
   m_EditorClassIdentifier: 
   id: storm_surge_1
-  displayName: Attack Speed
-  description: Increases attack speed
-  icon: {fileID: 21300000, guid: 6f063b7905fdb1b4d81e32d597b67075, type: 3}
-  tempUpgradeID: 0
+  displayName: Explosive Shells
+  description: 'Bullets Explode On Impact
+
+'
+  icon: {fileID: 805019283952303753, guid: 239be7f072b033b48a0af9f8d1b0fb9e, type: 3}
+  tempUpgradeID: 6
