@@ -17,16 +17,42 @@ public class InventoryManager : MonoBehaviour
   private readonly List<UpgradeItem> inventory = new();
   private readonly List<UpgradeItem> active = new();
 
-  // Set up singleton and persists across scenes
-  void Awake()
-  {
-    if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-    Instance = this;
-    DontDestroyOnLoad(gameObject);
-  }
+    // Fill with mock data when game starts
+    void Start()
+    {
+        foreach (var it in seedInventory)
+        {
+            if (it != null && it.tempUpgrades != null && it.tempUpgrades.Length > it.tempUpgradeID)
+                it.upgrade = it.tempUpgrades[it.tempUpgradeID];
 
-  // Adds an item to the inventory, if the inventory isn't not full
-  public bool TryAddToInventory(UpgradeItem item)
+            TryAddToInventory(it);
+        }
+
+        foreach (var it in seedActive)
+        {
+            if (it != null && it.tempUpgrades != null && it.tempUpgrades.Length > it.tempUpgradeID)
+                it.upgrade = it.tempUpgrades[it.tempUpgradeID];
+
+            TryAddToActive(it);
+        }
+    }
+    // Set up singleton and persists across scenes
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        if (player == null)
+        {
+            player = FindFirstObjectByType<player_movement>();
+            if (player == null) Debug.LogWarning("InventoryManager: player not assigned.", this);
+        }
+    }
+
+
+    // Adds an item to the inventory, if the inventory isn't not full
+    public bool TryAddToInventory(UpgradeItem item)
   {
     if (inventory.Count >= inventoryCapacity) return false;
     inventory.Add(item);
@@ -38,15 +64,12 @@ public class InventoryManager : MonoBehaviour
     public bool TryAddToActive(UpgradeItem item)
     {
         if (active.Count >= activeCapacity) return false;
-
         active.Add(item);
-
-        // EQUIP effect if possible
-        item?.upgrade?.OnEquip(player);
-
+        SafeEquip(item);
         OnChanged?.Invoke();
         return true;
     }
+
 
 
 
@@ -62,13 +85,11 @@ public class InventoryManager : MonoBehaviour
     public void RemoveFromActiveAt(int index)
     {
         if (index < 0 || index >= active.Count) return;
-
-        // UNEQUIP effect before removal
-        active[index]?.upgrade?.OnUnequip(player);
-
+        SafeUnequip(active[index]);
         active.RemoveAt(index);
         OnChanged?.Invoke();
     }
+
 
 
     // for UI to refresh when data changes
@@ -80,81 +101,74 @@ public class InventoryManager : MonoBehaviour
   public UpgradeItem[] seedActive;
 
 
-  // Fill with mock data when game starts
-  void Start()
-  {
-        foreach (var it in seedInventory) { 
-            it.upgrade = it.tempUpgrades[it.tempUpgradeID];
-            TryAddToInventory(it); };
-        foreach (var it in seedActive) {
-            TryAddToActive(it);
-            it.upgrade = it.tempUpgrades[it.tempUpgradeID];
 
-        }
-        ;
-  }
 
-  // Moves an item between inventory and active grids
-  public bool MoveBetween(SlotGroup from, int fromIndex, SlotGroup to, int toIndex)
-  {
-    if (from == to) return false; // tonight: only cross-grid moves
 
-    var fromList = (from == SlotGroup.Inventory) ? inventory : active;
-    var toList = (to == SlotGroup.Inventory) ? inventory : active;
 
-    int toCap = (to == SlotGroup.Inventory) ? inventoryCapacity : activeCapacity;
-
-    if (fromIndex < 0 || fromIndex >= fromList.Count) return false;
-
-        var item = fromList[fromIndex];
-        if (item == null) return false;
-
-        // if we’re moving between Inventory and Active, handle equip/unequip
-        bool invToAct = (from == SlotGroup.Inventory && to == SlotGroup.Active);
-        bool actToInv = (from == SlotGroup.Active && to == SlotGroup.Inventory);
-
-        UpgradeItem displaced = null;
-
-        // Place in target
-        if (toIndex < toList.Count)
+    // Moves an item between inventory and active grids
+    public bool MoveBetween(SlotGroup from, int fromIndex, SlotGroup to, int toIndex)
+    {
+        try
         {
-            displaced = toList[toIndex];
+            if (from == to) return false;
 
-            // If target is Active and we’re replacing, unequip the displaced first
-            if (to == SlotGroup.Active) displaced?.upgrade?.OnUnequip(player);
+            var fromList = (from == SlotGroup.Inventory) ? inventory : active;
+            var toList = (to == SlotGroup.Inventory) ? inventory : active;
+            int toCap = (to == SlotGroup.Inventory) ? inventoryCapacity : activeCapacity;
 
-            toList[toIndex] = item;
+            if (fromIndex < 0 || fromIndex >= fromList.Count) return false;
 
-            // If we just moved into Active, equip it now
-            if (invToAct) item.upgrade?.OnEquip(player);
+            var item = fromList[fromIndex];
+            if (item == null) return false;
+
+            bool invToAct = (from == SlotGroup.Inventory && to == SlotGroup.Active);
+            bool actToInv = (from == SlotGroup.Active && to == SlotGroup.Inventory);
+
+            UpgradeItem displaced = null;
+
+            // place into target (replace or append)
+            if (toIndex < toList.Count)
+            {
+                displaced = toList[toIndex];
+
+                // if putting into Active, unequip what we’re replacing first
+                if (to == SlotGroup.Active) SafeUnequip(displaced);
+
+                toList[toIndex] = item;
+
+                // if moved into Active, equip now
+                if (invToAct) SafeEquip(item);
+            }
+            else
+            {
+                if (toList.Count >= toCap) return false;
+                toList.Add(item);
+                if (invToAct) SafeEquip(item);
+            }
+
+            // remove from source *after* placing in target
+            fromList.RemoveAt(fromIndex);
+
+            // if we displaced something, put it back into the source list
+            if (displaced != null)
+            {
+                int insertAt = Mathf.Min(fromIndex, fromList.Count);
+                fromList.Insert(insertAt, displaced);
+
+                // If source was Active, we’re putting the displaced item back into Active → re-equip it.
+                if (from == SlotGroup.Active) SafeEquip(displaced);
+            }
+
+            OnChanged?.Invoke();
+            return true;
         }
-        else
+        catch (System.Exception ex)
         {
-            if (toList.Count >= toCap) return false;
-            toList.Add(item);
-
-            if (invToAct) item.upgrade?.OnEquip(player);
+            Debug.LogError($"MoveBetween exception: {ex.Message}\nFROM {from}[{fromIndex}] TO {to}[{toIndex}]", this);
+            return false;
         }
-
-        // Remove from source AFTER placing in target
-        fromList.RemoveAt(fromIndex);
-
-        // If we displaced someone, put them back into the source list
-        if (displaced != null)
-        {
-            // If we moved an Active item back to Inventory, it needs to be unequipped already (handled above).
-            // If source was Active and we took something out, and we're putting displaced back into Active, equip it again:
-            bool puttingBackIntoActive = (from == SlotGroup.Active);
-            if (puttingBackIntoActive) displaced.upgrade?.OnEquip(player);
-
-            int insertAt = Mathf.Min(fromIndex, fromList.Count);
-            fromList.Insert(insertAt, displaced);
-        }
-
-        OnChanged?.Invoke();
-        return true;
-
     }
+
 
     // Reorders an item within the same list
     public bool ReorderWithin(SlotGroup group, int fromIndex, int toIndex)
@@ -231,6 +245,25 @@ public class InventoryManager : MonoBehaviour
 
         Debug.Log($"Added upgrade to inventory: {upgrade.name}");
         return true;
+    }
+    private void SafeEquip(UpgradeItem it)
+    {
+        if (it?.upgrade == null || player == null) return;
+        try { it.upgrade.OnEquip(player); }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"OnEquip error on {it.upgrade.name}: {ex.Message}", this);
+        }
+    }
+
+    private void SafeUnequip(UpgradeItem it)
+    {
+        if (it?.upgrade == null || player == null) return;
+        try { it.upgrade.OnUnequip(player); }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"OnUnequip error on {it.upgrade.name}: {ex.Message}", this);
+        }
     }
 
 
