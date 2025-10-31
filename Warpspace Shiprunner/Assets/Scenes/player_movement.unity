@@ -243,6 +243,7 @@ MonoBehaviour:
   - {fileID: 6016493182574296120, guid: 5af9a71043cf2e2498c4f93eeecf0968, type: 3}
   - {fileID: 6016493182574296120, guid: da769faec2bf367449b24031b19222c4, type: 3}
   - {fileID: 4155491973887891366, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
+  - {fileID: 4975093252597253082, guid: ca208d201fd73c04986f8c36a56dacf6, type: 3}
   enemyWarningPrefab: {fileID: 6106048496685461405, guid: c72bfd5218b3ce94487e7fb21546c442, type: 3}
   minWaveInterval: 2.5
   waveInterval: 7
