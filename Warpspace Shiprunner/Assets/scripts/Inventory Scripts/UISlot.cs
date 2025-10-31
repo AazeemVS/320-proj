@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
@@ -20,6 +20,7 @@ public class UISlot : MonoBehaviour,
     private static UISlot dragSource;
     private static UpgradeItem dragItem;
     private static Image dragGhost;
+  
 
     public Action<UpgradeItem, UISlot> OnSlotClicked;
 
@@ -69,27 +70,35 @@ public class UISlot : MonoBehaviour,
         dragSource = this;
         dragItem = item;
 
-        // Let drops pass through the dragged icon
-        icon.raycastTarget = false;
+        // 🔹 Show the details for the item being dragged
+        OnSlotClicked?.Invoke(item, this);
 
-        // Create a floating ghost in a top layer
-        var dragLayer = GetOrCreateDragLayer(dragCanvas);
+        // Ensure CanvasGroup exists, then disable raycast blocking
+        if (!TryGetComponent<CanvasGroup>(out var cg))
+            cg = gameObject.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = false;
+
+        // Create ghost icon in topmost DragLayer
+        var rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+        var dragLayer = GetOrCreateDragLayer(rootCanvas);
+
         var go = new GameObject("DragGhost", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         go.transform.SetParent(dragLayer, false);
-
-        dragGhost = go.GetComponent<Image>();
-        dragGhost.sprite = icon.sprite;
-        dragGhost.raycastTarget = false;
-        dragGhost.color = Color.white;
+        var img = go.GetComponent<Image>();
+        img.sprite = icon.sprite;
+        img.raycastTarget = false;
+        img.color = new Color(1, 1, 1, 1);
+        dragGhost = img;
 
         var rtGhost = (RectTransform)go.transform;
         var rtIcon = (RectTransform)icon.transform;
         rtGhost.sizeDelta = rtIcon.rect.size;
         rtGhost.position = eventData.position;
 
-        // Visual dim on source
-        var c = icon.color; c.a = 0.6f; icon.color = c;
+        // visual dim on source
+        icon.color = new Color(icon.color.r, icon.color.g, icon.color.b, 0.6f);
     }
+
 
     public void OnDrag(PointerEventData eventData)
     {
@@ -108,32 +117,21 @@ public class UISlot : MonoBehaviour,
         if (dragSource == null || dragItem == null) return;
 
         var mgr = InventoryManager.Instance;
-        Debug.Log($"DROP on {name}; mgr={(mgr ? "ok" : "NULL")}; from {dragSource.group}[{dragSource.index}] -> {group}[{index}]");
+        if (mgr == null) return;
 
-        bool ok = false;
-        if (mgr != null)
+        bool ok = (dragSource.group != this.group)
+            ? mgr.MoveBetween(dragSource.group, dragSource.index, this.group, this.index)
+            : mgr.ReorderWithin(this.group, dragSource.index, this.index);
+
+        if (ok)
         {
-            ok = (dragSource.group != this.group)
-                ? mgr.MoveBetween(dragSource.group, dragSource.index, this.group, this.index)
-                : mgr.ReorderWithin(this.group, dragSource.index, this.index);
-
-            Debug.Log($"Move result: {ok}");
-        }
-
-        // TEMP fallback so you *see* something happen even if the manager is not ready
-        if (!ok)
-        {
-            // simple visual swap of items between slots
-            var dstItem = item;
-            var srcItem = dragSource.item;
-
-            Set(this.group, this.index, srcItem);
-            dragSource.Set(dragSource.group, dragSource.index, dstItem);
-            Debug.Log("Did local visual swap (manager returned false or was null).");
+            // Select the destination slot so details + Sell show for the dropped item
+            OnSlotClicked?.Invoke(dragItem, this);
         }
 
         SetHighlight(false);
     }
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {

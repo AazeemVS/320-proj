@@ -18,7 +18,8 @@ public class InventoryUI : MonoBehaviour
 
     private UISlot selected;       // Currently selected slot
     private bool rebuildQueued;    // Prevents multiple rebuilds in one frame
-
+    private SlotGroup? stickyGroup;
+    private int stickyIndex;
     // Subscribe to inventory updates and build the UI
     void OnEnable()
     {
@@ -70,15 +71,21 @@ public class InventoryUI : MonoBehaviour
     // Rebuilds both grids (active and inventory grids)
     public void Rebuild()
     {
-        // Clear old slots
+        var mgr = InventoryManager.Instance;
+
+        // If a slot is currently selected, treat it as the sticky target for restore
+        if (selected != null)
+        {
+            stickyGroup = selected.group;
+            stickyIndex = selected.index;
+        }
+
+        // 1) Clear old slots
         foreach (Transform t in inventoryGrid) Destroy(t.gameObject);
         foreach (Transform t in activeGrid) Destroy(t.gameObject);
 
-        var mgr = InventoryManager.Instance;
+        // 2) Rebuild inventory slots
         var inv = mgr.Inventory;
-        var act = mgr.Active;
-
-        // Build inventory slots
         for (int i = 0; i < inventorySlots; i++)
         {
             var slot = Instantiate(slotPrefab, inventoryGrid);
@@ -87,7 +94,8 @@ public class InventoryUI : MonoBehaviour
             slot.OnSlotClicked = HandleSlotClicked;
         }
 
-        // Build active slots
+        // 3) Rebuild active slots
+        var act = mgr.Active;
         for (int i = 0; i < activeSlots; i++)
         {
             var slot = Instantiate(slotPrefab, activeGrid);
@@ -96,22 +104,58 @@ public class InventoryUI : MonoBehaviour
             slot.OnSlotClicked = HandleSlotClicked;
         }
 
-        // After a full rebuild, clear selection + hide Sell
-        selected = null;
-        if (sellButton) sellButton.gameObject.SetActive(false);
+        // 4) Try to restore selection (keeps details + Sell button visible)
+        bool restored = false;
+        if (stickyGroup.HasValue)
+        {
+            var g = stickyGroup.Value;
+            int idx = Mathf.Max(0, stickyIndex); // guard
+
+            if (g == SlotGroup.Inventory && idx < inventorySlots)
+            {
+                var item = (idx < inv.Count) ? inv[idx] : null;
+                if (item != null)
+                {
+                    var slot = inventoryGrid.GetChild(idx).GetComponent<UISlot>();
+                    HandleSlotClicked(item, slot);
+                    restored = true;
+                }
+            }
+            else if (g == SlotGroup.Active && idx < activeSlots)
+            {
+                var item = (idx < act.Count) ? act[idx] : null;
+                if (item != null)
+                {
+                    var slot = activeGrid.GetChild(idx).GetComponent<UISlot>();
+                    HandleSlotClicked(item, slot);
+                    restored = true;
+                }
+            }
+        }
+
+        // 5) If we couldn't restore, clear UI gracefully
+        if (!restored)
+        {
+            selected = null;
+            if (sellButton) sellButton.gameObject.SetActive(false);
+            if (detailsPanel) detailsPanel.Clear();
+        }
     }
+
 
     // Called when a slot is clicked — shows details in the info panel
     private void HandleSlotClicked(UpgradeItem item, UISlot slot)
     {
         selected = slot;
+        stickyGroup = slot.group;
+        stickyIndex = slot.index;
 
         if (detailsPanel)
         {
             if (item != null)
             {
-                detailsPanel.Show(item);      // fills icon/title/description
-                detailsPanel.ShowSellOnly();  // your panel-specific visibility logic
+                detailsPanel.Show(item);
+                detailsPanel.ShowSellOnly();
             }
             else
             {
@@ -119,10 +163,8 @@ public class InventoryUI : MonoBehaviour
             }
         }
 
-        // Show Sell only if there is an item in this slot
         if (sellButton) sellButton.gameObject.SetActive(item != null);
     }
-
     // Queues a UI rebuild (so it waits one frame before running)
     private void QueueRebuild()
     {
