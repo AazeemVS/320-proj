@@ -31,10 +31,12 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] float movingMax = 1.5f; //  Max weight of medium enemy
     [SerializeField] float aimingMax = 1.6f; //  Max weight of medium enemy
     [SerializeField] float chasingMax = 2.0f; //  Max weight of hard enemy
+    [SerializeField] float artilleryMax = 2.5f; //  Max weight of hard enemy
     [SerializeField] float basicDeltaPerLevel = -0.04f; // Basic enemy gets rarer
     [SerializeField] float movingPerLevel = 0.03f; // Moving enemy gets more likely
     [SerializeField] float aimingDeltaPerLevel = 0.04f; // Aiming enemy gets more likely
     [SerializeField] float chasingDeltaPerLevel = 0.06f; // Chasing enemy gets even more likely
+    [SerializeField] float artilleryDeltaPerLevel = 0.07f; // Chasing enemy gets even more likely
 
     int lastLevel = -1;
 
@@ -168,8 +170,10 @@ public class EnemySpawner : MonoBehaviour
             delta = aimingDeltaPerLevel;      // aiming enemies more likely
         else if (w <= chasingMax)
             delta = chasingDeltaPerLevel;     // chasing enemies more likely
+        else if (w <= artilleryMax)
+            delta = artilleryDeltaPerLevel;     // chasing enemies more likely
 
-        return Mathf.Clamp(w + delta * L, basicMin, chasingMax);
+        return Mathf.Clamp(w + delta * L, basicMin, artilleryMax);
     }
 
 
