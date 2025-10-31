@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,11 +7,11 @@ public class PageSwitcher : MonoBehaviour
   // References to each background/page object
   [SerializeField] private GameObject defaultBg;
   [SerializeField] private GameObject gearBg;
-  [SerializeField] private GameObject tradeBg;
-  [SerializeField] private GameObject shopBg;
+  [SerializeField, CanBeNull] private GameObject tradeBg;
+  [SerializeField, CanBeNull] private GameObject shopBg;
 
-  // Called when the scene starts
-  void Start()
+    // Called when the scene starts
+    void Start()
   {
     ShowDefault();     // Start with the default page visible
     DisableRaycasts(); // Prevent background images from blocking clicks
@@ -34,7 +35,7 @@ public class PageSwitcher : MonoBehaviour
   void SetOnly(GameObject target)
   {
     defaultBg?.SetActive(false);
-    gearBg?.SetActive(false);
+    gearBg?.SetActive(true);
     tradeBg?.SetActive(false);
     shopBg?.SetActive(false);
     target?.SetActive(true);
