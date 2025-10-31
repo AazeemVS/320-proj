@@ -681,7 +681,7 @@ MonoBehaviour:
   dashCooldown: 1.5
   maxHealth: 5
   animManager: {fileID: 710420287}
-  healthUI: {fileID: 0}
+  healthUI: {fileID: 180686789}
   health: 0
   iFrameMax: 1
   iFrameTimer: 0
