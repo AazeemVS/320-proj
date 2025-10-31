@@ -110,7 +110,9 @@ MonoBehaviour:
   warmupDelay: 0.25
   useLocalDown: 0
   health: 3
-  spawnWeight: 1
+  spawnCost: 2.5
+  spawnWeight: 0.4
+  unlockRound: 4
   playerMovement: {fileID: 0}
   state: 0
   chaseLength: 2
