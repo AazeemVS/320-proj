@@ -445,8 +445,8 @@ MonoBehaviour:
   enrageDamage: 0
   killExplosion: {fileID: 576971340935551234, guid: 96f716e1fb487c24bb9177766f409f2d, type: 3}
   hitExplosion: {fileID: 3935942349622363729, guid: bf9bbcdc737e1534ab1dc6dfca203cf8, type: 3}
-  explodeOnKill: 1
-  explodeOnHit: 1
+  explodeOnKill: 0
+  explodeOnHit: 0
   killExplosionScale: 1
   hitExplosionScale: 1
   dashEnabled: 0
@@ -614,7 +614,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 77.149994, y: 10.811547}
+  m_Size: {x: 76.799995, y: 10.799999}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1000,7 +1000,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 77.149994, y: 10.811547}
+  m_Size: {x: 76.799995, y: 10.799999}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
