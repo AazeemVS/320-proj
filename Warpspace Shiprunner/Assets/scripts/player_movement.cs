@@ -16,7 +16,15 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
     public int piercing = 1;
-        //Dash stats
+    public bool enragesOnHit = false;
+    public float enrageLength = 5f, enrageTimer = 0;
+    public float enrageDamage = 0;
+    // Damaging Upgrades
+    [SerializeField] GameObject killExplosion, hitExplosion;
+    public bool explodeOnKill, explodeOnHit = false;
+    public float killExplosionScale, hitExplosionScale = 1;
+
+    //Dash stats
     public bool dashEnabled = true;
     public bool dashHasDodge = false;
     public float dashCooldown = 1.5f;
@@ -34,6 +42,7 @@ public class player_movement : MonoBehaviour
     private float borderX;
     private float borderY;
     private GameStateManager stateManager;
+    [SerializeField] PlayerAnimation animManager;
     [SerializeField] private float health;
     private float shootTimer = 0;
     public float iFrameMax = 1f;
@@ -110,6 +119,8 @@ public class player_movement : MonoBehaviour
         
         
         rb.linearVelocity = moveInput * moveSpeed;
+        if (animManager != null) { animManager.HandleMovementAnimation(moveInput); }
+        
 
         //Adjust player position to stay in camera bounds
         Vector3 adjustedPos = transform.position;
@@ -139,6 +150,7 @@ public class player_movement : MonoBehaviour
                 bullet.transform.localScale *= bulletSize;
                 bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
                 bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
                 shootTimer = shootTimerMax;
             }
@@ -155,7 +167,12 @@ public class player_movement : MonoBehaviour
             if (!beatsIFrames) {
                 iFrameTimer = iFrameMax;
             }
-            
+            if (enragesOnHit) {
+                if (enrageTimer <= 0) {
+                    playerDamage += enrageDamage;
+                }
+                enrageTimer = enrageLength;
+            }
         } else if(healthChange > 0) {
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
@@ -164,8 +181,32 @@ public class player_movement : MonoBehaviour
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         iFrameTimer -= Time.deltaTime;
+        if (enrageTimer > 0) {
+            enrageTimer -= Time.deltaTime;
+            if (enrageTimer <= 0) {
+                playerDamage -= enrageDamage;
+            }
+        }
+
     }
 
+    public void TriggerHitEffects(Bullet bullet, Enemy hitEnemy) {
+        if(explodeOnHit == true && bullet.GetType() != typeof(PlayerExplosion)) {
+            GameObject hitObj = Instantiate(hitExplosion, bullet.transform.position, Quaternion.identity);
+            PlayerExplosion hitExp = hitObj.GetComponent<PlayerExplosion>();
+            hitExp.bulletDamage = playerDamage * playerDamageMult;
+            hitObj.transform.localScale *= hitExplosionScale;
+        }
+    }
+    public void TriggerKill(Enemy killedEnemy) {
+        AddCredits((int)killedEnemy.spawnWeight);
+        if (explodeOnHit == true ) {
+            GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
+            PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
+            killExp.bulletDamage *= hitExplosionScale;
+            killObj.transform.localScale *= hitExplosionScale;
+        }
+    }
     public void AddCredits(int amount)
     {
         credits += amount;

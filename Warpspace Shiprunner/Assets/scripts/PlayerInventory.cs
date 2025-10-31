@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 
+
 public class PlayerInventory : MonoBehaviour
 {
     //currently assumes no slot specific/incompatible upgrades
@@ -22,7 +23,7 @@ public class PlayerInventory : MonoBehaviour
     {
         
     }
-
+    
     //Add item/upgrade to player inventory
     public bool GainItem(Upgrade newUpgrade) {
         if(inventory.Count < maxInventory) {

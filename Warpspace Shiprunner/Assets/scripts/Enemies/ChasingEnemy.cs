@@ -17,6 +17,7 @@ public class ChasingEnemy : Enemy
     float turnSpeed = 1;
     Transform playerPosition; 
     Rigidbody2D rb;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -45,6 +46,13 @@ public class ChasingEnemy : Enemy
                 Cooldown();
                 break;
         }
+        //enemy now no longer leaves the screen
+        Vector2 adjustedPos = transform.position;
+        if (transform.position.x > borderX) adjustedPos.x = borderX;
+        else if (transform.position.x < -borderX) adjustedPos.x = -borderX;
+        if (transform.position.y > borderY) adjustedPos.y = borderY;
+        else if (transform.position.y < -borderY) adjustedPos.y = -borderY;
+        transform.position = adjustedPos;
     }
 
     private void TurnTowardsPlayer() {

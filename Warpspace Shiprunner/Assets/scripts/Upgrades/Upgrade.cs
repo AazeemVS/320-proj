@@ -6,6 +6,18 @@ public enum Rarity {
     Rare = 3,
     Legendary = 4
 }
+public enum upgradeID {
+    EngineUpgrade = 0, //increases move speed
+    DamageUpgrade = 1, //increases bullet damage
+    AttackUpgrade = 2, //increases player attack speed
+    DashUpgrade = 3, //enables player dash
+    SuperDashUpgrade = 4, //enables player dash with Iframe
+    BulletSpeedUpgrade = 5, //increases player bullet velocity
+    BulletPierceUpgrade = 6, //increases bullet piercing
+    PlayerRecoveryUpgrade = 7, //increases I-frames after being hit
+    EnrageUpgrade = 8, //increases damage after being hit
+    ExtraCannonUpgrade = 9, //1 extra projectile
+}
 
 public abstract class Upgrade
 {
@@ -81,6 +93,29 @@ public class PlayerRecoveryUpgrade : Upgrade {
     public override void OnEquip(player_movement player) { player.iFrameMax += modifier; }
     public override void OnUnequip(player_movement player) { player.iFrameMax -= modifier; }
 }
+//Damage after taking hit
+public class EnrageUpgrade : Upgrade {
+    public float modifier;
+    public EnrageUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Reactive Munitions") { modifier = rarity; }
+    public override void OnEquip(player_movement player) { player.enragesOnHit = true; player.enrageDamage += modifier; }
+    public override void OnUnequip(player_movement player) { player.enragesOnHit = false; player.enrageDamage -= modifier; }
+}
+//Converts bullet hits to explosions
+public class ExplosiveHitUpgrade : Upgrade {
+    public float modifier;
+    public ExplosiveHitUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Explosive Shells") { modifier = (rarity - 1) / 2; }
+    public override void OnEquip(player_movement player) { player.explodeOnHit = true; player.hitExplosionScale += modifier; }
+    public override void OnUnequip(player_movement player) { player.explodeOnHit = false; player.hitExplosionScale -= modifier; }
+}
+
+//Explosion on kill
+public class ExplosiveKillUpgrade : Upgrade {
+    public float modifier;
+    public ExplosiveKillUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Reactor Destabilization") { modifier = (rarity - 1) / 2; }
+    public override void OnEquip(player_movement player) { player.explodeOnKill = true; player.killExplosionScale += modifier; }
+    public override void OnUnequip(player_movement player) { player.explodeOnKill = false; player.killExplosionScale -= modifier; }
+}
+
 //Second projectile for player
 public class ExtraCannonUpgrade : Upgrade {
     private float damageReduction = .75f;

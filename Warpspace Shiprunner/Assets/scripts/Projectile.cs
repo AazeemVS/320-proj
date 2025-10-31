@@ -3,8 +3,8 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [SerializeField] float speed = 10f;
-    [SerializeField] float lifetime = 5f;
-    [SerializeField] int damage = 1;
+    [SerializeField] protected float lifetime = 5f;
+    [SerializeField] protected int damage = 1;
 
     Vector2 _direction = Vector2.left;
     float _age;

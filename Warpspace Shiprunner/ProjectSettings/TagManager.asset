@@ -6,6 +6,7 @@ TagManager:
   tags:
   - KillZone
   - Enemy
+  - Background
   layers:
   - Default
   - TransparentFX

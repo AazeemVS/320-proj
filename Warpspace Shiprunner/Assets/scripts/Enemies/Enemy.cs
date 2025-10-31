@@ -15,6 +15,8 @@ public abstract class Enemy : MonoBehaviour
 
     Coroutine _loop;
     public player_movement playerMovement;
+    protected float borderX;
+    protected float borderY;
 
     // Allow spawner to inject dependencies if you want
     public void Init(SimplePool pool)
@@ -27,7 +29,7 @@ public abstract class Enemy : MonoBehaviour
     void Awake()
     {
         // Fallbacks so spawned copies work without manual wiring
-        if (bulletPool == null) bulletPool = FindObjectOfType<SimplePool>();
+        if (bulletPool == null) bulletPool = FindAnyObjectByType<SimplePool>();
 
         // Finds playerMovement script
         if (playerMovement == null)
@@ -44,6 +46,11 @@ public abstract class Enemy : MonoBehaviour
         }
 
         EnsureFirePoint();
+        Camera cam = Camera.main;
+        borderY = cam.orthographicSize;
+        borderX = borderY * cam.aspect;
+        borderX -= GetComponent<SpriteRenderer>().bounds.size.x / 2;
+        borderY -= GetComponent<SpriteRenderer>().bounds.size.y / 2;
     }
 
     protected virtual void Update()
@@ -52,7 +59,7 @@ public abstract class Enemy : MonoBehaviour
         if (health <= 0)
         {
             // Gives money
-            playerMovement.AddCredits(1);
+            playerMovement.TriggerKill(this);
             // Kills enemy
             Destroy(gameObject);
         }

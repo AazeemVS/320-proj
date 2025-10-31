@@ -20,10 +20,12 @@ public class DebugInventory : MonoBehaviour
         playerUpgrades.Add(new SuperDashUpgrade());
         playerUpgrades.Add(new BulletPierceUpgrade());
         playerUpgrades.Add(new DamageUpgrade());
-        playerUpgrades.Add(new AttackUpgrade());
-        playerUpgrades.Add(new BulletSpeedUpgrade());
+        playerUpgrades.Add(new ExplosiveKillUpgrade());
+        playerUpgrades.Add(new ExplosiveHitUpgrade());
+        playerUpgrades.Add(new ExplosiveHitUpgrade(Rarity.Rare));
         playerUpgrades.Add(new DashUpgrade());
         playerUpgrades.Add(new ExtraCannonUpgrade());
+        playerUpgrades.Add(new DamageUpgrade());
 
         Canvas canvas = FindAnyObjectByType<Canvas> ();
         for(int i = 0; i <playerUpgrades.Count; i++) {
