@@ -24,16 +24,16 @@ public class InventoryManager : MonoBehaviour
         {
             if (it != null && it.tempUpgrades != null && it.tempUpgrades.Length > it.tempUpgradeID)
                 it.upgrade = it.tempUpgrades[it.tempUpgradeID];
-
-            TryAddToInventory(it);
+                it.EnsureId();
+                TryAddToInventory(it);
         }
 
         foreach (var it in seedActive)
         {
             if (it != null && it.tempUpgrades != null && it.tempUpgrades.Length > it.tempUpgradeID)
                 it.upgrade = it.tempUpgrades[it.tempUpgradeID];
-
-            TryAddToActive(it);
+                it.EnsureId();
+                TryAddToActive(it);
         }
     }
     // Set up singleton and persists across scenes
@@ -51,30 +51,33 @@ public class InventoryManager : MonoBehaviour
     }
 
 
-    // Adds an item to the inventory, if the inventory isn't not full
-    public bool TryAddToInventory(UpgradeItem item)
+  // Adds an item to the inventory, if the inventory isn't not full
+  public bool TryAddToInventory(UpgradeItem item)
   {
     if (inventory.Count >= inventoryCapacity) return false;
+    item?.EnsureId();
     inventory.Add(item);
-    OnChanged?.Invoke(); // Notifies the UI
+    OnChanged?.Invoke();
     return true;
   }
 
-    // Adds an item to the active slots (if not full)
-    public bool TryAddToActive(UpgradeItem item)
-    {
-        if (active.Count >= activeCapacity) return false;
-        active.Add(item);
-        SafeEquip(item);
-        OnChanged?.Invoke();
-        return true;
-    }
+  // Adds an item to the active slots (if not full)
+  public bool TryAddToActive(UpgradeItem item)
+  {
+    if (active.Count >= activeCapacity) return false;
+    item?.EnsureId();
+    active.Add(item);
+    SafeEquip(item);
+    OnChanged?.Invoke();
+    return true;
+  }
 
 
 
 
-    // Removes an item from the inventory by index
-    public void RemoveFromInventoryAt(int index)
+
+  // Removes an item from the inventory by index
+  public void RemoveFromInventoryAt(int index)
   {
     if (index < 0 || index >= inventory.Count) return;
     inventory.RemoveAt(index);

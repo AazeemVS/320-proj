@@ -20,8 +20,9 @@ public class InventoryUI : MonoBehaviour
     private bool rebuildQueued;    // Prevents multiple rebuilds in one frame
     private SlotGroup? stickyGroup;
     private int stickyIndex;
-    // Subscribe to inventory updates and build the UI
-    void OnEnable()
+  private string stickyItemId;
+  // Subscribe to inventory updates and build the UI
+  void OnEnable()
     {
         InventoryManager.Instance.OnChanged += QueueRebuild;
 
@@ -38,135 +39,199 @@ public class InventoryUI : MonoBehaviour
             InventoryManager.Instance.OnChanged -= QueueRebuild;
     }
 
-    // Called by the Sell button (wire this in the button's OnClick)
-    public void OnSellButtonPressed()
+  // Called by the Sell button (wire this in the button's OnClick)
+  public void OnSellButtonPressed()
+  {
+    var mgr = InventoryManager.Instance;
+    if (mgr == null) return;
+
+    // Prefer the currently selected slot if it's valid
+    if (selected != null)
     {
-        if (selected == null) return;
+      var g = selected.group;
+      var idx = selected.index;
 
-        var mgr = InventoryManager.Instance;
-        if (mgr == null) return;
-
-        var g = selected.group;
-        var idx = selected.index;
-
-        // Safety checks against shifting/empty slots
-        if (g == SlotGroup.Inventory)
+      if (g == SlotGroup.Inventory)
+      {
+        if (idx >= 0 && idx < mgr.Inventory.Count && mgr.Inventory[idx] != null)
         {
-            if (idx < 0 || idx >= mgr.Inventory.Count || mgr.Inventory[idx] == null) return;
-            mgr.RemoveFromInventoryAt(idx);
+          mgr.RemoveFromInventoryAt(idx);
+          stickyItemId = null; // sold
+          selected = null;
+          if (sellButton) sellButton.gameObject.SetActive(false);
+          if (detailsPanel) detailsPanel.Clear();
+          return;
         }
-        else // SlotGroup.Active
+      }
+      else // Active
+      {
+        if (idx >= 0 && idx < mgr.Active.Count && mgr.Active[idx] != null)
         {
-            if (idx < 0 || idx >= mgr.Active.Count || mgr.Active[idx] == null) return;
-            mgr.RemoveFromActiveAt(idx);
+          mgr.RemoveFromActiveAt(idx);
+          stickyItemId = null; // sold
+          selected = null;
+          if (sellButton) sellButton.gameObject.SetActive(false);
+          if (detailsPanel) detailsPanel.Clear();
+          return;
         }
-
-        // OnChanged from the manager will queue a repaint.
-        // Clear selection + hide sell immediately for snappy UX.
-        selected = null;
-        if (sellButton) sellButton.gameObject.SetActive(false);
-        if (detailsPanel) detailsPanel.Clear();
+      }
     }
 
-    // Rebuilds both grids (active and inventory grids)
-    public void Rebuild()
+    // If we get here, the selected slot was stale. Use stickyItemId to find the item.
+    if (!string.IsNullOrEmpty(stickyItemId))
     {
-        var mgr = InventoryManager.Instance;
-
-        // If a slot is currently selected, treat it as the sticky target for restore
-        if (selected != null)
+      // search Inventory
+      for (int i = 0; i < mgr.Inventory.Count; i++)
+      {
+        var it = mgr.Inventory[i];
+        if (it != null && it.id == stickyItemId)
         {
-            stickyGroup = selected.group;
-            stickyIndex = selected.index;
+          mgr.RemoveFromInventoryAt(i);
+          stickyItemId = null;
+          selected = null;
+          if (sellButton) sellButton.gameObject.SetActive(false);
+          if (detailsPanel) detailsPanel.Clear();
+          return;
         }
-
-        // 1) Clear old slots
-        foreach (Transform t in inventoryGrid) Destroy(t.gameObject);
-        foreach (Transform t in activeGrid) Destroy(t.gameObject);
-
-        // 2) Rebuild inventory slots
-        var inv = mgr.Inventory;
-        for (int i = 0; i < inventorySlots; i++)
+      }
+      // search Active
+      for (int i = 0; i < mgr.Active.Count; i++)
+      {
+        var it = mgr.Active[i];
+        if (it != null && it.id == stickyItemId)
         {
-            var slot = Instantiate(slotPrefab, inventoryGrid);
-            var item = i < inv.Count ? inv[i] : null;
-            slot.Set(SlotGroup.Inventory, i, item);
-            slot.OnSlotClicked = HandleSlotClicked;
+          mgr.RemoveFromActiveAt(i);
+          stickyItemId = null;
+          selected = null;
+          if (sellButton) sellButton.gameObject.SetActive(false);
+          if (detailsPanel) detailsPanel.Clear();
+          return;
         }
-
-        // 3) Rebuild active slots
-        var act = mgr.Active;
-        for (int i = 0; i < activeSlots; i++)
-        {
-            var slot = Instantiate(slotPrefab, activeGrid);
-            var item = i < act.Count ? act[i] : null;
-            slot.Set(SlotGroup.Active, i, item);
-            slot.OnSlotClicked = HandleSlotClicked;
-        }
-
-        // 4) Try to restore selection (keeps details + Sell button visible)
-        bool restored = false;
-        if (stickyGroup.HasValue)
-        {
-            var g = stickyGroup.Value;
-            int idx = Mathf.Max(0, stickyIndex); // guard
-
-            if (g == SlotGroup.Inventory && idx < inventorySlots)
-            {
-                var item = (idx < inv.Count) ? inv[idx] : null;
-                if (item != null)
-                {
-                    var slot = inventoryGrid.GetChild(idx).GetComponent<UISlot>();
-                    HandleSlotClicked(item, slot);
-                    restored = true;
-                }
-            }
-            else if (g == SlotGroup.Active && idx < activeSlots)
-            {
-                var item = (idx < act.Count) ? act[idx] : null;
-                if (item != null)
-                {
-                    var slot = activeGrid.GetChild(idx).GetComponent<UISlot>();
-                    HandleSlotClicked(item, slot);
-                    restored = true;
-                }
-            }
-        }
-
-        // 5) If we couldn't restore, clear UI gracefully
-        if (!restored)
-        {
-            selected = null;
-            if (sellButton) sellButton.gameObject.SetActive(false);
-            if (detailsPanel) detailsPanel.Clear();
-        }
+      }
     }
 
+    // Nothing to sell—clear UI gracefully
+    selected = null;
+    if (sellButton) sellButton.gameObject.SetActive(false);
+    if (detailsPanel) detailsPanel.Clear();
+  }
 
-    // Called when a slot is clicked — shows details in the info panel
-    private void HandleSlotClicked(UpgradeItem item, UISlot slot)
+
+  // Rebuilds both grids (active and inventory grids)
+  public void Rebuild()
+  {
+    var mgr = InventoryManager.Instance;
+
+    // Remember current selection hints before we kill/recreate slots
+    if (selected != null)
     {
-        selected = slot;
-        stickyGroup = slot.group;
-        stickyIndex = slot.index;
-
-        if (detailsPanel)
-        {
-            if (item != null)
-            {
-                detailsPanel.Show(item);
-                detailsPanel.ShowSellOnly();
-            }
-            else
-            {
-                detailsPanel.Clear();
-            }
-        }
-
-        if (sellButton) sellButton.gameObject.SetActive(item != null);
+      stickyGroup = selected.group;
+      stickyIndex = selected.index;
     }
-    // Queues a UI rebuild (so it waits one frame before running)
-    private void QueueRebuild()
+
+    // Clear old slots
+    foreach (Transform t in inventoryGrid) Destroy(t.gameObject);
+    foreach (Transform t in activeGrid) Destroy(t.gameObject);
+
+    // Rebuild inventory slots
+    var inv = mgr.Inventory;
+    for (int i = 0; i < inventorySlots; i++)
+    {
+      var slot = Instantiate(slotPrefab, inventoryGrid);
+      var item = i < inv.Count ? inv[i] : null;
+      // If you added EnsureId() on UpgradeItem, you can do: item?.EnsureId();
+      slot.Set(SlotGroup.Inventory, i, item);
+      slot.OnSlotClicked = HandleSlotClicked;
+    }
+
+    // Rebuild active slots
+    var act = mgr.Active;
+    for (int i = 0; i < activeSlots; i++)
+    {
+      var slot = Instantiate(slotPrefab, activeGrid);
+      var item = i < act.Count ? act[i] : null;
+      // item?.EnsureId();
+      slot.Set(SlotGroup.Active, i, item);
+      slot.OnSlotClicked = HandleSlotClicked;
+    }
+
+    // --- Restore selection by prior group/index FIRST (most precise for drop target) ---
+    bool restored = false;
+    if (stickyGroup.HasValue)
+    {
+      var g = stickyGroup.Value;
+      int idx = Mathf.Max(0, stickyIndex);
+
+      if (g == SlotGroup.Inventory && idx < inv.Count && inv[idx] != null)
+      {
+        var slot = inventoryGrid.GetChild(idx).GetComponent<UISlot>();
+        HandleSlotClicked(inv[idx], slot);
+        restored = true;
+      }
+      else if (g == SlotGroup.Active && idx < act.Count && act[idx] != null)
+      {
+        var slot = activeGrid.GetChild(idx).GetComponent<UISlot>();
+        HandleSlotClicked(act[idx], slot);
+        restored = true;
+      }
+    }
+
+    // --- If that failed (e.g., index shifted), fall back to restoring by item ID ---
+    if (!restored && !string.IsNullOrEmpty(stickyItemId))
+    {
+      // search Inventory
+      for (int i = 0; i < inv.Count && !restored; i++)
+      {
+        var it = inv[i];
+        if (it != null && it.id == stickyItemId)
+        {
+          var slot = inventoryGrid.GetChild(i).GetComponent<UISlot>();
+          HandleSlotClicked(it, slot);
+          restored = true;
+        }
+      }
+
+      // search Active
+      for (int i = 0; i < act.Count && !restored; i++)
+      {
+        var it = act[i];
+        if (it != null && it.id == stickyItemId)
+        {
+          var slot = activeGrid.GetChild(i).GetComponent<UISlot>();
+          HandleSlotClicked(it, slot);
+          restored = true;
+        }
+      }
+    }
+
+    // Nothing to restore — clear UI
+    if (!restored)
+    {
+      selected = null;
+      if (sellButton) sellButton.gameObject.SetActive(false);
+      if (detailsPanel) detailsPanel.Clear();
+    }
+  }
+
+
+  // Called when a slot is clicked — shows details in the info panel
+  private void HandleSlotClicked(UpgradeItem item, UISlot slot)
+  {
+    selected = slot;
+    stickyGroup = slot.group;
+    stickyIndex = slot.index;
+    stickyItemId = item != null ? item.id : null;   // <-- NEW
+
+    if (detailsPanel)
+    {
+      if (item != null) { detailsPanel.Show(item); detailsPanel.ShowSellOnly(); }
+      else { detailsPanel.Clear(); }
+    }
+    if (sellButton) sellButton.gameObject.SetActive(item != null);
+  }
+
+  // Queues a UI rebuild (so it waits one frame before running)
+  private void QueueRebuild()
     {
         if (!rebuildQueued) StartCoroutine(RebuildNextFrame());
     }

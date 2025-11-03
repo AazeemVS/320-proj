@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
@@ -148,23 +148,32 @@ public class UISlot : MonoBehaviour,
         if (frame != null) frame.enabled = on;
     }
 
-    private static void CleanupDrag()
+  private static void CleanupDrag()
+  {
+    if (dragGhost != null) Destroy(dragGhost.gameObject);
+    dragGhost = null;
+
+    if (dragSource != null)
     {
-        if (dragGhost != null) Destroy(dragGhost.gameObject);
-        dragGhost = null;
+      // restore icon visuals
+      if (dragSource.icon != null)
+      {
+        var c = dragSource.icon.color; c.a = 1f;
+        dragSource.icon.color = c;
+        dragSource.icon.raycastTarget = true;
+      }
 
-        if (dragSource != null && dragSource.icon != null)
-        {
-            // restore icon alpha + raycast
-            var c = dragSource.icon.color; c.a = 1f; dragSource.icon.color = c;
-            dragSource.icon.raycastTarget = true;
-        }
-
-        dragItem = null;
-        dragSource = null;
+      // ✅ restore raycast blocking on the source slot
+      var cg = dragSource.GetComponent<CanvasGroup>();
+      if (cg) cg.blocksRaycasts = true;
     }
 
-    private static RectTransform GetOrCreateDragLayer(Canvas topCanvas)
+    dragItem = null;
+    dragSource = null;
+  }
+
+
+  private static RectTransform GetOrCreateDragLayer(Canvas topCanvas)
     {
         if (topCanvas == null)
         {
