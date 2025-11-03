@@ -111,9 +111,9 @@ public class ExplosiveHitUpgrade : Upgrade {
 //Explosion on kill
 public class ExplosiveKillUpgrade : Upgrade {
     public float modifier;
-    public ExplosiveKillUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Reactor Destabilization") { modifier = (rarity - 1) / 2; }
-    public override void OnEquip(player_movement player) { player.explodeOnKill = true; player.killExplosionScale += modifier; }
-    public override void OnUnequip(player_movement player) { player.explodeOnKill = false; player.killExplosionScale -= modifier; }
+    public ExplosiveKillUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, "Virus: " + tier + " Reactor Meltdown Override") { modifier = (rarity - 1) / 2; }
+    public override void OnEquip(player_movement player) { player.explodeOnKill = true; player.killExplosionScale += modifier; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.explodeOnKill = false; player.killExplosionScale -= modifier; player.virusBonus -= 1; }
 }
 
 //Second projectile for player
@@ -131,4 +131,31 @@ public class ExtraCannonUpgrade : Upgrade {
         player.playerDamageMult /= damageReduction;
         player.bulletSize /= sizeReduction;
     }
+}
+
+//Kill Retrigger (Reactivates all upgrades that do something on kill
+public class ExtraKillTrigger : Upgrade {
+    public ExtraKillTrigger() : base(Rarity.Rare, 400, "Virus: Trojan Payload") { }
+    public override void OnEquip(player_movement player) { player.killTriggers += 1; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.killTriggers -= 1; player.virusBonus -= 1; }
+}
+//Player gains temporary damage bonus after a kill
+public class DamageOnKill : Upgrade {
+    private float modifier;
+    public DamageOnKill(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, "Virus: " + tier + " Defense Exploit") { modifier = rarity; }
+    public override void OnEquip(player_movement player) { player.killBoost = true; player.killBoostDamage += modifier; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.killBoost = false; player.killBoostDamage -= modifier; player.virusBonus -= 1; }
+}
+//Player gains extra money for each kill
+public class CreditsOnKill : Upgrade {
+    private int modifier;
+    public CreditsOnKill(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, "Virus: " + tier + " Credit Scraper") { modifier = rarity; }
+    public override void OnEquip(player_movement player) { player.extraKillCredits += modifier; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.extraKillCredits -= modifier; player.virusBonus -= 1; }
+}
+//Player gains extra damage proportional to amount of virus (on kill) upgrades equipped
+public class VirusDamageBoost : Upgrade {
+    public VirusDamageBoost() : base(Rarity.Rare, 400, "Virus: Fatal Error") { }
+    public override void OnEquip(player_movement player) { player.virusBoost += 1; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.virusBoost -= 1; player.virusBonus -= 1; }
 }

@@ -17,13 +17,13 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
     public int piercing = 1;
-    public bool enragesOnHit = false;
-    public float enrageLength = 5f, enrageTimer = 0;
-    public float enrageDamage = 0;
     // Damaging Upgrades
-    [SerializeField] GameObject killExplosion, hitExplosion;
-    public bool explodeOnKill, explodeOnHit = false;
-    public float killExplosionScale, hitExplosionScale = 1;
+    public int killTriggers = 1; //Amount of times upgrades that trigger on kill activate. Modified by "ExtraKillTrigger" upgrade
+    public bool enragesOnHit = false; public float enrageLength = 5f, enrageTimer = 0, enrageDamage = 0; // "EnrageUpgrade" fields
+    public bool killBoost = false; public float killBoostLength = 5f, killBoostTimer = 0, killBoostDamage = 0; // "DamageOnKill" fields
+    public int virusBoost = 0; public int virusBonus = 0; // "VirusDamageBoost" fields
+    [SerializeField] GameObject killExplosion, hitExplosion; // prefabs for "ExplosiveKillUpgrade" and "ExplosiveHitUpgrade" respectively
+    public bool explodeOnKill, explodeOnHit = false; public float killExplosionScale, hitExplosionScale = 1;
 
     //Dash stats
     public bool dashEnabled = true;
@@ -33,6 +33,7 @@ public class player_movement : MonoBehaviour
     // Credits
     public static int credits = 0;
     public static int roundCredits = 0;
+    public int extraKillCredits = 0; // modified by "CreditsOnKill" upgrade
 
     // gameRound
     public static int gameRound = 1;
@@ -84,6 +85,7 @@ public class player_movement : MonoBehaviour
         HandleMovement();
         HandleShooting();
         HandleHealth();
+        HandleTimers();
     }
 
     void HandleMovement()
@@ -151,7 +153,7 @@ public class player_movement : MonoBehaviour
                 //Set bullet attributes
                 bullet.transform.localScale *= bulletSize;
                 bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
-                bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                bulletScript.bulletDamage = (playerDamage + (virusBoost*virusBonus*.5f)) * playerDamageMult;
                 if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
                 shootTimer = shootTimerMax;
@@ -193,6 +195,14 @@ public class player_movement : MonoBehaviour
 
     }
 
+    private void HandleTimers() {
+        if (killBoost && killBoostTimer > 0) {
+            killBoostTimer -= Time.deltaTime;
+            if(killBoostTimer <= 0) {
+                playerDamage -= killBoostDamage * killTriggers;
+            }
+        }
+    }
     public void TriggerHitEffects(Bullet bullet, Enemy hitEnemy) {
         if(explodeOnHit == true && bullet.GetType() != typeof(PlayerExplosion)) {
             GameObject hitObj = Instantiate(hitExplosion, bullet.transform.position, Quaternion.identity);
@@ -203,12 +213,27 @@ public class player_movement : MonoBehaviour
     }
     public void TriggerKill(Enemy killedEnemy) {
         AddCredits((int)killedEnemy.spawnWeight);
-        if (explodeOnHit == true ) {
+        for (int i = 0; i < killTriggers; i++) {
+            OnKillUpgrades(killedEnemy);
+        }
+    }
+
+    private void OnKillUpgrades(Enemy killedEnemy) {
+        //explosion on kill upgrade
+        if (explodeOnHit == true) {
             GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
             PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
             killExp.bulletDamage *= hitExplosionScale;
             killObj.transform.localScale *= hitExplosionScale;
         }
+        //damage up on kill logic
+        if (killBoost) {
+            if (killBoostTimer <= 0) {
+                playerDamage += killBoostDamage * killTriggers;
+            }
+            killBoostTimer = killBoostLength;
+        }
+        AddCredits(extraKillCredits);
     }
     public void AddCredits(int amount)
     {
