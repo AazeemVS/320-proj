@@ -937,9 +937,9 @@ MonoBehaviour:
   rerollOnEnable: 1
   mockCatalog:
   - {fileID: 11400000, guid: 1c8e720886ff8fc41afc2cb3f674a9aa, type: 2}
-  - {fileID: 11400000, guid: 4a0855bff43471440b078a869382a540, type: 2}
-  - {fileID: 11400000, guid: 40b9d22736c90f6439a14da79294d84d, type: 2}
+  - {fileID: 11400000, guid: 1c8e720886ff8fc41afc2cb3f674a9aa, type: 2}
   - {fileID: 11400000, guid: 592ce5746041b374c8f9986a9afb5095, type: 2}
+  - {fileID: 11400000, guid: f551da32d3771d74a80474bc41b04fa8, type: 2}
   - {fileID: 11400000, guid: f551da32d3771d74a80474bc41b04fa8, type: 2}
   defaultPrice: 100
 --- !u!1 &1004261291
