@@ -5,9 +5,9 @@ using UnityEngine;
 public class ShopGridController : MonoBehaviour
 {
     [Header("UI/Scene")]
-    [SerializeField] private Transform gridParent;   // GridLayoutGroup parent
-    [SerializeField] private ShopItemView itemPrefab;
-    [SerializeField] private InventoryManager inventory; // InventoryManager in scene
+    [SerializeField] private Transform gridParent;      // GridLayoutGroup parent
+    [SerializeField] private ShopItemView itemPrefab;   // prefab with ShopItemView
+    [SerializeField] private InventoryManager inventory; // in-scene InventoryManager
 
     [Header("Roll Settings")]
     [SerializeField, Min(1)] private int itemsToShow = 5;
@@ -18,21 +18,20 @@ public class ShopGridController : MonoBehaviour
     [SerializeField] private List<UpgradeItem> mockCatalog = new();
     [SerializeField] private int defaultPrice = 100; // used if item.upgrade is null
 
-    private readonly List<UpgradeItem> _current = new();
+    private readonly List<UpgradeItem> _currentRuntime = new();
 
     void OnEnable()
     {
-        if (rerollOnEnable)
-            BuildShopFromMock();
+        if (rerollOnEnable) BuildShopFromMock();
     }
 
+    [ContextMenu("Reroll")]
     public void BuildShopFromMock()
     {
-        // clear old icons
+        // 1) clear old UI
         for (int i = gridParent.childCount - 1; i >= 0; i--)
             Destroy(gridParent.GetChild(i).gameObject);
-
-        _current.Clear();
+        _currentRuntime.Clear();
 
         if (mockCatalog == null || mockCatalog.Count == 0 || itemPrefab == null || gridParent == null)
         {
@@ -40,39 +39,51 @@ public class ShopGridController : MonoBehaviour
             return;
         }
 
-        // choose unique random items
-        var pool = new List<int>();
-        for (int i = 0; i < mockCatalog.Count; i++)
-            pool.Add(i);
+        // 2) choose up to itemsToShow unique entries
+        var pool = new List<int>(mockCatalog.Count);
+        for (int i = 0; i < mockCatalog.Count; i++) pool.Add(i);
 
         int take = Mathf.Min(itemsToShow, pool.Count);
-
         for (int k = 0; k < take; k++)
         {
             int swap = Random.Range(k, pool.Count);
             (pool[k], pool[swap]) = (pool[swap], pool[k]);
 
             var mock = mockCatalog[pool[k]];
-            _current.Add(mock);
+            if (mock == null) continue;
 
-            // Ensure upgrade data is valid
-            if (mock.upgrade == null && mock.tempUpgrades != null &&
-                mock.tempUpgradeID >= 0 && mock.tempUpgradeID < mock.tempUpgrades.Length)
+            var item = ScriptableObject.Instantiate(mock);
+            item.EnsureId(); // makes sure it has a unique stable id
+
+            // 4) hydrate concrete Upgrade so shop displays/uses it
+            if (item.upgrade == null &&
+                item.tempUpgrades != null &&
+                item.tempUpgradeID >= 0 &&
+                item.tempUpgradeID < item.tempUpgrades.Length)
             {
-                mock.upgrade = mock.tempUpgrades[mock.tempUpgradeID];
+                item.upgrade = item.tempUpgrades[item.tempUpgradeID];
             }
 
-            // Spawn the icon prefab
+            _currentRuntime.Add(item);
+
+            // 5) spawn a card and BIND data (this sets icon/title/price and wires Buy)
             var view = Instantiate(itemPrefab, gridParent, false);
+            int price = (item.upgrade != null) ? item.upgrade.value : defaultPrice;
+            view.Bind(item, price, OnBuyClicked);
         }
     }
 
-    private void OnShopItemClicked(UpgradeItem mock)
+    private void OnBuyClicked(UpgradeItem item)
     {
-        // Call your existing logic for showing item details here.
-        // Example (if you have a panel script like UpgradeDetailsPanel):
-        // UpgradeDetailsPanel.Instance.Show(mock);
+        if (item == null || item.upgrade == null) { Debug.Log("[Shop] Nothing to buy."); return; }
 
-        Debug.Log($"Clicked on shop item: {mock.displayName}");
+        if (inventory != null && inventory.TryPurchase(item.upgrade, out var created))
+        {
+            Debug.Log($"[Shop] Purchased {item.displayName}");
+        }
+        else
+        {
+            Debug.Log("[Shop] Purchase failed (capacity or credits).");
+        }
     }
 }
