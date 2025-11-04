@@ -196,60 +196,63 @@ public class InventoryManager : MonoBehaviour
     OnChanged?.Invoke();
     return true;
   }
-    public bool TryPurchase(Upgrade upgrade, out UpgradeItem created)
+  public bool TryPurchase(Upgrade upgrade, out UpgradeItem created)
+  {
+    created = null;
+    if (upgrade == null) return false;
+
+    // capacity & funds
+    if (inventory.Count >= inventoryCapacity) return false;
+    if (player_movement.credits < upgrade.value) return false;
+
+    // pay
+    player_movement.credits -= upgrade.value;
+
+    // ✅ Create a ScriptableObject instance, not "new"
+    var item = ScriptableObject.CreateInstance<UpgradeItem>();
+    item.upgrade = upgrade;
+    item.displayName = upgrade.name;       // optional: show something readable
+    item.description = "";                 // optional: fill if you have text
+    // item.icon      = <assign if you have an icon per upgrade>
+    item.EnsureId();                        // keep your sticky selection logic happy
+
+    inventory.Add(item);
+    created = item;
+
+    OnChanged?.Invoke();
+    return true;
+  }
+
+  // Adds a newly purchased Upgrade (from the Shop) to the inventory
+  public bool AddUpgrade(Upgrade upgrade)
+  {
+    if (upgrade == null)
     {
-        created = null;
-        if (upgrade == null) return false;
-
-        // capacity & funds
-        if (inventory.Count >= inventoryCapacity) { Debug.Log("Inventory full."); return false; }
-        if (player_movement.credits < upgrade.value) { Debug.Log("Not enough credits."); return false; }
-
-        // pay
-        player_movement.credits -= upgrade.value;
-
-        // create a new item that wraps the Upgrade you rolled in the shop
-        var item = new UpgradeItem
-        {
-            upgrade = upgrade
-        };
-
-        inventory.Add(item);
-        created = item;
-
-        OnChanged?.Invoke();
-        return true;
+      Debug.LogWarning("Tried to add a null upgrade to inventory.");
+      return false;
     }
-    // Adds a newly purchased Upgrade (from the Shop) to the inventory
-    public bool AddUpgrade(Upgrade upgrade)
+
+    if (inventory.Count >= inventoryCapacity)
     {
-        if (upgrade == null)
-        {
-            Debug.LogWarning("Tried to add a null upgrade to inventory.");
-            return false;
-        }
-
-        // Check if there's space
-        if (inventory.Count >= inventoryCapacity)
-        {
-            Debug.Log("Inventory full — cannot add upgrade: " + upgrade.name);
-            return false;
-        }
-
-        // Wrap the Upgrade inside an UpgradeItem
-        var newItem = new UpgradeItem();
-        newItem.upgrade = upgrade;
-
-        // Add it to the inventory
-        inventory.Add(newItem);
-
-        // Notify any UI listeners
-        OnChanged?.Invoke();
-
-        Debug.Log($"Added upgrade to inventory: {upgrade.name}");
-        return true;
+      Debug.Log("Inventory full — cannot add upgrade: " + upgrade.name);
+      return false;
     }
-    private void SafeEquip(UpgradeItem it)
+
+    // ✅ Create ScriptableObject instance
+    var newItem = ScriptableObject.CreateInstance<UpgradeItem>();
+    newItem.upgrade = upgrade;
+    newItem.displayName = upgrade.name; // optional
+    newItem.description = "";
+    newItem.EnsureId();
+
+    inventory.Add(newItem);
+    OnChanged?.Invoke();
+
+    Debug.Log($"Added upgrade to inventory: {upgrade.name}");
+    return true;
+  }
+
+  private void SafeEquip(UpgradeItem it)
     {
         if (it?.upgrade == null || player == null) return;
         try { it.upgrade.OnEquip(player); }

@@ -1,89 +1,112 @@
-// ShopGridController.cs
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ShopGridController : MonoBehaviour
 {
-    [Header("UI/Scene")]
-    [SerializeField] private Transform gridParent;      // GridLayoutGroup parent
-    [SerializeField] private ShopItemView itemPrefab;   // prefab with ShopItemView
-    [SerializeField] private InventoryManager inventory; // in-scene InventoryManager
+  [Header("UI/Scene")]
+  [SerializeField] private Transform gridParent;       // GridLayoutGroup parent
+  [SerializeField] private ShopItemView itemPrefab;    // prefab that only shows an icon
+  [SerializeField] private InventoryManager inventory; // InventoryManager in scene
+  [SerializeField] private UpgradeDetailsPanel detailsPanel; // <- panel with Buy/Sell
 
-    [Header("Roll Settings")]
-    [SerializeField, Min(1)] private int itemsToShow = 5;
-    [SerializeField] private bool rerollOnEnable = true;
+  [Header("Roll Settings")]
+  [SerializeField, Min(1)] private int itemsToShow = 5;
+  [SerializeField] private bool rerollOnEnable = true;
 
-    [Header("Mock Catalog (ScriptableObjects)")]
-    [Tooltip("Drop your MockData/MockItem assets here")]
-    [SerializeField] private List<UpgradeItem> mockCatalog = new();
-    [SerializeField] private int defaultPrice = 100; // used if item.upgrade is null
+  [Header("Mock Catalog (ScriptableObjects)")]
+  [SerializeField] private List<UpgradeItem> mockCatalog = new();
 
-    private readonly List<UpgradeItem> _currentRuntime = new();
+  // Track spawned cards so we can destroy the one the player buys
+  private readonly Dictionary<string, ShopItemView> _viewsById = new();
 
-    void OnEnable()
+  void OnEnable()
+  {
+    if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
+    if (detailsPanel) detailsPanel.OnBuyRequested += HandlePanelBuy;
+
+    if (rerollOnEnable) BuildShopFromMock();
+  }
+
+  void OnDisable()
+  {
+    if (detailsPanel) detailsPanel.OnBuyRequested -= HandlePanelBuy;
+  }
+
+  [ContextMenu("Reroll")]
+  public void BuildShopFromMock()
+  {
+    // Clear old cards
+    for (int i = gridParent.childCount - 1; i >= 0; i--)
+      Destroy(gridParent.GetChild(i).gameObject);
+    _viewsById.Clear();
+
+    if (mockCatalog == null || mockCatalog.Count == 0 || !itemPrefab || !gridParent)
     {
-        if (rerollOnEnable) BuildShopFromMock();
+      Debug.LogWarning("[Shop] Missing catalog or bindings.");
+      return;
     }
 
-    [ContextMenu("Reroll")]
-    public void BuildShopFromMock()
+    // Choose up to itemsToShow unique entries
+    var pool = new List<int>(mockCatalog.Count);
+    for (int i = 0; i < mockCatalog.Count; i++) pool.Add(i);
+    int take = Mathf.Min(itemsToShow, pool.Count);
+
+    for (int k = 0; k < take; k++)
     {
-        // 1) clear old UI
-        for (int i = gridParent.childCount - 1; i >= 0; i--)
-            Destroy(gridParent.GetChild(i).gameObject);
-        _currentRuntime.Clear();
+      int swap = Random.Range(k, pool.Count);
+      (pool[k], pool[swap]) = (pool[swap], pool[k]);
 
-        if (mockCatalog == null || mockCatalog.Count == 0 || itemPrefab == null || gridParent == null)
-        {
-            Debug.LogWarning("[Shop] Missing mock catalog or bindings.");
-            return;
-        }
+      var mock = mockCatalog[pool[k]];
+      if (!mock) continue;
 
-        // 2) choose up to itemsToShow unique entries
-        var pool = new List<int>(mockCatalog.Count);
-        for (int i = 0; i < mockCatalog.Count; i++) pool.Add(i);
+      // Clone the ScriptableObject so each card has its own instance/state
+      var item = ScriptableObject.Instantiate(mock);
+      item.EnsureId();
 
-        int take = Mathf.Min(itemsToShow, pool.Count);
-        for (int k = 0; k < take; k++)
-        {
-            int swap = Random.Range(k, pool.Count);
-            (pool[k], pool[swap]) = (pool[swap], pool[k]);
 
-            var mock = mockCatalog[pool[k]];
-            if (mock == null) continue;
+      if (item.upgrade == null && item.tempUpgrades != null && item.tempUpgrades.Length > 0)
+      {
+        int id = Mathf.Clamp(item.tempUpgradeID, 0, item.tempUpgrades.Length - 1);
+        item.upgrade = item.tempUpgrades[id];
+      }
 
-            var item = ScriptableObject.Instantiate(mock);
-            item.EnsureId(); // makes sure it has a unique stable id
+      // keep/repair visuals (optional defaults)
+      if (string.IsNullOrWhiteSpace(item.displayName) && item.upgrade != null)
+        item.displayName = item.upgrade.name;
 
-            // 4) hydrate concrete Upgrade so shop displays/uses it
-            if (item.upgrade == null &&
-                item.tempUpgrades != null &&
-                item.tempUpgradeID >= 0 &&
-                item.tempUpgradeID < item.tempUpgrades.Length)
-            {
-                item.upgrade = item.tempUpgrades[item.tempUpgradeID];
-            }
 
-            _currentRuntime.Add(item);
+      // Spawn the icon card
+      var view = Instantiate(itemPrefab, gridParent, false);
+      view.Bind(item, detailsPanel);
 
-            // 5) spawn a card and BIND data (this sets icon/title/price and wires Buy)
-            var view = Instantiate(itemPrefab, gridParent, false);
-            int price = (item.upgrade != null) ? item.upgrade.value : defaultPrice;
-            view.Bind(item, price, OnBuyClicked);
-        }
+      // Track by id so we can destroy this view after purchase
+      if (!string.IsNullOrEmpty(item.id))
+        _viewsById[item.id] = view;
     }
+  }
 
-    private void OnBuyClicked(UpgradeItem item)
+  // Fired when the panel Buy button is pressed (we subscribed in OnEnable)
+  private void HandlePanelBuy(UpgradeItem item)
+  {
+    if (item == null || item.upgrade == null || inventory == null)
+      return;
+
+    // Deduct credits + add new UpgradeItem to the inventory list
+    if (inventory.TryPurchase(item.upgrade, out var created))
     {
-        if (item == null || item.upgrade == null) { Debug.Log("[Shop] Nothing to buy."); return; }
+      // Remove the corresponding shop card
+      if (!string.IsNullOrEmpty(item.id) && _viewsById.TryGetValue(item.id, out var view))
+      {
+        if (view) Destroy(view.gameObject);
+        _viewsById.Remove(item.id);
+      }
 
-        if (inventory != null && inventory.TryPurchase(item.upgrade, out var created))
-        {
-            Debug.Log($"[Shop] Purchased {item.displayName}");
-        }
-        else
-        {
-            Debug.Log("[Shop] Purchase failed (capacity or credits).");
-        }
+      // Hide panel buttons after purchase
+      detailsPanel.Clear();
     }
+    else
+    {
+      Debug.Log("[Shop] Purchase failed (credits or capacity).");
+    }
+  }
 }

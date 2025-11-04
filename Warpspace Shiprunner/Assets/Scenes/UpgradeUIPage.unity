@@ -933,15 +933,15 @@ MonoBehaviour:
   gridParent: {fileID: 432121361}
   itemPrefab: {fileID: 1150186733253446957, guid: 80fe65f76531fe348b9937f039901cf9, type: 3}
   inventory: {fileID: 234227927}
+  detailsPanel: {fileID: 497746822}
   itemsToShow: 5
   rerollOnEnable: 1
   mockCatalog:
-  - {fileID: 11400000, guid: 1c8e720886ff8fc41afc2cb3f674a9aa, type: 2}
-  - {fileID: 11400000, guid: 1c8e720886ff8fc41afc2cb3f674a9aa, type: 2}
-  - {fileID: 11400000, guid: 592ce5746041b374c8f9986a9afb5095, type: 2}
-  - {fileID: 11400000, guid: f551da32d3771d74a80474bc41b04fa8, type: 2}
-  - {fileID: 11400000, guid: f551da32d3771d74a80474bc41b04fa8, type: 2}
-  defaultPrice: 100
+  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
+  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
+  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
+  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
+  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
 --- !u!1 &1004261291
 GameObject:
   m_ObjectHideFlags: 0

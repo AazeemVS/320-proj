@@ -1,96 +1,44 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using TMPro;
-using System;
 
 public class ShopItemView : MonoBehaviour, IPointerClickHandler
 {
-    [Header("Data")]
-    [SerializeField] private UpgradeItem item;
+  [SerializeField] private Image icon;
+  [SerializeField] private TMP_Text title;      // optional (can be left unassigned)
+  [SerializeField] private TMP_Text priceText;  // optional (can be left unassigned)
 
-    [Header("Card UI")]
-    [SerializeField] private Image icon;
-    [SerializeField] private TMP_Text title;
-    [SerializeField] private TMP_Text priceText;
-    [SerializeField] private Button buyButton;
+  private UpgradeItem item;
+  private UpgradeDetailsPanel detailsPanel;
 
-    [Header("References")]
-    [SerializeField] private UpgradeDetailsPanel detailsPanel; // expects the component in scene
+  public UpgradeItem Item => item; // so the shop can look this up
 
-    // runtime state
-    private int _price;
-    private Action<UpgradeItem> _onBuy;
+  public void Bind(UpgradeItem i, UpgradeDetailsPanel panel)
+  {
+    item = i;
+    detailsPanel = panel;
+    RefreshUI();
+  }
 
-    // ----- Controller calls this -----
-    public void Bind(UpgradeItem i, int price, Action<UpgradeItem> onBuy)
+  private void RefreshUI()
+  {
+    if (icon)
     {
-        item = i;
-        _price = price;
-        _onBuy = onBuy;
-
-        // wire button
-        if (buyButton != null)
-        {
-            buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(() => _onBuy?.Invoke(item));
-        }
-
-        RefreshUI();
+      bool hasSprite = item != null && item.icon != null;
+      icon.enabled = hasSprite;
+      icon.sprite = hasSprite ? item.icon : null;
+      icon.preserveAspect = true;  // <-- keeps the icon nicely scaled
     }
 
-    // Optional: if you spawn manually elsewhere and only need details hookup
-    public void Init(UpgradeItem i, UpgradeDetailsPanel panel)
-    {
-        item = i;
-        detailsPanel = panel;
-        _price = (item != null && item.upgrade != null) ? item.upgrade.value : _price;
-        RefreshUI();
-    }
+    if (title) title.text = ""; // not displaying titles in the grid
+    if (priceText) priceText.text = ""; // and not showing price in the grid
+  }
 
-    private void Awake()
-    {
-        if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
-    }
-
-    private void RefreshUI()
-    {
-        if (icon != null)
-        {
-            var hasSprite = (item != null && item.icon != null);
-            icon.enabled = hasSprite;
-            icon.sprite = hasSprite ? item.icon : null;
-            icon.preserveAspect = true;
-        }
-
-        if (title != null)
-            title.text = item != null ? item.displayName : "";
-
-        if (priceText != null)
-            priceText.text = _price > 0 ? $"Price: {_price}" : "";
-    }
-
-    private void OnValidate()
-    {
-        // keep prefab preview in sync in editor
-        RefreshUI();
-    }
-
-    // Click anywhere on the card to show details (Buy button still works separately)
-    public void OnPointerClick(PointerEventData e)
-    {
-        if (!detailsPanel)
-        {
-            Debug.LogWarning($"{name}: detailsPanel not assigned.");
-            return;
-        }
-        if (!item)
-        {
-            Debug.LogWarning($"{name}: item is null on click.");
-            return;
-        }
-
-        detailsPanel.Show(item);     // fill icon/title/description
-        detailsPanel.ShowBuyOnly();  // show only the Buy button in the panel
-    }
+  public void OnPointerClick(PointerEventData e)
+  {
+    if (!detailsPanel || item == null) return;
+    detailsPanel.Show(item);
+    detailsPanel.ShowBuyOnly(); // <- panel shows Buy button
+  }
 }
