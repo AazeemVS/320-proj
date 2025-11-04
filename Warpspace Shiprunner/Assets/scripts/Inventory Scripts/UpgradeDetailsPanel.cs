@@ -1,92 +1,200 @@
-using System;
+using System;                      // for Action<>
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class UpgradeDetailsPanel : MonoBehaviour
 {
-  // UI elements for the upgrade info
-  [SerializeField] private Image icon;
-  [SerializeField] private TMP_Text title;
-  [SerializeField] private TMP_Text description;
+    [Header("UI")]
+    [SerializeField] private Image icon;
+    [SerializeField] private TMP_Text title;
+    [SerializeField] private TMP_Text description;
 
-  // Buttons that sit on top of each other
-  [Header("Actions")]
-  [SerializeField] private Button buyButton;
-  [SerializeField] private Button sellButton;
+    [Header("Action Buttons")]
+    [SerializeField] private Button buyButton;
+    [SerializeField] private Button sellButton;
 
-  // NEW: remember what we're showing + raise an event when Buy is pressed
-  private UpgradeItem _current;
-  public event Action<UpgradeItem> OnBuyRequested; // ShopGridController subscribes
+    [Header("Price Labels (optional)")]
+    [SerializeField] private TMP_Text buyText;   // e.g. “Buy: 300”
+    [SerializeField] private TMP_Text sellText;  // e.g. “Sell: 150”
 
-  void Awake()
-  {
-    // Wire the Buy button to raise an event with the currently-shown item
-    if (buyButton != null)
+    // Events (if you’ve been using them already)
+    public event Action<UpgradeItem> OnBuyRequested;
+    public event Action<UpgradeItem> OnSellRequested;
+
+    // Keep track of which item the panel is showing
+    public UpgradeItem CurrentItem { get; private set; }
+
+    void Awake()
     {
-      buyButton.onClick.RemoveAllListeners();
-      buyButton.onClick.AddListener(() =>
-      {
-        if (_current != null) OnBuyRequested?.Invoke(_current);
-      });
+        HideBothButtons();
+        HidePrices();
+        SetDefaultMessage();
+
+        if (buyButton)
+        {
+            buyButton.onClick.RemoveAllListeners();
+            buyButton.onClick.AddListener(() =>
+            {
+                if (CurrentItem != null) OnBuyRequested?.Invoke(CurrentItem);
+            });
+        }
+
+        if (sellButton)
+        {
+            sellButton.onClick.RemoveAllListeners();
+            sellButton.onClick.AddListener(() =>
+            {
+                if (CurrentItem != null) OnSellRequested?.Invoke(CurrentItem);
+            });
+        }
     }
 
-    HideBothButtons();
-    SetDefaultMessage();
-  }
+    void OnEnable()
+    {
+        // Don’t flash the wrong controls when re-enabled
+        HideBothButtons();
+        HidePrices();
+    }
 
-  void OnEnable()
-  {
-    // In case the panel is re-enabled later
-    HideBothButtons();
-  }
+    // ---------- Public API (backwards compatible) ----------
 
-  // Displays the selected upgrade's details
-  public void Show(UpgradeItem item)
-  {
-    _current = item; // <-- keep track of what's selected
+    // Your existing generic Show
+    public void Show(UpgradeItem item)
+    {
+        CurrentItem = item;
+        if (item == null) { Clear(); return; }
 
-    if (item == null) { Clear(); return; }
+        if (icon) { icon.enabled = item.icon != null; icon.sprite = item.icon; }
+        if (title) title.text = item.displayName;
+        if (description) description.text = item.description;
 
-    if (icon) { icon.enabled = item.icon != null; icon.sprite = item.icon; }
-    if (title) title.text = item.displayName;
-    if (description) description.text = item.description;
+        gameObject.SetActive(true);
+        // Do not force buttons; caller decides (ShowBuyOnly / ShowSellOnly)
+    }
 
-    gameObject.SetActive(true);
-  }
+    public void Clear()
+    {
+        CurrentItem = null;
+        if (icon) { icon.enabled = false; icon.sprite = null; }
+        if (title) title.text = "";
+        SetDefaultMessage();
+        HideBothButtons();
+        HidePrices();
+    }
 
-  public void Clear()
-  {
-    _current = null; // <-- clear selection
+    public void ShowBuyOnly()
+    {
+        if (buyButton) buyButton.gameObject.SetActive(true);
+        if (sellButton) sellButton.gameObject.SetActive(false);
 
-    if (icon) { icon.enabled = false; icon.sprite = null; }
-    if (title) title.text = "";
-    SetDefaultMessage();
-    HideBothButtons();
-  }
+        // If we know the item, populate Buy label
+        if (CurrentItem != null)
+        {
+            int price = SafeBuyValue(CurrentItem);
+            SetBuyText(price);
+            ClearSellText();
+        }
+        else
+        {
+            HidePrices();
+        }
+    }
 
-  // --- helpers ---
-  private void HideBothButtons()
-  {
-    if (buyButton) buyButton.gameObject.SetActive(false);
-    if (sellButton) sellButton.gameObject.SetActive(false);
-  }
+    public void ShowSellOnly()
+    {
+        if (sellButton) sellButton.gameObject.SetActive(true);
+        if (buyButton) buyButton.gameObject.SetActive(false);
 
-  private void SetDefaultMessage()
-  {
-    if (description) description.text = "Select an upgrade to see details.";
-  }
+        if (CurrentItem != null)
+        {
+            int sell = SafeSellValue(CurrentItem);
+            SetSellText(sell);
+            ClearBuyText();
+        }
+        else
+        {
+            HidePrices();
+        }
+    }
 
-  // These are called by your other scripts (keep existing usage)
-  public void ShowSellOnly()
-  {
-    if (sellButton) sellButton.gameObject.SetActive(true);
-    if (buyButton) buyButton.gameObject.SetActive(false);
-  }
+    // ---------- Convenience helpers (optional to use) ----------
 
-  public void ShowBuyOnly()
-  {
-    if (buyButton) buyButton.gameObject.SetActive(true);
-    if (sellButton) sellButton.gameObject.SetActive(false);
-  }
+    // Call this from shop item clicks when you already know the price shown in the shop
+    public void ShowShop(UpgradeItem item, int price)
+    {
+        Show(item);
+        if (buyButton) buyButton.gameObject.SetActive(true);
+        if (sellButton) sellButton.gameObject.SetActive(false);
+
+        SetBuyText(price);
+        ClearSellText();
+    }
+
+    // Call this from inventory selection if you want it in one line
+    public void ShowInventory(UpgradeItem item)
+    {
+        Show(item);
+        if (sellButton) sellButton.gameObject.SetActive(true);
+        if (buyButton) buyButton.gameObject.SetActive(false);
+
+        int sell = SafeSellValue(item);
+        SetSellText(sell);
+        ClearBuyText();
+    }
+
+    // ---------- Internal helpers ----------
+
+    private void HideBothButtons()
+    {
+        if (buyButton) buyButton.gameObject.SetActive(false);
+        if (sellButton) sellButton.gameObject.SetActive(false);
+    }
+
+    private void HidePrices()
+    {
+        if (buyText) buyText.gameObject.SetActive(false);
+        if (sellText) sellText.gameObject.SetActive(false);
+    }
+
+    private void ClearBuyText()
+    {
+        if (buyText) { buyText.text = ""; buyText.gameObject.SetActive(false); }
+    }
+
+    private void ClearSellText()
+    {
+        if (sellText) { sellText.text = ""; sellText.gameObject.SetActive(false); }
+    }
+
+    private void SetBuyText(int price)
+    {
+        if (!buyText) return;
+        buyText.text = $"Buy: {price}";
+        buyText.gameObject.SetActive(true);
+    }
+
+    private void SetSellText(int value)
+    {
+        if (!sellText) return;
+        sellText.text = $"Sell: {value}";
+        sellText.gameObject.SetActive(true);
+    }
+
+    private void SetDefaultMessage()
+    {
+        if (description) description.text = "Select an upgrade to see details.";
+    }
+
+    private static int SafeBuyValue(UpgradeItem item)
+    {
+        // Falls back to 0 if no upgrade/value
+        return (item != null && item.upgrade != null) ? item.upgrade.value : 0;
+    }
+
+    private static int SafeSellValue(UpgradeItem item)
+    {
+        int buy = SafeBuyValue(item);
+        return Mathf.FloorToInt(buy * 0.5f);
+    }
 }
