@@ -196,32 +196,32 @@ public class InventoryManager : MonoBehaviour
     OnChanged?.Invoke();
     return true;
   }
-  public bool TryPurchase(Upgrade upgrade, out UpgradeItem created)
+  public bool TryPurchase(UpgradeItem shopItem, out UpgradeItem created)
   {
     created = null;
-    if (upgrade == null) return false;
+    if (shopItem == null || shopItem.upgrade == null) return false;
 
-    // capacity & funds
+    int price = shopItem.upgrade.value;
     if (inventory.Count >= inventoryCapacity) return false;
-    if (player_movement.credits < upgrade.value) return false;
+    if (player_movement.credits < price) return false;
 
-    // pay
-    player_movement.credits -= upgrade.value;
+    player_movement.credits -= price;
 
-    // ✅ Create a ScriptableObject instance, not "new"
-    var item = ScriptableObject.CreateInstance<UpgradeItem>();
-    item.upgrade = upgrade;
-    item.displayName = upgrade.name;       // optional: show something readable
-    item.description = "";                 // optional: fill if you have text
-    // item.icon      = <assign if you have an icon per upgrade>
-    item.EnsureId();                        // keep your sticky selection logic happy
+    // create a *new* item for the player's inventory with the same visuals/logic
+    var newItem = ScriptableObject.CreateInstance<UpgradeItem>();
+    newItem.id = System.Guid.NewGuid().ToString("N");
+    newItem.displayName = shopItem.displayName;
+    newItem.description = shopItem.description;
+    newItem.icon = shopItem.icon;
+    newItem.upgrade = shopItem.upgrade; // same logic object
 
-    inventory.Add(item);
-    created = item;
+    inventory.Add(newItem);
+    created = newItem;
 
     OnChanged?.Invoke();
     return true;
   }
+
 
   // Adds a newly purchased Upgrade (from the Shop) to the inventory
   public bool AddUpgrade(Upgrade upgrade)
