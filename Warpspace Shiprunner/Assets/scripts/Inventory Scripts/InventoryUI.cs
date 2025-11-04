@@ -39,86 +39,99 @@ public class InventoryUI : MonoBehaviour
             InventoryManager.Instance.OnChanged -= QueueRebuild;
     }
 
-  // Called by the Sell button (wire this in the button's OnClick)
-  public void OnSellButtonPressed()
-  {
-    var mgr = InventoryManager.Instance;
-    if (mgr == null) return;
-
-    // Prefer the currently selected slot if it's valid
-    if (selected != null)
+    // Called by the Sell button (wire this in the button's OnClick)
+    public void OnSellButtonPressed()
     {
-      var g = selected.group;
-      var idx = selected.index;
+        var mgr = InventoryManager.Instance;
+        if (mgr == null) return;
 
-      if (g == SlotGroup.Inventory)
-      {
-        if (idx >= 0 && idx < mgr.Inventory.Count && mgr.Inventory[idx] != null)
+        // 1) Prefer currently selected slot
+        if (selected != null)
         {
-          mgr.RemoveFromInventoryAt(idx);
-          stickyItemId = null; // sold
-          selected = null;
-          if (sellButton) sellButton.gameObject.SetActive(false);
-          if (detailsPanel) detailsPanel.Clear();
-          return;
+            var g = selected.group;
+            var idx = selected.index;
+
+            if (g == SlotGroup.Inventory)
+            {
+                if (idx >= 0 && idx < mgr.Inventory.Count && mgr.Inventory[idx] != null)
+                {
+                    if (mgr.TrySell(g, idx, out var refund))
+                    {
+                        Debug.Log($"[Sell] Refunded {refund} credits.");
+                        stickyItemId = null;
+                        selected = null;
+                        if (sellButton) sellButton.gameObject.SetActive(false);
+                        if (detailsPanel) detailsPanel.Clear();
+                        return;
+                    }
+                }
+            }
+            else // Active
+            {
+                if (idx >= 0 && idx < mgr.Active.Count && mgr.Active[idx] != null)
+                {
+                    if (mgr.TrySell(g, idx, out var refund))
+                    {
+                        Debug.Log($"[Sell] Refunded {refund} credits.");
+                        stickyItemId = null;
+                        selected = null;
+                        if (sellButton) sellButton.gameObject.SetActive(false);
+                        if (detailsPanel) detailsPanel.Clear();
+                        return;
+                    }
+                }
+            }
         }
-      }
-      else // Active
-      {
-        if (idx >= 0 && idx < mgr.Active.Count && mgr.Active[idx] != null)
+
+        // 2) Fallback: selection was stale — find by stickyItemId
+        if (!string.IsNullOrEmpty(stickyItemId))
         {
-          mgr.RemoveFromActiveAt(idx);
-          stickyItemId = null; // sold
-          selected = null;
-          if (sellButton) sellButton.gameObject.SetActive(false);
-          if (detailsPanel) detailsPanel.Clear();
-          return;
+            // search Inventory
+            for (int i = 0; i < mgr.Inventory.Count; i++)
+            {
+                var it = mgr.Inventory[i];
+                if (it != null && it.id == stickyItemId)
+                {
+                    if (mgr.TrySell(SlotGroup.Inventory, i, out var refund))
+                    {
+                        Debug.Log($"[Sell] Refunded {refund} credits.");
+                        stickyItemId = null;
+                        selected = null;
+                        if (sellButton) sellButton.gameObject.SetActive(false);
+                        if (detailsPanel) detailsPanel.Clear();
+                        return;
+                    }
+                }
+            }
+            // search Active
+            for (int i = 0; i < mgr.Active.Count; i++)
+            {
+                var it = mgr.Active[i];
+                if (it != null && it.id == stickyItemId)
+                {
+                    if (mgr.TrySell(SlotGroup.Active, i, out var refund))
+                    {
+                        Debug.Log($"[Sell] Refunded {refund} credits.");
+                        stickyItemId = null;
+                        selected = null;
+                        if (sellButton) sellButton.gameObject.SetActive(false);
+                        if (detailsPanel) detailsPanel.Clear();
+                        return;
+                    }
+                }
+            }
         }
-      }
+
+        // 3) Nothing to sell — clear UI gracefully
+        selected = null;
+        if (sellButton) sellButton.gameObject.SetActive(false);
+        if (detailsPanel) detailsPanel.Clear();
     }
 
-    // If we get here, the selected slot was stale. Use stickyItemId to find the item.
-    if (!string.IsNullOrEmpty(stickyItemId))
-    {
-      // search Inventory
-      for (int i = 0; i < mgr.Inventory.Count; i++)
-      {
-        var it = mgr.Inventory[i];
-        if (it != null && it.id == stickyItemId)
-        {
-          mgr.RemoveFromInventoryAt(i);
-          stickyItemId = null;
-          selected = null;
-          if (sellButton) sellButton.gameObject.SetActive(false);
-          if (detailsPanel) detailsPanel.Clear();
-          return;
-        }
-      }
-      // search Active
-      for (int i = 0; i < mgr.Active.Count; i++)
-      {
-        var it = mgr.Active[i];
-        if (it != null && it.id == stickyItemId)
-        {
-          mgr.RemoveFromActiveAt(i);
-          stickyItemId = null;
-          selected = null;
-          if (sellButton) sellButton.gameObject.SetActive(false);
-          if (detailsPanel) detailsPanel.Clear();
-          return;
-        }
-      }
-    }
-
-    // Nothing to sell—clear UI gracefully
-    selected = null;
-    if (sellButton) sellButton.gameObject.SetActive(false);
-    if (detailsPanel) detailsPanel.Clear();
-  }
 
 
-  // Rebuilds both grids (active and inventory grids)
-  public void Rebuild()
+    // Rebuilds both grids (active and inventory grids)
+    public void Rebuild()
   {
     var mgr = InventoryManager.Instance;
 

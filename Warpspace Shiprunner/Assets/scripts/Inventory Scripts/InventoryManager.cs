@@ -311,4 +311,35 @@ public class InventoryManager : MonoBehaviour
         return newUpgrade;
     }
 
+    public bool TrySell(SlotGroup group, int index, out int refund)
+    {
+        refund = 0;
+
+        // choose list
+        var list = (group == SlotGroup.Inventory) ? inventory : active;
+
+        // guards
+        if (index < 0 || index >= list.Count) return false;
+        var item = list[index];
+        if (item == null) return false;
+
+        // if selling from Active, unequip first
+        if (group == SlotGroup.Active) SafeUnequip(item);
+
+        // compute refund = half the upgrade value (rounds down)
+        int baseValue = (item.upgrade != null) ? item.upgrade.value : 0;
+        refund = Mathf.Max(0, baseValue / 2);
+
+        // credit the player
+        player_movement.credits += refund;
+
+        // remove item
+        list.RemoveAt(index);
+
+        // notify UI
+        OnChanged?.Invoke();
+        return true;
+    }
+
+
 }
