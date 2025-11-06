@@ -36,7 +36,23 @@ public class UpgradeDetailsPanel : MonoBehaviour
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(() =>
             {
-                if (CurrentItem != null) OnBuyRequested?.Invoke(CurrentItem);
+                if (CurrentItem == null) return;
+
+                // 1) Try to purchase directly (robust across rounds)
+                var inv = InventoryManager.Instance ?? FindObjectOfType<InventoryManager>(true);
+                if (inv != null && inv.TryPurchase(CurrentItem, out var created))
+                {
+                    // 2) Ask whatever ShopGridController is active to remove that card
+                    var shop = FindObjectOfType<ShopGridController>(true);
+                    if (shop != null) shop.RemoveCardFor(CurrentItem.id);
+
+                    // 3) Reset panel UI
+                    Clear();
+                }
+                else
+                {
+                    Debug.Log("[Panel/Buy] Purchase failed (credits or capacity).");
+                }
             });
         }
 

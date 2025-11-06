@@ -196,35 +196,48 @@ public class InventoryManager : MonoBehaviour
     OnChanged?.Invoke();
     return true;
   }
-  public bool TryPurchase(UpgradeItem shopItem, out UpgradeItem created)
-  {
-    created = null;
-    if (shopItem == null || shopItem.upgrade == null) return false;
+    public bool TryPurchase(UpgradeItem shopItem, out UpgradeItem created)
+    {
+        created = null;
+        if (shopItem == null || shopItem.upgrade == null) return false;
 
-    int price = shopItem.upgrade.value;
-    if (inventory.Count >= inventoryCapacity) return false;
-    if (player_movement.credits < price) return false;
+        int price = Mathf.Max(0, shopItem.upgrade.value);
+        if (inventory.Count >= inventoryCapacity) return false;
+        if (player_movement.credits < price) return false;
 
-    player_movement.credits -= price;
+        // pay
+        player_movement.credits -= price;
 
-    // create a *new* item for the player's inventory with the same visuals/logic
-    var newItem = ScriptableObject.CreateInstance<UpgradeItem>();
-    newItem.id = System.Guid.NewGuid().ToString("N");
-    newItem.displayName = shopItem.displayName;
-    newItem.description = shopItem.description;
-    newItem.icon = shopItem.icon;
-    newItem.upgrade = shopItem.upgrade; // same logic object
+        // clone a new inventory item that mirrors the shop item
+        var newItem = ScriptableObject.CreateInstance<UpgradeItem>();
 
-    inventory.Add(newItem);
-    created = newItem;
+        // fresh unique id so selection/sticky logic works reliably
+        newItem.id = System.Guid.NewGuid().ToString("N");
 
-    OnChanged?.Invoke();
-    return true;
-  }
+        // copy visuals/text
+        newItem.displayName = string.IsNullOrWhiteSpace(shopItem.displayName)
+            ? (shopItem.upgrade != null ? shopItem.upgrade.name : "Upgrade")
+            : shopItem.displayName;
+
+        newItem.description = shopItem.description ?? "";
+
+        newItem.icon = shopItem.icon; // ok to share Sprite refs
+
+        // use the same upgrade logic object
+        // (If upgrades ever hold mutable runtime state, consider cloning the Upgrade here)
+        newItem.upgrade = shopItem.upgrade;
+
+        inventory.Add(newItem);
+        created = newItem;
+
+        OnChanged?.Invoke();
+        return true;
+    }
 
 
-  // Adds a newly purchased Upgrade (from the Shop) to the inventory
-  public bool AddUpgrade(Upgrade upgrade)
+
+    // Adds a newly purchased Upgrade (from the Shop) to the inventory
+    public bool AddUpgrade(Upgrade upgrade)
   {
     if (upgrade == null)
     {
