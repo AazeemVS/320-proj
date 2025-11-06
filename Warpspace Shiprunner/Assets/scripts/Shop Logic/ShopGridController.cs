@@ -112,17 +112,13 @@ public class ShopGridController : MonoBehaviour
         if (item == null || item.upgrade == null || inventory == null)
             return;
 
+        // Attempt purchase (deduct credits, create inventory item)
         if (inventory.TryPurchase(item, out var created))
         {
-            // Remove the corresponding shop card
-            if (!string.IsNullOrEmpty(item.id) && _viewsById.TryGetValue(item.id, out var view))
-            {
-                if (view) Destroy(view.gameObject);
-                _viewsById.Remove(item.id);
-            }
-
-            detailsPanel.Clear();   // reset panel
-            ForceGridRebuild();     // keep grid tidy after removal
+            // Do NOT destroy the shop card anymore — leave it on the grid
+            // Optionally: give UI feedback or keep the panel open
+            detailsPanel.Clear(); // or detailsPanel.ShowShop(item, item.upgrade.value);
+            Debug.Log($"[Shop] Purchased {created.displayName}. Item remains available in shop.");
         }
         else
         {
