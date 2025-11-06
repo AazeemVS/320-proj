@@ -943,10 +943,10 @@ MonoBehaviour:
   rerollOnEnable: 1
   mockCatalog:
   - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
-  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
-  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
-  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
-  - {fileID: 11400000, guid: 8317ca2c65689af4499ffec7fedfc8ae, type: 2}
+  - {fileID: 11400000, guid: 6a5b7fb3c7167ba44a6931d09d1c79c9, type: 2}
+  - {fileID: 11400000, guid: ffc30f00992126a45951d8d5dacb3f80, type: 2}
+  - {fileID: 11400000, guid: 0a935b4d800e7b1499b93ac3f19dc95a, type: 2}
+  - {fileID: 11400000, guid: 1816fcd6f5d689b47bfefa840afab3d8, type: 2}
 --- !u!1 &1004261291
 GameObject:
   m_ObjectHideFlags: 0
@@ -2308,10 +2308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9e68474d700d74db42c644978dd50c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultBg: {fileID: 275150595}
   gearBg: {fileID: 275150595}
-  tradeBg: {fileID: 0}
-  shopBg: {fileID: 0}
 --- !u!4 &1678246109
 Transform:
   m_ObjectHideFlags: 0
