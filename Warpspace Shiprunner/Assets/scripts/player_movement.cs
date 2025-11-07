@@ -26,7 +26,7 @@ public class player_movement : MonoBehaviour
     [SerializeField] GameObject killExplosion, hitExplosion; // prefabs for "ExplosiveKillUpgrade" and "ExplosiveHitUpgrade" respectively
     public bool explodeOnKill, explodeOnHit = false; public float killExplosionScale, hitExplosionScale = 1;
     //Health stats
-    public bool hasHealthSteal = false; public float healthStealScalar = .1f;
+    public bool hasHealthSteal = false; public float healthStealScalar = .1f; // "HealthOnKill"
     public float iFrameMax = 1f;
     //Dash stats
     public bool dashEnabled = true;
@@ -37,6 +37,7 @@ public class player_movement : MonoBehaviour
     public static int credits = 0;
     public static int roundCredits = 0;
     public int extraKillCredits = 0; // modified by "CreditsOnKill" upgrade
+    public float insuranceCreditsScalar = 0; // modified by "CreditsWhenHit" upgrade
 
     // gameRound
     public static int gameRound = 1;
@@ -169,25 +170,31 @@ public class player_movement : MonoBehaviour
         
         if(healthChange < 0 && (iFrameTimer<=0 || beatsIFrames)) {
             health += healthChange;
-            StartCoroutine(TakeDamage(beatsIFrames));
+            GetComponent<SpriteRenderer>().color = Color.red;
             if (!beatsIFrames) {
                 iFrameTimer = iFrameMax;
             }
-            if (enragesOnHit) {
-                if (enrageTimer <= 0) {
-                    playerDamage += enrageDamage;
-                }
-                enrageTimer = enrageLength;
-            }
-        } else if(healthChange > 0) {
+            OnTakeDamageUpgrades(healthChange);
+        } else if(healthChange >= 0) {
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
         }
         if (healthUI != null) { healthUI.text = ("Health:" + health); }
     }
+
+    private void OnTakeDamageUpgrades(float damage) {
+        if (enragesOnHit) {
+            if (enrageTimer <= 0) {
+                playerDamage += enrageDamage;
+            }
+            enrageTimer = enrageLength;
+        }
+        AddCredits((int)(damage * insuranceCreditsScalar));
+    }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         iFrameTimer -= Time.deltaTime;
+        if (iFrameTimer <= 0) { GetComponent<SpriteRenderer>().color = Color.white; }
         if (enrageTimer > 0) {
             enrageTimer -= Time.deltaTime;
             if (enrageTimer <= 0) {
@@ -242,15 +249,5 @@ public class player_movement : MonoBehaviour
     public void AddCredits(int amount) {
         credits += amount;
         roundCredits += amount;
-    }
-
-    IEnumerator TakeDamage(bool piercing) {
-        GetComponent<SpriteRenderer>().color = Color.red;
-        if (piercing) {
-            yield return new WaitForSeconds(.1f);
-        } else {
-            yield return new WaitForSeconds(iFrameMax);
-        }
-        GetComponent<SpriteRenderer>().color = Color.white;
     }
 }

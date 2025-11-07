@@ -173,5 +173,19 @@ public class PoisonUpgrade : Upgrade {
     public override void OnEquip(player_movement player) { player.hasPoison = true; player.poisonLength += modifier; }
     public override void OnUnequip(player_movement player) { player.hasPoison = false; player.poisonLength -= modifier; }
 }
+//Player has more max health
+public class HealthUpgrade : Upgrade {
+    float modifier;
+    public HealthUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Backup Shields") { modifier = rarity * 2; }
+    public override void OnEquip(player_movement player) { player.maxHealth += modifier; player.ChangeHealth(modifier); }
+    public override void OnUnequip(player_movement player) { player.maxHealth -= modifier; player.ChangeHealth(0); }
+}
+//Player gains credits on taking damage
+public class CreditsWhenHit : Upgrade {
+    float modifier;
+    public CreditsWhenHit(Rarity tier = Rarity.Common) : base(tier, (int)tier*50, tier + " Insurance Plan") { modifier = rarity * 5; }
+    public override void OnEquip(player_movement player) { player.insuranceCreditsScalar += modifier; }
+    public override void OnUnequip(player_movement player) { player.insuranceCreditsScalar -= modifier; }
+}
 
 
