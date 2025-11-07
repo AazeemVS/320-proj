@@ -22,9 +22,12 @@ public class player_movement : MonoBehaviour
     public bool enragesOnHit = false; public float enrageLength = 5f, enrageTimer = 0, enrageDamage = 0; // "EnrageUpgrade" fields
     public bool killBoost = false; public float killBoostLength = 5f, killBoostTimer = 0, killBoostDamage = 0; // "DamageOnKill" fields
     public int virusBoost = 0; public int virusBonus = 0; // "VirusDamageBoost" fields
+    public bool hasPoison = false; public float poisonLength = 0, poisonDPS = .5f; // DoT on hit upgrade
     [SerializeField] GameObject killExplosion, hitExplosion; // prefabs for "ExplosiveKillUpgrade" and "ExplosiveHitUpgrade" respectively
     public bool explodeOnKill, explodeOnHit = false; public float killExplosionScale, hitExplosionScale = 1;
-
+    //Health stats
+    public bool hasHealthSteal = false; public float healthStealScalar = .1f;
+    public float iFrameMax = 1f;
     //Dash stats
     public bool dashEnabled = true;
     public bool dashHasDodge = false;
@@ -48,7 +51,6 @@ public class player_movement : MonoBehaviour
     [SerializeField] TextMeshProUGUI healthUI;
     [SerializeField] private float health;
     private float shootTimer = 0;
-    public float iFrameMax = 1f;
     [SerializeField] private float iFrameTimer = 0f;
     //Dash Logic
     private float dashTimer = 0;
@@ -210,6 +212,7 @@ public class player_movement : MonoBehaviour
             hitExp.bulletDamage = playerDamage * playerDamageMult;
             hitObj.transform.localScale *= hitExplosionScale;
         }
+        if (hasPoison) { hitEnemy.EnablePoison(poisonLength, poisonDPS); }
     }
     public void TriggerKill(Enemy killedEnemy) {
         AddCredits((int)killedEnemy.spawnWeight);
@@ -220,11 +223,11 @@ public class player_movement : MonoBehaviour
 
     private void OnKillUpgrades(Enemy killedEnemy) {
         //explosion on kill upgrade
-        if (explodeOnHit == true) {
+        if (explodeOnKill == true) {
             GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
             PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
-            killExp.bulletDamage *= hitExplosionScale;
-            killObj.transform.localScale *= hitExplosionScale;
+            killExp.bulletDamage *= killExplosionScale;
+            killObj.transform.localScale *= killExplosionScale;
         }
         //damage up on kill logic
         if (killBoost) {
@@ -233,10 +236,10 @@ public class player_movement : MonoBehaviour
             }
             killBoostTimer = killBoostLength;
         }
+        if (hasHealthSteal) { ChangeHealth(killedEnemy.spawnWeight*healthStealScalar); }
         AddCredits(extraKillCredits);
     }
-    public void AddCredits(int amount)
-    {
+    public void AddCredits(int amount) {
         credits += amount;
         roundCredits += amount;
     }

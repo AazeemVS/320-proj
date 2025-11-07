@@ -153,9 +153,25 @@ public class CreditsOnKill : Upgrade {
     public override void OnEquip(player_movement player) { player.extraKillCredits += modifier; player.virusBonus += 1; }
     public override void OnUnequip(player_movement player) { player.extraKillCredits -= modifier; player.virusBonus -= 1; }
 }
+//Player gains health on kill
+public class HealthOnKill : Upgrade {
+    public HealthOnKill() : base(Rarity.Rare, 300, "Virus: Shielding Data Extraction") { }
+    public override void OnEquip(player_movement player) { player.hasHealthSteal = true; player.virusBonus += 1; }
+    public override void OnUnequip(player_movement player) { player.hasHealthSteal = false; player.virusBonus -= 1; }
+
+}
 //Player gains extra damage proportional to amount of virus (on kill) upgrades equipped
 public class VirusDamageBoost : Upgrade {
     public VirusDamageBoost() : base(Rarity.Rare, 400, "Virus: Fatal Error") { }
     public override void OnEquip(player_movement player) { player.virusBoost += 1; player.virusBonus += 1; }
     public override void OnUnequip(player_movement player) { player.virusBoost -= 1; player.virusBonus -= 1; }
 }
+//Player inflicts DoT on hit
+public class PoisonUpgrade : Upgrade {
+    float modifier;
+    public PoisonUpgrade(Rarity tier = Rarity.Common) : base(tier, (int)tier * 100, tier + " Corrosive Rounds") { modifier = rarity + 1; }
+    public override void OnEquip(player_movement player) { player.hasPoison = true; player.poisonLength += modifier; }
+    public override void OnUnequip(player_movement player) { player.hasPoison = false; player.poisonLength -= modifier; }
+}
+
+

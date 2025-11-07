@@ -14,6 +14,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] public float spawnCost;
     [SerializeField] public float spawnWeight;
     [SerializeField] public int unlockRound;
+    private float poisonTimer, poisonDamage;
 
     Coroutine _loop;
     public player_movement playerMovement;
@@ -58,6 +59,7 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void Update()
     {
         Movement();
+        ManageStatuses();
         if (health <= 0)
         {
             // Gives money
@@ -92,6 +94,18 @@ public abstract class Enemy : MonoBehaviour
             firePoint.SetParent(transform);
             firePoint.localPosition = Vector3.down * 0.5f;
         }
+    }
+
+    void ManageStatuses() {
+        if (poisonTimer >= 0) {
+            poisonTimer -= Time.deltaTime;
+            ChangeHealth(-poisonDamage * Time.deltaTime);
+        }
+    }
+
+    public void EnablePoison(float length, float DPS) {
+        poisonTimer = length;
+        poisonDamage = DPS;
     }
 
     IEnumerator FireLoop()
