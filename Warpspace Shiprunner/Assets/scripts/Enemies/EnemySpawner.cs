@@ -40,6 +40,18 @@ public class EnemySpawner : MonoBehaviour
 
     int lastLevel = -1;
 
+    // To be accessed by RoundTimerText
+    public float WaveTimer
+    {
+        get { return waveTimer; }
+    }
+
+    public float WaveInterval
+    {
+        get { return waveInterval; }
+    }
+
+
     private void Start() {
         Camera cam = Camera.main;
         borderY = cam.orthographicSize;
@@ -187,4 +199,5 @@ public class EnemySpawner : MonoBehaviour
             Instantiate(enemy, new Vector3(xSpawn, y, 0f), Quaternion.identity);
         }
     }
+
 }
