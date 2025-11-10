@@ -16,9 +16,9 @@ public class TankEnemy : Enemy
 
   void Start()
   {
-    // Tank defaults: tougher, slow rate, beefy shots
+    // Takes 5 shots to kill the enemy
     shotsPerSecond = Mathf.Min(shotsPerSecond, 0.5f);
-    health = Mathf.Max(health, 12f);
+    health = Mathf.Max(health, 5f);
 
     var pm = FindAnyObjectByType<player_movement>();
     if (pm) player = pm.transform;

@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TankEnemy Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 6102109521093253614, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 8322830030425356245, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
       propertyPath: m_LocalPosition.x
       value: 615.08215
@@ -52,6 +56,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8957520859894057920, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
+      propertyPath: m_Simulated
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8957520859894057920, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
+      propertyPath: m_GravityScale
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7798443302759877009, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
     m_RemovedGameObjects: []
@@ -84,7 +96,7 @@ MonoBehaviour:
   bulletSpeed: 3.5
   warmupDelay: 0.25
   useLocalDown: 0
-  health: 3
+  health: 1
   spawnCost: 1
   spawnWeight: 2.2
   unlockRound: 0
@@ -93,5 +105,5 @@ MonoBehaviour:
   turnSpeedDeg: 120
   stopRange: 10
   projectileScale: 0.3
-  projectileDamage: 5
+  projectileDamage: 3
   inaccuracyDeg: 3
