@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] float interval = 1.5f;
+    // float interval = 1.5f; // For basic enemy spawning
     [SerializeField] bool enableBasicSpawning = false;
     float basicSpawningTimer;
     float borderY;
@@ -12,17 +12,17 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] GameObject enemyWarningPrefab;
 
     int wavesThisLevel = 0;
-    float baseWaveStrength = 2f;
+    float baseWaveStrength = 0.5f;
     float waveTimer = 0f;
 
     // --- Wave pacing ---
     [SerializeField] float minWaveInterval = 2.5f;     // floor
-    [SerializeField] float waveInterval = 10.0f;       // starting interval
+    [SerializeField] float waveInterval = 15.0f;       // starting interval
     [SerializeField] float intervalDecayPerLevel = 0.1f; // faster per level
 
     // --- Budget growth (enemy amount) ---
-    [SerializeField] float budgetPerLevel = 0.0f; // add to budget each level
-    [SerializeField] float budgetPerWave = 0.5f; // add to budget each wave this level
+    [SerializeField] float budgetPerLevel = 1.0f; // add to budget each level
+    [SerializeField] float budgetPerWave = 0.1f; // add to budget each wave this level
 
     int lastLevel = -1;
 
@@ -47,7 +47,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (enableBasicSpawning)
         {
-            BasicSpawning();
+            //BasicSpawning();
             return;
         }
 
@@ -84,7 +84,7 @@ public class EnemySpawner : MonoBehaviour
     void SpawnWave(int level)
     {
         // points grow by level and by waves within the level
-        float pointsThisWave = baseWaveStrength + (level * budgetPerLevel) + (wavesThisLevel * budgetPerWave);
+        float pointsThisWave = baseWaveStrength + ((level - 1) * budgetPerLevel) + (budgetPerWave);
         float pointsUsed = 0f;
 
         int safety = 0;
@@ -97,8 +97,8 @@ public class EnemySpawner : MonoBehaviour
             Enemy enemyComp = enemy.GetComponent<Enemy>();
             if (enemyComp == null) break;
 
-            float enemyValue = enemyComp.spawnWeight;
-            if (enemyValue <= 0f) throw new System.Exception("Enemy with unassigned or zero spawn weight");
+            float enemyValue = enemyComp.spawnCost;
+            if (enemyValue <= 0f) throw new System.Exception("Enemy with unassigned or zero spawn cost");
 
             float remaining = pointsThisWave - pointsUsed;
 
@@ -159,18 +159,27 @@ public class EnemySpawner : MonoBehaviour
 
     bool AnyEnemyFits(int level, float budgetRemaining)
     {
+        if (enemyPrefabs == null || enemyPrefabs.Count == 0) return false;
+        if (budgetRemaining <= 0f) return false;
+
         for (int i = 0; i < enemyPrefabs.Count; i++)
         {
-            var e = enemyPrefabs[i];
-            var comp = e ? e.GetComponent<Enemy>() : null;
+            var prefab = enemyPrefabs[i];
+            if (!prefab) continue;
+
+            var comp = prefab.GetComponent<Enemy>();
             if (comp == null) continue;
-            if (comp.unlockRound > level) continue;
-            if (comp.spawnWeight > 0f && comp.spawnWeight <= budgetRemaining)
+            if (comp.unlockRound > level) continue; // not unlocked yet
+
+            float cost = comp.spawnCost;            // <-- use COST, not weight
+            if (cost > 0f && cost <= budgetRemaining)
                 return true;
         }
         return false;
     }
 
+
+    /*
     void BasicSpawning()
     {
         basicSpawningTimer += Time.deltaTime;
@@ -183,4 +192,5 @@ public class EnemySpawner : MonoBehaviour
             Instantiate(enemy, new Vector3(finalX, y, 0f), Quaternion.identity);
         }
     }
+    */
 }

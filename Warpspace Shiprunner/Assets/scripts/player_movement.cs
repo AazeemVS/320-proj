@@ -182,8 +182,11 @@ public class player_movement : MonoBehaviour
         if (healthUI != null) { healthUI.text = ("Health:" + health); }
     }
     private void HandleHealth() {
-        if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
-        iFrameTimer -= Time.deltaTime;
+        if (health <= 0) {
+            gameRound = 1;
+            stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
+        }
+            iFrameTimer -= Time.deltaTime;
         if (enrageTimer > 0) {
             enrageTimer -= Time.deltaTime;
             if (enrageTimer <= 0) {
