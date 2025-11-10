@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 525c784dbc8736a4fa9ed02cb27bfba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletPool: {fileID: 0}
+  bulletPool: {fileID: 3953886671461344117, guid: f382621c8fe23f5438f179b65b44b47c, type: 3}
   firePoint: {fileID: 0}
   shotsPerSecond: 2
   bulletSpeed: 3.5
@@ -103,7 +103,7 @@ MonoBehaviour:
   playerMovement: {fileID: 0}
   moveSpeed: 1.25
   turnSpeedDeg: 120
-  stopRange: 10
+  stopRange: 15
   projectileScale: 0.3
   projectileDamage: 3
   inaccuracyDeg: 3

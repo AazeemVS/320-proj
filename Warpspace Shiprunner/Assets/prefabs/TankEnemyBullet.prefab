@@ -140,7 +140,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   lifetime: 5
-  damage: 5
+  damage: 7
 --- !u!114 &9188922682278759378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,5 +153,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e479571441a3324cb6e1abcecb154ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
-  hitEnemy: 1
+  damage: 7
+  hitEnemy: 0
