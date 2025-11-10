@@ -12,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] GameObject enemyWarningPrefab;
 
     int wavesThisLevel = 0;
-    float baseWaveStrength = 0.5f;
+    float baseWaveStrength = 1f;
     float waveTimer = 0f;
 
     // --- Wave pacing ---
@@ -22,7 +22,20 @@ public class EnemySpawner : MonoBehaviour
 
     // --- Budget growth (enemy amount) ---
     [SerializeField] float budgetPerLevel = 1.0f; // add to budget each level
-    [SerializeField] float budgetPerWave = 0.1f; // add to budget each wave this level
+    [SerializeField] float budgetPerWave = 0.25f; // add to budget each wave this level
+
+    // --- Round timing / Flee phase ---
+    [SerializeField] float roundDuration = 40f;         // enter flee phase at 40s
+    [SerializeField] float fleeTickInterval = 1f;       // roll frequency (each second)
+    [SerializeField] float fleeChancePerTick = 0.10f;   // 10% per tick
+    [SerializeField] bool advanceRoundOnClear = true;   // auto-advance when clear
+
+    float roundTimer = 0f;
+    float fleeTickTimer = 0f;
+    bool inFleePhase = false;
+
+    public bool InFleePhase => inFleePhase;
+
 
     int lastLevel = -1;
 
@@ -53,18 +66,54 @@ public class EnemySpawner : MonoBehaviour
 
         int level = player_movement.gameRound;
 
-        // Reset wave counter each new round
+        // Reset wave counter and phase per new round
         if (level != lastLevel)
         {
             wavesThisLevel = 0;
             lastLevel = level;
+
+            roundTimer = 0f;
+            fleeTickTimer = 0f;
+            inFleePhase = false;
         }
 
-        LevelSpawning(level);
+        if (!inFleePhase)
+        {
+            // Normal spawning until flee phase
+            roundTimer += Time.deltaTime;
+
+            if (roundTimer >= roundDuration)
+            {
+                EnterFleePhase();
+            }
+            else
+            {
+                LevelSpawning(level);
+            }
+        }
+        else
+        {
+            // Roll flee chance every tick
+            fleeTickTimer -= Time.deltaTime;
+            if (fleeTickTimer <= 0f)
+            {
+                fleeTickTimer = fleeTickInterval;
+                FleeTick();
+            }
+
+            // End the round once everything is gone and no warnings remain
+            if (NoEnemiesOrWarningsRemain())
+            {
+                EndRound();
+            }
+        }
     }
+
 
     void LevelSpawning(int level)
     {
+        if (inFleePhase) return; // stop new spawns once fleeing starts
+
         if (waveTimer < 0f)
         {
             SpawnWave(level);
@@ -178,6 +227,69 @@ public class EnemySpawner : MonoBehaviour
         return false;
     }
 
+    void EnterFleePhase()
+    {
+        inFleePhase = true;
+
+        // Stop any queued spawns so nothing new appears during the flee phase
+        var warnings = FindObjectsOfType<EnemySpawnWarning>();
+        for (int i = 0; i < warnings.Length; i++)
+        {
+            if (warnings[i]) Destroy(warnings[i].gameObject);
+        }
+
+        // Start ticking immediately
+        fleeTickTimer = 0f;
+    }
+
+    void FleeTick()
+    {
+        var enemies = FindObjectsOfType<Enemy>();
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            var e = enemies[i];
+            if (!e || !e.isActiveAndEnabled) continue;
+
+            if (Random.value < fleeChancePerTick)
+            {
+                e.BeginFlee(); // no credits
+            }
+        }
+    }
+
+    bool NoEnemiesOrWarningsRemain()
+    {
+        return FindObjectsOfType<Enemy>().Length == 0
+            && FindObjectsOfType<EnemySpawnWarning>().Length == 0;
+    }
+
+    void EndRound()
+    {
+        // Reset phase state for next round
+        inFleePhase = false;
+        roundTimer = 0f;
+        fleeTickTimer = 0f;
+        wavesThisLevel = 0;
+
+        if (advanceRoundOnClear)
+        {
+            player_movement.gameRound++;
+            // If you have a shop/transition UI, trigger it here instead.
+            // Example:
+            // GameStateManager.Instance.RequestSceneChange(GameState.Playing, GameState.Win);
+        }
+    }
+
+    public void EnterFleePhaseExternal()
+    {
+        if (!inFleePhase)
+            EnterFleePhase(); // calls your private method that cancels warnings, etc.
+    }
+
+    public bool IsFieldClear()
+    {
+        return NoEnemiesOrWarningsRemain();
+    }
 
     /*
     void BasicSpawning()

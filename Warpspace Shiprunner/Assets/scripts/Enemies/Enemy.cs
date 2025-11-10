@@ -15,6 +15,13 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] public float spawnWeight;
     [SerializeField] public int unlockRound;
 
+    [SerializeField] private float fleeSpeed = 6f;     // how fast they slide off
+    [SerializeField] private float fleeDistance = 4f;  // how far to move right before despawn
+
+    private bool isFleeing = false;
+    private float fleeTargetX = 0f;
+
+
     Coroutine _loop;
     public player_movement playerMovement;
     protected float borderX;
@@ -57,17 +64,14 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (isFleeing) { FleeUpdate(); return; }  // <- short-circuit to flee
         Movement();
+
         if (health <= 0)
         {
-            // Gives money
             playerMovement.TriggerKill(this);
-            // Kills enemy
             Destroy(gameObject);
         }
-    }
-    public void ChangeHealth(float healthChange) {
-        health += healthChange;
     }
 
     void OnEnable() => RestartFireLoop();
@@ -93,6 +97,45 @@ public abstract class Enemy : MonoBehaviour
             firePoint.localPosition = Vector3.down * 0.5f;
         }
     }
+
+    public void BeginFlee()
+    {
+        if (isFleeing) return;           // only once
+        isFleeing = true;
+
+        // stop firing
+        if (_loop != null) StopCoroutine(_loop);
+
+        // make bullets not hurt: easiest is to disable collider
+        var col = GetComponent<Collider2D>();
+        if (col) col.enabled = false;
+
+        // set flee target
+        fleeTargetX = transform.position.x + fleeDistance;
+
+        // optional: visual cue (tint, flash, trail, etc.)
+        // GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.75f);
+    }
+
+    public void ChangeHealth(float healthChange)
+    {
+        if (isFleeing && healthChange < 0) return; // invulnerable while fleeing
+        health += healthChange;
+    }
+
+    private void FleeUpdate()
+    {
+        Vector3 p = transform.position;
+        float step = fleeSpeed * Time.deltaTime;
+        p.x = Mathf.MoveTowards(p.x, fleeTargetX, step);
+        transform.position = p;
+
+        if (Mathf.Approximately(p.x, fleeTargetX))
+        {
+            Destroy(gameObject); // finally disappear
+        }
+    }
+
 
     IEnumerator FireLoop()
     {

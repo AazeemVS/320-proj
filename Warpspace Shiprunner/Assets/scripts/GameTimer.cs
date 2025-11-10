@@ -4,29 +4,53 @@ using UnityEngine.SceneManagement;
 public class GameTimer : MonoBehaviour
 {
     [SerializeField] private player_movement player;
-    [SerializeField] public float timeLimit = 30f; // total seconds for the round
-    private float remaining;                       // starts equal to timeLimit
+    [SerializeField] private EnemySpawner spawner;     // 👈 add this
+    [SerializeField] public float timeLimit = 40f;     // rounds last 40s before flee
+    private float remaining;
     private bool gameEnded = false;
+    private bool waitingForClear = false;
 
-    // expose for UI
     public float Remaining => Mathf.Max(0f, remaining);
     public float Duration => timeLimit;
 
     void Start()
     {
-        remaining = timeLimit; // start full countdown
+        remaining = timeLimit;
+
+        // Safe fallback if not wired in inspector
+        if (spawner == null)
+            spawner = FindAnyObjectByType<EnemySpawner>();
     }
 
     void Update()
     {
         if (gameEnded) return;
 
-        remaining -= Time.deltaTime; // 👈 count down
+        // If we are in the post-timer phase, wait for board clear
+        if (waitingForClear)
+        {
+            if (spawner == null || spawner.IsFieldClear())
+            {
+                EndGame();
+            }
+            return;
+        }
+
+        // Normal countdown
+        remaining -= Time.deltaTime;
 
         if (remaining <= 0f)
         {
             remaining = 0f;
-            EndGame();
+
+            // Enter flee phase once
+            if (spawner != null && !spawner.InFleePhase)
+            {
+                spawner.EnterFleePhaseExternal();
+            }
+
+            // Now we wait until enemies are gone/fled
+            waitingForClear = true;
         }
     }
 
@@ -34,9 +58,8 @@ public class GameTimer : MonoBehaviour
     {
         gameEnded = true;
         player_movement.gameRound++;
-        Debug.Log("Game Over! Time’s up.");
 
-        // optional: stop time AFTER loading next scene
+        // If you instead use a GameStateManager, call that here.
         SceneManager.LoadScene("WinScene");
     }
 }
