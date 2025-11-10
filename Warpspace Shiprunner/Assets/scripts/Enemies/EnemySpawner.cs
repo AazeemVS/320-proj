@@ -99,7 +99,8 @@ public class EnemySpawner : MonoBehaviour
         //currently allows an enemy with high points to overflow the point limit, which adds some unpredictability to spawn patterns
         while (pointsUsed < pointsThisWave && safety++ < 1000) {
             float y = Random.Range(-borderY, borderY);
-            float x = Random.Range(6.25f, 8.25f);
+            float finalX = Random.Range(6.25f, 8.25f);
+            float offscreenX = finalX + 4.0f;
             // Gets random enemy using weighting (Difficult enemies spawn less)
             GameObject enemy = GetWeightedEnemy(level);
             if (enemy == null) break; // Prevents breaks
@@ -119,8 +120,12 @@ public class EnemySpawner : MonoBehaviour
 
             //prevent an enemy larger than the point allowance to spawn, allows for cases where a particularly dangerous enemy can only spawn in the later waves of a level
             if (enemyValue <= remaining) {
-                Instantiate(enemyWarningPrefab, new Vector3(x, y, 0f), Quaternion.identity);
-                enemyWarningPrefab.GetComponent<EnemySpawnWarning>().enemyToSpawn = enemy;
+                finalX = Random.Range(6.25f, 8.25f);
+                offscreenX = finalX + 2.0f;
+                Vector3 finalPos = new Vector3(finalX, y, 0f);
+                GameObject warning = Instantiate(enemyWarningPrefab, finalPos, Quaternion.identity);
+                warning.GetComponent<EnemySpawnWarning>().enemyToSpawn = enemy;
+
                 pointsUsed += enemyValue;
             }
             //avoid crashes if an enemy accidently didnt get assigned a value
@@ -196,9 +201,10 @@ public class EnemySpawner : MonoBehaviour
         if (basicSpawningTimer >= interval) {
             basicSpawningTimer = 0f;
             float y = Random.Range(-borderY, borderY);
-            float x = Random.Range(6.25f, 8.25f);
+            float finalX = Random.Range(6.25f, 8.25f);
+            float offscreenX = finalX + 4.0f;
             GameObject enemy = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
-            Instantiate(enemy, new Vector3(x, y, 0f), Quaternion.identity);
+            Instantiate(enemy, new Vector3(finalX, y, 0f), Quaternion.identity);
         }
     }
 

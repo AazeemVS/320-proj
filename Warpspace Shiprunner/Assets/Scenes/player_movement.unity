@@ -235,7 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad489785a91b58e4c92ee1689e224385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xSpawn: 7.5
   interval: 3
   enableBasicSpawning: 0
   enemyPrefabs:
