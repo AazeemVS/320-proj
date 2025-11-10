@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class player_movement : MonoBehaviour
@@ -17,6 +18,7 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
     public int piercing = 1;
+    public float spread = 0;
     // Damaging Upgrades
     public int killTriggers = 1; //Amount of times upgrades that trigger on kill activate. Modified by "ExtraKillTrigger" upgrade
     public bool enragesOnHit = false; public float enrageLength = 5f, enrageTimer = 0, enrageDamage = 0; // "EnrageUpgrade" fields
@@ -155,7 +157,7 @@ public class player_movement : MonoBehaviour
                 Bullet bulletScript = bulletRb.GetComponent<Bullet>();
                 //Set bullet attributes
                 bullet.transform.localScale *= bulletSize;
-                bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
+                bulletRb.linearVelocity = (Vector2.right * bulletSpeed + Vector2.up * Random.Range(-spread, spread)).normalized; // shoots to the right
                 bulletScript.bulletDamage = (playerDamage + (virusBoost*virusBonus*.5f)) * playerDamageMult;
                 if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
@@ -189,7 +191,10 @@ public class player_movement : MonoBehaviour
             }
             enrageTimer = enrageLength;
         }
-        AddCredits((int)(damage * insuranceCreditsScalar));
+        if (insuranceCreditsScalar > 0) {
+            AddCredits(1 + (int)Mathf.Ceil(damage * insuranceCreditsScalar));
+        }
+       
     }
     private void HandleHealth() {
         if(health <= 0) stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
