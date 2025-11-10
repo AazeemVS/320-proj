@@ -53,7 +53,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3142717864174255795}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -785730665672661360, guid: 857c0cf2882d95c43b14a107ca22ea94, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: 4711233683789166218}
   - component: {fileID: 1145955362590493087}
   - component: {fileID: 1150186733253446957}
+  - component: {fileID: 2473149288597193722}
   m_Layer: 5
   m_Name: Shopitem
   m_TagString: Untagged
@@ -154,8 +155,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeeccc7e542be9946a6cbed7c8824314, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 0}
   icon: {fileID: 9211627153668968340}
   title: {fileID: 0}
   priceText: {fileID: 0}
+  buyButton: {fileID: 0}
   detailsPanel: {fileID: 0}
+--- !u!114 &2473149288597193722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4997101509909551621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1

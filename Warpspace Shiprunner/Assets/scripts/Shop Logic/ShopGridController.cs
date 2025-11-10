@@ -18,13 +18,20 @@ public class ShopGridController : MonoBehaviour
     [Header("Mock Catalog (ScriptableObjects)")]
     [Tooltip("Assign your UpgradeItem assets here")]
     [SerializeField] private List<UpgradeItem> mockCatalog = new();
-
+    private GridLayoutGroup _grid;
     // Track spawned cards so we can destroy the one the player buys
     private readonly Dictionary<string, ShopItemView> _viewsById = new();
+
+
+    private void Awake()
+    {
+        _grid = gridParent ? gridParent.GetComponent<GridLayoutGroup>() : null;
+    }
 
     private void OnEnable()
     {
         // Auto-find missing refs (helps after scene/page swaps)
+        if (!_grid && gridParent) _grid = gridParent.GetComponent<GridLayoutGroup>();
         if (!inventory) inventory = FindObjectOfType<InventoryManager>(true);
         if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
 
@@ -94,8 +101,11 @@ public class ShopGridController : MonoBehaviour
 
             // 7) Spawn icon card; click shows panel (Buy happens from the panel)
             var view = Instantiate(itemPrefab, gridParent, false);
+            SnapChildToGridCell(view.transform as RectTransform);   // <— add this call
             int price = (item.upgrade != null) ? item.upgrade.value : defaultPrice;
             view.Bind(item, price, null);       // null => buying is done from the details panel
+            var grid = gridParent.GetComponent<GridLayoutGroup>();
+            ConformToGrid(view.transform as RectTransform, grid);
 
             // 8) Track for removal after purchase
             if (!string.IsNullOrEmpty(item.id))
@@ -103,7 +113,7 @@ public class ShopGridController : MonoBehaviour
         }
 
         // 9) Force a reflow so icons lock into grid slots
-        ForceGridRebuild();
+        ReflowGridNow();
     }
 
     // Called when the DETAILS PANEL Buy button is pressed
@@ -118,6 +128,7 @@ public class ShopGridController : MonoBehaviour
             // Do NOT destroy the shop card anymore — leave it on the grid
             // Optionally: give UI feedback or keep the panel open
             detailsPanel.Clear(); // or detailsPanel.ShowShop(item, item.upgrade.value);
+            ReflowGridNow();
             Debug.Log($"[Shop] Purchased {created.displayName}. Item remains available in shop.");
         }
         else
@@ -141,5 +152,85 @@ public class ShopGridController : MonoBehaviour
         }
         _viewsById.Remove(itemId);
     }
+
+    private void ReflowGridNow()
+    {
+        if (!gridParent) return;
+        var rt = gridParent as RectTransform;
+        if (!rt) return;
+
+        if (_grid == null) _grid = gridParent.GetComponent<GridLayoutGroup>();
+        if (_grid == null) return;
+
+        for (int i = 0; i < gridParent.childCount; i++)
+            SnapChildToGridCell(gridParent.GetChild(i) as RectTransform);
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
+
+
+        // normalize every existing child
+        for (int i = 0; i < gridParent.childCount; i++)
+        {
+            var crt = gridParent.GetChild(i) as RectTransform;
+            ConformToGrid(crt, _grid);
+        }
+
+        // force a layout pass (twice is safest with UI)
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
+    }
+
+    private void ConformToGrid(RectTransform cardRt, GridLayoutGroup grid)
+    {
+        if (!cardRt || !grid) return;
+
+        // kill any drifting
+        cardRt.anchorMin = cardRt.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRt.pivot = new Vector2(0.5f, 0.5f);
+        cardRt.localScale = Vector3.one;
+        cardRt.anchoredPosition = Vector2.zero;
+        cardRt.offsetMin = cardRt.offsetMax = Vector2.zero;
+        cardRt.sizeDelta = grid.cellSize;
+
+        // ensure no other layout system fights the grid
+        var vlg = cardRt.GetComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        if (vlg) Destroy(vlg);
+        var hlg = cardRt.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+        if (hlg) Destroy(hlg);
+        var csf = cardRt.GetComponent<UnityEngine.UI.ContentSizeFitter>();
+        if (csf) Destroy(csf);
+
+        // optional but helps: pin a LayoutElement to cell size
+        var le = cardRt.GetComponent<UnityEngine.UI.LayoutElement>();
+        if (!le) le = cardRt.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+        le.minWidth = le.preferredWidth = grid.cellSize.x;
+        le.minHeight = le.preferredHeight = grid.cellSize.y;
+    }
+    private void SnapChildToGridCell(RectTransform rt)
+    {
+        if (!rt || _grid == null) return;
+
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.localScale = Vector3.one;
+
+        // Size exactly to the grid’s cell
+        rt.sizeDelta = _grid.cellSize;
+
+        // If the prefab has a LayoutElement, set preferred size too
+        var le = rt.GetComponent<LayoutElement>();
+        if (le)
+        {
+            le.preferredWidth = _grid.cellSize.x;
+            le.preferredHeight = _grid.cellSize.y;
+            le.minWidth = le.minHeight = -1;   // let preferred drive it
+            le.flexibleWidth = le.flexibleHeight = 0f;
+            le.ignoreLayout = false;
+        }
+    }
+
 
 }
