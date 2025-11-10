@@ -81,7 +81,7 @@ MonoBehaviour:
   bulletPool: {fileID: 0}
   firePoint: {fileID: 0}
   shotsPerSecond: 2
-  bulletSpeed: 10
+  bulletSpeed: 3.5
   warmupDelay: 0.25
   useLocalDown: 0
   health: 3
@@ -91,7 +91,7 @@ MonoBehaviour:
   playerMovement: {fileID: 0}
   moveSpeed: 1.25
   turnSpeedDeg: 120
-  stopRange: 4
-  projectileScale: 1.8
-  projectileDamage: 4
+  stopRange: 10
+  projectileScale: 0.3
+  projectileDamage: 5
   inaccuracyDeg: 3
