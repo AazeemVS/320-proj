@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3915634994110139694}
   - component: {fileID: 680690361088503756}
   - component: {fileID: 7630284434528614443}
-  - component: {fileID: 4381528521769713827}
   - component: {fileID: 2433585207225300137}
+  - component: {fileID: 7662801903517115557}
   m_Layer: 0
   m_Name: SlowingEnemy
   m_TagString: Untagged
@@ -99,7 +99,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3758383038105805229}
   m_BodyType: 0
-  m_Simulated: 1
+  m_Simulated: 0
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -117,7 +117,32 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!70 &4381528521769713827
+--- !u!114 &2433585207225300137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3758383038105805229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f69cb04afa065d4f88eb4b8556c0707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPool: {fileID: 0}
+  firePoint: {fileID: 0}
+  shotsPerSecond: 1
+  bulletSpeed: 7
+  warmupDelay: 0.25
+  useLocalDown: 0
+  health: 3
+  spawnCost: 1
+  spawnWeight: 2.2
+  unlockRound: 0
+  playerMovement: {fileID: 0}
+  slowPercent: 0.25
+  slowDuration: 2
+--- !u!70 &7662801903517115557
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,31 +176,6 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 8.79, y: 5.93}
-  m_Direction: 0
---- !u!114 &2433585207225300137
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3758383038105805229}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f69cb04afa065d4f88eb4b8556c0707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPool: {fileID: 0}
-  firePoint: {fileID: 0}
-  shotsPerSecond: 2
-  bulletSpeed: 10
-  warmupDelay: 0.25
-  useLocalDown: 0
-  health: 3
-  spawnCost: 1
-  spawnWeight: 2.2
-  unlockRound: 0
-  playerMovement: {fileID: 0}
-  slowPercent: 0.15
-  slowDuration: 2
+  m_Offset: {x: 0.5397233, y: 0.052511238}
+  m_Size: {x: 9.86945, y: 5.816256}
+  m_Direction: 1
