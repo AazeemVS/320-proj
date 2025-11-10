@@ -1,82 +1,72 @@
-using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    // [SerializeField] float xSpawn = 7.5f;
     [SerializeField] float interval = 1.5f;
     [SerializeField] bool enableBasicSpawning = false;
     float basicSpawningTimer;
     float borderY;
+
     [SerializeField] List<GameObject> enemyPrefabs;
     [SerializeField] GameObject enemyWarningPrefab;
 
     int wavesThisLevel = 0;
-    float baseWaveStrength = 4;
-    float waveTimer = 0;
+    float baseWaveStrength = 2f;
+    float waveTimer = 0f;
 
     // --- Wave pacing ---
-    [SerializeField] float minWaveInterval = 2.5f; // floor
-    [SerializeField] float waveInterval = 10.0f; // Starting wave interval
-    [SerializeField] float intervalDecayPerLevel = 0.15f; // how much faster per level
+    [SerializeField] float minWaveInterval = 2.5f;     // floor
+    [SerializeField] float waveInterval = 10.0f;       // starting interval
+    [SerializeField] float intervalDecayPerLevel = 0.1f; // faster per level
 
     // --- Budget growth (enemy amount) ---
-    [SerializeField] float budgetPerLevel = 1.0f; // add to budget each level
+    [SerializeField] float budgetPerLevel = 0.0f; // add to budget each level
     [SerializeField] float budgetPerWave = 0.5f; // add to budget each wave this level
-
-    // --- Weight scaling ---
-    [Header("Weight Scaling (by base weight)")]
-    [SerializeField] float basicMin = 0.4f;   // Min weight of easy enemy
-    [SerializeField] float movingMax = 1.5f; //  Max weight of medium enemy
-    [SerializeField] float aimingMax = 1.6f; //  Max weight of medium enemy
-    [SerializeField] float chasingMax = 2.0f; //  Max weight of hard enemy
-    [SerializeField] float artilleryMax = 2.5f; //  Max weight of hard enemy
-    [SerializeField] float basicDeltaPerLevel = -0.04f; // Basic enemy gets rarer
-    [SerializeField] float movingPerLevel = 0.03f; // Moving enemy gets more likely
-    [SerializeField] float aimingDeltaPerLevel = 0.04f; // Aiming enemy gets more likely
-    [SerializeField] float chasingDeltaPerLevel = 0.06f; // Chasing enemy gets even more likely
-    [SerializeField] float artilleryDeltaPerLevel = 0.07f; // Chasing enemy gets even more likely
 
     int lastLevel = -1;
 
-    // To be accessed by RoundTimerText
-    public float WaveTimer
+    // Exposed for UI
+    public float WaveTimer => waveTimer;
+    public float WaveInterval => waveInterval;
+
+    void Start()
     {
-        get { return waveTimer; }
-    }
-
-    public float WaveInterval
-    {
-        get { return waveInterval; }
-    }
-
-
-    private void Start() {
         Camera cam = Camera.main;
         borderY = cam.orthographicSize;
-        borderY -= enemyPrefabs[0].GetComponent<SpriteRenderer>().bounds.size.y / 2;
+
+        // keep a small border equal to half the height of the first enemy (if available)
+        if (enemyPrefabs != null && enemyPrefabs.Count > 0)
+        {
+            var sr = enemyPrefabs[0].GetComponent<SpriteRenderer>();
+            if (sr != null) borderY -= sr.bounds.size.y * 0.5f;
+        }
     }
 
     void Update()
     {
-        if (enableBasicSpawning) { BasicSpawning(); }
-        else { 
-            int level = player_movement.gameRound;
+        if (enableBasicSpawning)
+        {
+            BasicSpawning();
+            return;
+        }
 
-            // Resets wave counter each new round
-            if (level != lastLevel)
-            {
-                wavesThisLevel = 0;
-                lastLevel = level;
-            }
+        int level = player_movement.gameRound;
 
-            LevelSpawning(level); 
-        };
+        // Reset wave counter each new round
+        if (level != lastLevel)
+        {
+            wavesThisLevel = 0;
+            lastLevel = level;
+        }
+
+        LevelSpawning(level);
     }
 
-    void LevelSpawning(int level) {
-        if(waveTimer < 0) {
+    void LevelSpawning(int level)
+    {
+        if (waveTimer < 0f)
+        {
             SpawnWave(level);
 
             // shrink interval as level rises, but never below minWaveInterval
@@ -84,128 +74,113 @@ public class EnemySpawner : MonoBehaviour
             waveTimer = lvlInterval;
 
             wavesThisLevel++;
-        } else {
+        }
+        else
+        {
             waveTimer -= Time.deltaTime;
         }
     }
 
-    void SpawnWave(int level) {
-        //completely arbitrary formula, will need a balance pass later
-        float pointsThisWave = baseWaveStrength + (level * budgetPerLevel) + (wavesThisLevel * budgetPerWave); // more points each round, and each wave within the round
-        float pointsUsed = 0;
+    void SpawnWave(int level)
+    {
+        // points grow by level and by waves within the level
+        float pointsThisWave = baseWaveStrength + (level * budgetPerLevel) + (wavesThisLevel * budgetPerWave);
+        float pointsUsed = 0f;
 
         int safety = 0;
+        while (pointsUsed < pointsThisWave && safety++ < 1000)
+        {
+            // pick an enemy by fixed weight (no scaling), only those unlocked for this level
+            GameObject enemy = GetWeightedEnemyFixed(level);
+            if (enemy == null) break;
 
-        //currently allows an enemy with high points to overflow the point limit, which adds some unpredictability to spawn patterns
-        while (pointsUsed < pointsThisWave && safety++ < 1000) {
-            float y = Random.Range(-borderY, borderY);
-            float finalX = Random.Range(6.25f, 8.25f);
-            float offscreenX = finalX + 4.0f;
-            // Gets random enemy using weighting (Difficult enemies spawn less)
-            GameObject enemy = GetWeightedEnemy(level);
-            if (enemy == null) break; // Prevents breaks
-            float enemyValue = enemy.GetComponent<Enemy>().spawnWeight;
+            Enemy enemyComp = enemy.GetComponent<Enemy>();
+            if (enemyComp == null) break;
+
+            float enemyValue = enemyComp.spawnWeight;
+            if (enemyValue <= 0f) throw new System.Exception("Enemy with unassigned or zero spawn weight");
+
             float remaining = pointsThisWave - pointsUsed;
 
-            // Adds cheapest float equal to cheapest enemy weight
-            float cheapest = Mathf.Infinity;
-            foreach (GameObject e in enemyPrefabs)
-            {
-                Enemy enemy1 = e.GetComponent<Enemy>();
-                if (enemy1 == null) continue;
-                if (enemy1.unlockRound > level) continue;
-                if (enemy1.spawnWeight < cheapest) cheapest = enemy1.spawnWeight;
-            }
-            if (cheapest == Mathf.Infinity) break;
+            // if nothing can fit, bail out cleanly
+            if (!AnyEnemyFits(level, remaining)) break;
 
-            //prevent an enemy larger than the point allowance to spawn, allows for cases where a particularly dangerous enemy can only spawn in the later waves of a level
-            if (enemyValue <= remaining) {
-                finalX = Random.Range(6.25f, 8.25f);
-                offscreenX = finalX + 2.0f;
+            // only spawn if it fits within remaining budget
+            if (enemyValue <= remaining)
+            {
+                float y = Random.Range(-borderY, borderY);
+                float finalX = Random.Range(6.25f, 8.25f);
+
                 Vector3 finalPos = new Vector3(finalX, y, 0f);
                 GameObject warning = Instantiate(enemyWarningPrefab, finalPos, Quaternion.identity);
                 warning.GetComponent<EnemySpawnWarning>().enemyToSpawn = enemy;
 
                 pointsUsed += enemyValue;
             }
-            //avoid crashes if an enemy accidently didnt get assigned a value
-            if (enemyValue == 0) { throw new System.Exception("Enemy with unassigned spawn weight"); }
         }
     }
 
-    GameObject GetWeightedEnemy(int level)
+    // --- SIMPLIFIED: fixed-weight pick, no per-level biasing ---
+    GameObject GetWeightedEnemyFixed(int level)
     {
         if (enemyPrefabs == null || enemyPrefabs.Count == 0) return null;
 
-        // sum adjusted weights
-        float totalWeight = 0f;
+        // sum weights of unlocked enemies
+        float total = 0f;
         for (int i = 0; i < enemyPrefabs.Count; i++)
         {
-            Enemy enemy = enemyPrefabs[i].GetComponent<Enemy>();
-            if (enemy == null) continue;
+            var e = enemyPrefabs[i];
+            var comp = e ? e.GetComponent<Enemy>() : null;
+            if (comp == null) continue;
+            if (comp.unlockRound > level) continue;
+            if (comp.spawnWeight <= 0f) continue;
 
-            // Skips if enemy hasn't been unlocked yet
-            if (enemy.unlockRound > level) continue;
-
-            totalWeight += GetAdjustedWeight(enemy, level);
+            total += comp.spawnWeight;
         }
+        if (total <= 0f) return null;
 
-        // Safeguard
-        if (totalWeight <= 0f) return null;
+        float pick = Random.Range(0f, total);
+        float accum = 0f;
 
-        float rng = Random.Range(0f, totalWeight);
-        float cumulative = 0f;
-
-        foreach (GameObject e in enemyPrefabs)
+        for (int i = 0; i < enemyPrefabs.Count; i++)
         {
-            Enemy enemy1 = e.GetComponent<Enemy>();
-            if (enemy1 == null) continue;
+            var e = enemyPrefabs[i];
+            var comp = e ? e.GetComponent<Enemy>() : null;
+            if (comp == null) continue;
+            if (comp.unlockRound > level) continue;
+            if (comp.spawnWeight <= 0f) continue;
 
-            // Skips if enemy hasn't been unlocked eyt
-            if (enemy1.unlockRound > level) continue;
-
-            cumulative += GetAdjustedWeight(enemy1, level);
-            if (rng <= cumulative)
+            accum += comp.spawnWeight;
+            if (pick <= accum)
                 return e;
         }
-
         return null;
     }
 
-    float GetAdjustedWeight(Enemy comp, int level)
+    bool AnyEnemyFits(int level, float budgetRemaining)
     {
-        int L = Mathf.Max(0, level - 1);
-        float w = comp.spawnWeight;
-
-        // Figure out which type it is based on weight range
-        float delta = 0f;
-
-        if (w <= basicMin)
-            delta = basicDeltaPerLevel;       // basic enemies get rarer
-        else if (w <= movingMax)
-            delta = movingPerLevel;           // moving enemies more likely
-        else if (w <= aimingMax)
-            delta = aimingDeltaPerLevel;      // aiming enemies more likely
-        else if (w <= chasingMax)
-            delta = chasingDeltaPerLevel;     // chasing enemies more likely
-        else if (w <= artilleryMax)
-            delta = artilleryDeltaPerLevel;     // chasing enemies more likely
-
-        return Mathf.Clamp(w + delta * L, basicMin, artilleryMax);
+        for (int i = 0; i < enemyPrefabs.Count; i++)
+        {
+            var e = enemyPrefabs[i];
+            var comp = e ? e.GetComponent<Enemy>() : null;
+            if (comp == null) continue;
+            if (comp.unlockRound > level) continue;
+            if (comp.spawnWeight > 0f && comp.spawnWeight <= budgetRemaining)
+                return true;
+        }
+        return false;
     }
 
-
-
-    void BasicSpawning() {
+    void BasicSpawning()
+    {
         basicSpawningTimer += Time.deltaTime;
-        if (basicSpawningTimer >= interval) {
+        if (basicSpawningTimer >= interval)
+        {
             basicSpawningTimer = 0f;
             float y = Random.Range(-borderY, borderY);
             float finalX = Random.Range(6.25f, 8.25f);
-            float offscreenX = finalX + 4.0f;
             GameObject enemy = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
             Instantiate(enemy, new Vector3(finalX, y, 0f), Quaternion.identity);
         }
     }
-
 }
