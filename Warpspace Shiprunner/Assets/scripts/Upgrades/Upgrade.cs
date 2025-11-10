@@ -196,8 +196,8 @@ public class RailgunUpgrade : Upgrade {
 //+Attack Speed, +Spread
 public class GattlingGunUpgrade : Upgrade {
     public GattlingGunUpgrade(): base(Rarity.Uncommon, 175, "Gattling Adapter", "Greatly Decreases Time Between And Accuracy Of Attacks.") { }
-    public override void OnEquip(player_movement player) { player.shootTimerMax *= .4f; player.spread += .4f; }
-    public override void OnUnequip(player_movement player) { player.shootTimerMax /= .4f; player.spread -= .4f; }
+    public override void OnEquip(player_movement player) { player.shootTimerMax *= .5f; player.spread += 12f; player.bulletSize *= .8f; }
+    public override void OnUnequip(player_movement player) { player.shootTimerMax /= .5f; player.spread -= 12f; player.bulletSize /= .8f; }
 }
 
 

@@ -22,7 +22,7 @@ public class player_movement : MonoBehaviour
     // Damaging Upgrades
     public int killTriggers = 1; //Amount of times upgrades that trigger on kill activate. Modified by "ExtraKillTrigger" upgrade
     public bool enragesOnHit = false; public float enrageLength = 5f, enrageTimer = 0, enrageDamage = 0; // "EnrageUpgrade" fields
-    public bool killBoost = false; public float killBoostLength = 5f, killBoostTimer = 0, killBoostDamage = 0; // "DamageOnKill" fields
+    public bool killBoost = false; public float killBoostLength = 3f, killBoostTimer = 0, killBoostDamage = 0; // "DamageOnKill" fields
     public int virusBoost = 0; public int virusBonus = 0; // "VirusDamageBoost" fields
     public bool hasPoison = false; public float poisonLength = 0, poisonDPS = .5f; // DoT on hit upgrade
     [SerializeField] GameObject killExplosion, hitExplosion; // prefabs for "ExplosiveKillUpgrade" and "ExplosiveHitUpgrade" respectively
@@ -152,12 +152,14 @@ public class player_movement : MonoBehaviour
                     float fireRange = 1f;
                     yOffset = new Vector3(0, (-fireRange / 2) + (i * fireRange / (projectileAmt - 1)));
                 }
-                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.identity);
+                float spreadAngle = Random.Range(-spread, spread);
+                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.Euler(0, 0, spreadAngle));
                 Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
                 Bullet bulletScript = bulletRb.GetComponent<Bullet>();
                 //Set bullet attributes
                 bullet.transform.localScale *= bulletSize;
-                bulletRb.linearVelocity = (Vector2.right * bulletSpeed + Vector2.up * Random.Range(-spread, spread)).normalized; // shoots to the right
+                bulletRb.linearVelocity = Vector2.right * bulletSpeed;
+                bulletRb.linearVelocity = new Vector2(Mathf.Cos(Mathf.Deg2Rad * spreadAngle),Mathf.Sin(Mathf.Deg2Rad*spreadAngle)) * bulletSpeed; // shoots to the right
                 bulletScript.bulletDamage = (playerDamage + (virusBoost*virusBonus*.5f)) * playerDamageMult;
                 if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
@@ -227,7 +229,7 @@ public class player_movement : MonoBehaviour
         if (hasPoison) { hitEnemy.EnablePoison(poisonLength, poisonDPS); }
     }
     public void TriggerKill(Enemy killedEnemy) {
-        AddCredits((int)killedEnemy.spawnWeight);
+        AddCredits((int)Mathf.Ceil(killedEnemy.spawnCost));
         for (int i = 0; i < killTriggers; i++) {
             OnKillUpgrades(killedEnemy);
         }
@@ -248,7 +250,7 @@ public class player_movement : MonoBehaviour
             }
             killBoostTimer = killBoostLength;
         }
-        if (hasHealthSteal) { ChangeHealth(killedEnemy.spawnWeight*healthStealScalar); }
+        if (hasHealthSteal) { ChangeHealth(killedEnemy.spawnCost*healthStealScalar); }
         AddCredits(extraKillCredits);
     }
     public void AddCredits(int amount) {
