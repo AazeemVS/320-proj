@@ -182,6 +182,7 @@ MonoBehaviour:
   unlockRound: 1
   fleeSpeed: 6
   fleeDistance: 4
+  creditsOnKill: 1
   playerMovement: {fileID: 0}
   stationary: 1
   upperLimit: 0

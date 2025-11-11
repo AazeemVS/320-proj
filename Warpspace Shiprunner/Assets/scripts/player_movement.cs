@@ -205,7 +205,7 @@ public class player_movement : MonoBehaviour
         }
     }
     public void TriggerKill(Enemy killedEnemy) {
-        AddCredits((int)killedEnemy.spawnWeight);
+        AddCredits(killedEnemy.CreditsOnKill);
         if (explodeOnHit == true ) {
             GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
             PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();

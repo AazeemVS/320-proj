@@ -113,6 +113,9 @@ MonoBehaviour:
   spawnCost: 3.5
   spawnWeight: 0.2
   unlockRound: 6
+  fleeSpeed: 6
+  fleeDistance: 4
+  creditsOnKill: 15
   playerMovement: {fileID: 0}
   bombWarning: {fileID: 6106048496685461405, guid: c72bfd5218b3ce94487e7fb21546c442, type: 3}
   bombExplosion: {fileID: 3935942349622363729, guid: 1108eaf745ff4fb43875f2430429376f, type: 3}
