@@ -200,7 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPool: {fileID: 0}
   firePoint: {fileID: 0}
-  shotsPerSecond: 2
+  shotsPerSecond: 1.75
   bulletSpeed: 10
   warmupDelay: 0.25
   useLocalDown: 0
@@ -208,6 +208,8 @@ MonoBehaviour:
   spawnCost: 1
   spawnWeight: 1.4
   unlockRound: 1
+  fleeSpeed: 6
+  fleeDistance: 4
   playerMovement: {fileID: 0}
   stationary: 0
   upperLimit: 0

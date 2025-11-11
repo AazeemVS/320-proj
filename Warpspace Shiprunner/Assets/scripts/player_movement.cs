@@ -35,7 +35,7 @@ public class player_movement : MonoBehaviour
     public static int roundCredits = 0;
 
     // gameRound
-    public static int gameRound = 6;
+    public static int gameRound = 1;
 
 
     private Rigidbody2D rb;

@@ -3,69 +3,74 @@ using UnityEngine;
 
 public class LaserEnemy : Enemy
 {
-    [Header("Laser Settings")]
+    [Header("Damage")]
     [SerializeField] float laserDamage = 1f;
+    [SerializeField] bool shotIgnoresIFrames = false;
+    [Tooltip("How close the beam path must pass to the player to count as a hit.")]
+    [SerializeField] float playerHitRadius = 0.45f;
 
-    [Tooltip("How long the blue 'aim' line shows before firing the red beam.")]
-    [SerializeField] float preAimTime = 1.0f;     // blue warning duration
+    [Header("Timing")]
+    [SerializeField] float preAimTime = 1.0f; // follow red duration (fades in)
+    [SerializeField] float postAimDelay = 0.50f; // pause after locking aim
+    [SerializeField] float whiteFlashDuration = 0.03f; // super short impact frame
+    [SerializeField] float beamDuration = 0.15f; // how long orange stays on
+    [SerializeField] float fireCooldown = 5.0f; // orange to orange
 
-    [Tooltip("How long the red beam is visible after firing.")]
-    [SerializeField] float beamDuration = 0.15f;  // red beam duration
-
-    [Tooltip("Time between RED beam shots (from red to next red).")]
-    [SerializeField] float fireCooldown = 5.0f;   // cadence target (~5s)
-
-    [SerializeField] float aimWidth = 0.04f;      // blue line width
-    [SerializeField] float beamWidth = 0.12f;     // red line width
+    [Header("Visuals")]
+    [SerializeField] float aimWidth = 0.04f; // follow width
+    [SerializeField] float beamWidth = 0.12f; // shot width
     [SerializeField] float range = 30f;
 
-    [Tooltip("Layers the laser can hit (make sure Player layer is included).")]
-    [SerializeField] LayerMask hitMask = ~0;
+    // Colors
+    static readonly Color followRedStart = new Color(1f, 0f, 0f, 0.10f);
+    static readonly Color followRedEnd = new Color(1f, 0f, 0f, 1.00f);
+    static readonly Color shotOrangeA = new Color(1f, 0.50f, 0.00f, 1f);
+    static readonly Color shotOrangeB = new Color(1f, 0.60f, 0.20f, 1f);
+    static readonly Color whiteFull = new Color(1f, 1f, 1f, 1f);
 
-    [Header("Movement")]
-    [SerializeField] float hoverSpeed = 1.25f;
-    [SerializeField] float hoverAmplitude = 0.75f;
+    LineRenderer lr;
+    Vector3 startPos;
+    float hoverT;
 
-    private LineRenderer lr;
-    private float hoverT;
-    private Vector3 startPos;
-
-    // Cooldown gating so we don't rely on base shotsPerSecond timing
-    private bool isFiring = false;
-    private float lastRedTime = -999f;
+    bool isFiring = false;
+    float lastShotTime = -999f;
 
     void Start()
     {
         startPos = transform.position;
 
-        // Set up a LineRenderer for the laser
         lr = gameObject.AddComponent<LineRenderer>();
         lr.positionCount = 2;
         lr.useWorldSpace = true;
         lr.enabled = false;
         lr.sortingOrder = 10;
-
-        // Simple material for 2D line
-        var mat = new Material(Shader.Find("Sprites/Default"));
-        lr.material = mat;
+        lr.numCapVertices = 4;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
     }
 
     public override void Movement()
     {
-        // Simple floaty hover
-        hoverT += Time.deltaTime * hoverSpeed;
-        Vector3 p = startPos;
-        p.y += Mathf.Sin(hoverT) * hoverAmplitude;
+        // subtle hover
+        hoverT += Time.deltaTime * 1.25f;
+
+        float hoverAmp = 0.75f;
+        Vector3 expected = startPos + new Vector3(0f, Mathf.Sin(hoverT) * hoverAmp, 0f);
+        if ((transform.position - expected).sqrMagnitude > 0.01f)
+        {
+            // Preserve current hover offset and anchor to wherever we were moved.
+            startPos = transform.position - new Vector3(0f, Mathf.Sin(hoverT) * hoverAmp, 0f);
+        }
+
+        var p = startPos;
+        p.y += Mathf.Sin(hoverT) * hoverAmp;
         transform.position = p;
     }
 
     public override void FireOnce()
     {
         if (!playerMovement || !firePoint) return;
-
-        // Gate by cooldown, measured at the moment the RED beam fires
         if (isFiring) return;
-        if (Time.time - lastRedTime < fireCooldown) return;
+        if (Time.time - lastShotTime < fireCooldown) return;
 
         StartCoroutine(FireLaserRoutine());
     }
@@ -74,70 +79,110 @@ public class LaserEnemy : Enemy
     {
         isFiring = true;
 
-        // === BLUE WARNING PHASE (no damage) ===
-        Vector3 dirWarn = (playerMovement.transform.position - firePoint.position).normalized;
-        if (dirWarn.sqrMagnitude < 0.0001f) dirWarn = Vector3.left;
-
+        // follow red 0-100% opacity
         lr.enabled = true;
         lr.startWidth = aimWidth;
         lr.endWidth = aimWidth;
-        lr.startColor = Color.cyan;                // blue aim color
-        lr.endColor = new Color(0f, 0.7f, 1f);
 
-        float timer = 0f;
-        while (timer < preAimTime)
+        float t = 0f;
+        Vector3 dirFallback = Vector3.right;
+
+        while (t < preAimTime)
         {
-            timer += Time.deltaTime;
-            Vector3 d = (playerMovement.transform.position - firePoint.position).normalized;
-            if (d.sqrMagnitude < 0.0001f) d = dirWarn;
+            t += Time.deltaTime;
 
+            Vector3 d = (playerMovement.transform.position - firePoint.position).normalized;
+            if (d.sqrMagnitude < 0.0001f) d = dirFallback;
+
+            float k = Mathf.Clamp01(t / Mathf.Max(0.0001f, preAimTime));
+            float a = Mathf.Lerp(followRedStart.a, followRedEnd.a, k);
+
+            lr.startColor = new Color(1f, 0f, 0f, a);
+            lr.endColor = new Color(1f, 0.2f, 0.2f, a);
             lr.SetPosition(0, firePoint.position);
             lr.SetPosition(1, firePoint.position + d * range);
             yield return null;
         }
 
-        // === RED BEAM PHASE (does damage) ===
-        Vector3 dir = (playerMovement.transform.position - firePoint.position).normalized;
-        if (dir.sqrMagnitude < 0.0001f) dir = dirWarn;
+        // lock and pause
+        Vector3 lockedDir = (playerMovement.transform.position - firePoint.position).normalized;
+        if (lockedDir.sqrMagnitude < 0.0001f) lockedDir = dirFallback;
 
-        // Nudge forward to avoid hitting our own collider
-        Vector3 castStart = firePoint.position + dir * 0.05f;
+        lr.startWidth = aimWidth;
+        lr.endWidth = aimWidth;
+        lr.startColor = followRedEnd;
+        lr.endColor = new Color(1f, 0.2f, 0.2f, 1f);
+        lr.SetPosition(0, firePoint.position);
+        lr.SetPosition(1, firePoint.position + lockedDir * range);
 
-        // Exclude this enemy's layer from the raycast so we don't self-hit
-        int excludeSelfLayer = 1 << gameObject.layer;
-        int mask = hitMask & ~excludeSelfLayer;
+        yield return new WaitForSeconds(postAimDelay);
 
-        RaycastHit2D hit = Physics2D.Raycast(castStart, dir, range, mask);
-        Vector3 end = castStart + dir * range;
+        // Precompute the shot segment
+        Vector3 shotStart = firePoint.position + lockedDir * 0.05f; // tiny nudge out of own collider
+        Vector3 shotEnd = shotStart + lockedDir * range;
 
-        if (hit.collider != null)
-        {
-            end = hit.point;
-
-            // Damage player (even if collider is on a child)
-            var pm = hit.collider.GetComponent<player_movement>() ??
-                     hit.collider.GetComponentInParent<player_movement>();
-
-            if (pm != null && laserDamage > 0f)
-            {
-                pm.ChangeHealth(-laserDamage);
-            }
-        }
-
-        // Draw the RED beam
+        // Impact frame
         lr.startWidth = beamWidth;
         lr.endWidth = beamWidth;
-        lr.startColor = Color.red;
-        lr.endColor = new Color(1f, 0.3f, 0.3f);
+        lr.startColor = whiteFull;
+        lr.endColor = whiteFull;
         lr.SetPosition(0, firePoint.position);
-        lr.SetPosition(1, end);
+        lr.SetPosition(1, shotEnd);
 
-        // Mark the time at which the RED beam fired (cadence reference)
-        lastRedTime = Time.time;
+        yield return new WaitForSeconds(whiteFlashDuration);
+
+        // Orange shot
+        // Visuals first
+        lr.startWidth = beamWidth;
+        lr.endWidth = beamWidth;
+        lr.startColor = shotOrangeA;
+        lr.endColor = shotOrangeB;
+
+        // If the shortest distance from player's position to the beam segment radiushit.
+        Vector2 playerPos = playerMovement.transform.position;
+        float dist = DistancePointToSegment2D(playerPos, shotStart, shotEnd);
+
+        Vector3 finalEnd = shotEnd;
+        if (dist <= playerHitRadius && laserDamage > 0f)
+        {
+            // Damage respects iframes unless shotIgnoresIFrames is true
+            playerMovement.ChangeHealth(-laserDamage, shotIgnoresIFrames);
+
+            // Move the visual end to the closest point on the segment to the player
+            finalEnd = ClosestPointOnSegment2D(playerPos, shotStart, shotEnd);
+        }
+
+        lr.SetPosition(0, firePoint.position);
+        lr.SetPosition(1, finalEnd);
+
+        lastShotTime = Time.time;
 
         yield return new WaitForSeconds(beamDuration);
 
         lr.enabled = false;
         isFiring = false;
+    }
+
+    static float DistancePointToSegment2D(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        float ab2 = Vector2.SqrMagnitude(ab);
+        if (ab2 <= 1e-8f) return Vector2.Distance(p, a); // degenerate
+
+        float t = Vector2.Dot(p - a, ab) / ab2;
+        t = Mathf.Clamp01(t);
+        Vector2 proj = a + t * ab;
+        return Vector2.Distance(p, proj);
+    }
+
+    // Closest point on segment AB to P
+    static Vector2 ClosestPointOnSegment2D(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        float ab2 = Vector2.SqrMagnitude(ab);
+        if (ab2 <= 1e-8f) return a;
+        float t = Vector2.Dot(p - a, ab) / ab2;
+        t = Mathf.Clamp01(t);
+        return a + t * ab;
     }
 }
