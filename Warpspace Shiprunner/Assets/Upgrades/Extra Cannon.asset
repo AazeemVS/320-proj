@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ff5a1876e5d64f74a612a99f2fb63bf9
   displayName: Extra Cannon
-  description: Fires a second projectile. Trade off between size and slightly lower
-    damage.
+  description: Fires a second projectile.
   icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
   tempUpgradeID: 0
