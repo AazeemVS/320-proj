@@ -1,10 +1,13 @@
+using NUnit.Framework;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GraphicsManager : MonoBehaviour
 {
-    GameObject bg1, bg2;
     [SerializeField] float bgScrollSpeed = 2;
     [SerializeField] GameObject UI;
+    [SerializeField] List<GameObject> backgroundSprites;
+    float[] bgLastX = new float[6];
     float offScreenX;
     float bgSpriteWidth;
     float bg1LastX, bg2LastX;
@@ -14,12 +17,6 @@ public class GraphicsManager : MonoBehaviour
         Camera cam = Camera.main;
         float borderY = cam.orthographicSize;
         float borderX = borderY * cam.aspect;
-        //define background values based off of screen size
-        bg1 = GameObject.FindGameObjectsWithTag("Background")[0];
-        bg2 = GameObject.FindGameObjectsWithTag("Background")[1];
-        if (bg1 == null || bg2 == null) throw new UnassignedReferenceException("Could not find background objects. Make sure they have the background tag");
-        bgSpriteWidth = bg1.GetComponent<SpriteRenderer>().bounds.size.x/2;
-        offScreenX = -bgSpriteWidth + borderX;
         //define UI values based off of screen size
         SpriteRenderer TopUI = UI.transform.GetChild(0).GetComponent<SpriteRenderer>();
         SpriteRenderer BottomUI = UI.transform.GetChild(1).GetComponent<SpriteRenderer>();
@@ -35,22 +32,27 @@ public class GraphicsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateBackground();
+        UpdateBackground(0, 1.5f);
+        UpdateBackground(2, 2.5f);
+        UpdateBackground(4, 5.5f);
     }
 
 
     //move and loop background
-    void UpdateBackground() {
-        bg1.transform.position = new Vector3(bg1.transform.position.x - bgScrollSpeed * Time.deltaTime, 0, 10);
-        bg2.transform.position = new Vector3(bg2.transform.position.x - bgScrollSpeed * Time.deltaTime, 0, 10);
-        if (bg1.transform.position.x <= offScreenX && bg1LastX > offScreenX) {
-            Debug.Log("looped");
-            bg2.transform.position = new Vector3(bg1.transform.position.x + 2 * bgSpriteWidth - .1f, 0, 10);
-        } else if (bg2.transform.position.x <= offScreenX && bg2LastX > offScreenX) {
-            Debug.Log("looped");
-            bg1.transform.position = new Vector3(bg2.transform.position.x + 2 * bgSpriteWidth - .1f, 0, 10);
+    void UpdateBackground(int layer, float scrollSpeed) {
+        bgSpriteWidth = backgroundSprites[layer].GetComponent<SpriteRenderer>().bounds.size.x / 2;
+        Camera cam = Camera.main;
+        float borderY = cam.orthographicSize;
+        float borderX = borderY * cam.aspect;
+        offScreenX = -bgSpriteWidth + borderX;
+        backgroundSprites[layer].transform.position = new Vector3(backgroundSprites[layer].transform.position.x - scrollSpeed * Time.deltaTime, 0, -layer + 5);
+        backgroundSprites[layer + 1].transform.position = new Vector3(backgroundSprites[layer + 1].transform.position.x - scrollSpeed * Time.deltaTime, 0, -layer + 5);
+        if (backgroundSprites[layer].transform.position.x <= offScreenX && bgLastX[layer] > offScreenX) {
+            backgroundSprites[layer + 1].transform.position = new Vector3(backgroundSprites[layer].transform.position.x + 2 * bgSpriteWidth - .1f, 0, 10);
+        } else if (backgroundSprites[layer + 1].transform.position.x <= offScreenX && bgLastX[layer + 1] > offScreenX) {
+            backgroundSprites[layer].transform.position = new Vector3(backgroundSprites[layer + 1].transform.position.x + 2 * bgSpriteWidth - .1f, 0, 10);
         }
-        bg1LastX = bg1.transform.position.x;
-        bg2LastX = bg2.transform.position.x;
+        bgLastX[layer] = backgroundSprites[layer].transform.position.x;
+        bgLastX[layer + 1] = backgroundSprites[layer + 1].transform.position.x;
     }
 }
