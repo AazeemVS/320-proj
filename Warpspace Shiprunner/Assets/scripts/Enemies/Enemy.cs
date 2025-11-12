@@ -126,7 +126,7 @@ public abstract class Enemy : MonoBehaviour
 
         if (awardCredits && playerMovement != null)
         {
-            playerMovement.AddCredits(creditsOnKill);
+            // playerMovement.AddCredits(creditsOnKill); gave double ecredits for some reason
             playerMovement.TriggerKill(this);
         }
 
