@@ -141,7 +141,7 @@ public class player_movement : MonoBehaviour
         if(transform.position.x > borderX) adjustedPos.x = borderX;
         else if (transform.position.x < -borderX) adjustedPos.x = -borderX;
         if (transform.position.y > borderY - topUIHeight) adjustedPos.y = borderY - topUIHeight;
-        else if (transform.position.y < -borderY + bottomUIHeight) adjustedPos.y = -borderY + bottomUIHeight;
+        //else if (transform.position.y < -borderY + bottomUIHeight) adjustedPos.y = -borderY + bottomUIHeight;
         transform.position = adjustedPos;
     }
 
