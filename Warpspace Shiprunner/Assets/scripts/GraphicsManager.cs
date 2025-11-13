@@ -7,10 +7,16 @@ public class GraphicsManager : MonoBehaviour
     [SerializeField] float bgScrollSpeed = 2;
     [SerializeField] GameObject UI;
     [SerializeField] List<GameObject> backgroundSprites;
+    [SerializeField] GameObject healthBar;
     float[] bgLastX = new float[6];
     float offScreenX;
     float bgSpriteWidth;
     float bg1LastX, bg2LastX;
+    public float playerHealthMax;
+    public float playerHealthCurrent;
+    float healthbarMaxWidth;
+    float healthBarPos;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -26,6 +32,11 @@ public class GraphicsManager : MonoBehaviour
         BottomUI.transform.localScale *= UIScaling;
         TopUI.transform.position = new Vector3(0, borderY - TopUI.bounds.size.y / 2, -9);
         BottomUI.transform.position = new Vector3(0, -borderY + BottomUI.bounds.size.y / 2, -9);
+        healthbarMaxWidth = healthBar.transform.localScale.x;
+        healthBarPos = healthBar.transform.position.x - healthBar.GetComponent<SpriteRenderer>().bounds.size.x / 2;
+        player_movement player = GameObject.FindGameObjectWithTag("Player").GetComponent<player_movement>();
+        player.topUIHeight = TopUI.bounds.size.y;
+        player.bottomUIHeight = BottomUI.bounds.size.y;
 
     }
 
@@ -37,6 +48,13 @@ public class GraphicsManager : MonoBehaviour
         UpdateBackground(4, 5.5f);
     }
 
+    public void UpdateHealthbar(float newHealth){
+        playerHealthCurrent = newHealth;
+        healthBar.transform.localScale = new Vector3(healthbarMaxWidth*playerHealthCurrent/playerHealthMax, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
+        float newWidth = healthBar.GetComponent<SpriteRenderer>().bounds.size.x/2;
+        //left align healthbar to healthbar box
+        healthBar.transform.position = new Vector3(healthBarPos + newWidth, healthBar.transform.position.y, healthBar.transform.position.z);
+    }
 
     //move and loop background
     void UpdateBackground(int layer, float scrollSpeed) {

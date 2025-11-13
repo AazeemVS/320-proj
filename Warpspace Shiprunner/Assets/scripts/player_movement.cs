@@ -49,7 +49,10 @@ public class player_movement : MonoBehaviour
     private Vector2 moveInput;
     private float borderX;
     private float borderY;
+    public float topUIHeight;
+    public float bottomUIHeight;
     private GameStateManager stateManager;
+    private GraphicsManager graphicsManager;
     [SerializeField] PlayerAnimation animManager;
     [SerializeField] TextMeshProUGUI healthUI;
     [SerializeField] private float health;
@@ -73,6 +76,8 @@ public class player_movement : MonoBehaviour
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
         health = maxHealth;
+        graphicsManager = FindAnyObjectByType<GraphicsManager>();
+        if(graphicsManager != null) { graphicsManager.playerHealthMax = maxHealth; }
         InventoryManager inv = InventoryManager.Instance;
         if (inv != null) {
             for (int i = 0; i < inv.Active.Count; i++) {
@@ -135,8 +140,8 @@ public class player_movement : MonoBehaviour
         Vector3 adjustedPos = transform.position;
         if(transform.position.x > borderX) adjustedPos.x = borderX;
         else if (transform.position.x < -borderX) adjustedPos.x = -borderX;
-        if (transform.position.y > borderY) adjustedPos.y = borderY;
-        else if (transform.position.y < -borderY) adjustedPos.y = -borderY;
+        if (transform.position.y > borderY - topUIHeight) adjustedPos.y = borderY - topUIHeight;
+        else if (transform.position.y < -borderY + bottomUIHeight) adjustedPos.y = -borderY + bottomUIHeight;
         transform.position = adjustedPos;
     }
 
@@ -184,6 +189,7 @@ public class player_movement : MonoBehaviour
             if(health > maxHealth) health = maxHealth;
         }
         if (healthUI != null) { healthUI.text = ("Health:" + health); }
+        if (graphicsManager != null) { graphicsManager.UpdateHealthbar(health); }
     }
 
     private void OnTakeDamageUpgrades(float damage) {
