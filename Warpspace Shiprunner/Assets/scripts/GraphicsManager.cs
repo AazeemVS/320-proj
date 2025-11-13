@@ -8,6 +8,10 @@ public class GraphicsManager : MonoBehaviour
     [SerializeField] GameObject UI;
     [SerializeField] List<GameObject> backgroundSprites;
     [SerializeField] GameObject healthBar;
+    [SerializeField] GameObject timerIcon;
+    [SerializeField] float roundLength;
+    float roundTimer;
+    float timerIconX;
     float[] bgLastX = new float[6];
     float offScreenX;
     float bgSpriteWidth;
@@ -34,6 +38,7 @@ public class GraphicsManager : MonoBehaviour
         BottomUI.transform.position = new Vector3(0, -borderY + BottomUI.bounds.size.y / 2, -9);
         healthbarMaxWidth = healthBar.transform.localScale.x;
         healthBarPos = healthBar.transform.position.x - healthBar.GetComponent<SpriteRenderer>().bounds.size.x / 2;
+        timerIconX = timerIcon.transform.position.x;
         player_movement player = GameObject.FindGameObjectWithTag("Player").GetComponent<player_movement>();
         player.topUIHeight = TopUI.bounds.size.y;
         player.bottomUIHeight = BottomUI.bounds.size.y;
@@ -46,6 +51,10 @@ public class GraphicsManager : MonoBehaviour
         UpdateBackground(0, 1.5f);
         UpdateBackground(2, 2.5f);
         UpdateBackground(4, 5.5f);
+        roundTimer += Time.deltaTime;
+        //move timer icon (assumes the timer is perfectly centered on screen like in current UI)
+        timerIcon.transform.position = new Vector3(timerIconX + (2 * (-timerIconX) * roundTimer / roundLength), timerIcon.transform.position.y, timerIcon.transform.position.z);
+
     }
 
     public void UpdateHealthbar(float newHealth){
