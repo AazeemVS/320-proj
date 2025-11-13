@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class player_movement : MonoBehaviour
@@ -17,14 +18,18 @@ public class player_movement : MonoBehaviour
     public float shootTimerMax = .25f;
     public int projectileAmt = 1;
     public int piercing = 1;
-    public bool enragesOnHit = false;
-    public float enrageLength = 5f, enrageTimer = 0;
-    public float enrageDamage = 0;
+    public float spread = 0;
     // Damaging Upgrades
-    [SerializeField] GameObject killExplosion, hitExplosion;
-    public bool explodeOnKill, explodeOnHit = false;
-    public float killExplosionScale, hitExplosionScale = 1;
-
+    public int killTriggers = 1; //Amount of times upgrades that trigger on kill activate. Modified by "ExtraKillTrigger" upgrade
+    public bool enragesOnHit = false; public float enrageLength = 5f, enrageTimer = 0, enrageDamage = 0; // "EnrageUpgrade" fields
+    public bool killBoost = false; public float killBoostLength = 3f, killBoostTimer = 0, killBoostDamage = 0; // "DamageOnKill" fields
+    public int virusBoost = 0; public int virusBonus = 0; // "VirusDamageBoost" fields
+    public bool hasPoison = false; public float poisonLength = 0, poisonDPS = .5f; // DoT on hit upgrade
+    [SerializeField] GameObject killExplosion, hitExplosion; // prefabs for "ExplosiveKillUpgrade" and "ExplosiveHitUpgrade" respectively
+    public bool explodeOnKill, explodeOnHit = false; public float killExplosionScale, hitExplosionScale = 1;
+    //Health stats
+    public bool hasHealthSteal = false; public float healthStealScalar = .1f; // "HealthOnKill"
+    public float iFrameMax = 1f;
     //Dash stats
     public bool dashEnabled = true;
     public bool dashHasDodge = false;
@@ -33,6 +38,8 @@ public class player_movement : MonoBehaviour
     // Credits
     public static int credits = 0;
     public static int roundCredits = 0;
+    public int extraKillCredits = 0; // modified by "CreditsOnKill" upgrade
+    public float insuranceCreditsScalar = 0; // modified by "CreditsWhenHit" upgrade
 
     // gameRound
     public static int gameRound = 1;
@@ -42,12 +49,14 @@ public class player_movement : MonoBehaviour
     private Vector2 moveInput;
     private float borderX;
     private float borderY;
+    public float topUIHeight;
+    public float bottomUIHeight;
     private GameStateManager stateManager;
+    private GraphicsManager graphicsManager;
     [SerializeField] PlayerAnimation animManager;
     [SerializeField] TextMeshProUGUI healthUI;
     [SerializeField] private float health;
     private float shootTimer = 0;
-    public float iFrameMax = 1f;
     [SerializeField] private float iFrameTimer = 0f;
     //Dash Logic
     private float dashTimer = 0;
@@ -67,6 +76,8 @@ public class player_movement : MonoBehaviour
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
         health = maxHealth;
+        graphicsManager = FindAnyObjectByType<GraphicsManager>();
+        if(graphicsManager != null) { graphicsManager.playerHealthMax = maxHealth; }
         InventoryManager inv = InventoryManager.Instance;
         if (inv != null) {
             for (int i = 0; i < inv.Active.Count; i++) {
@@ -84,6 +95,7 @@ public class player_movement : MonoBehaviour
         HandleMovement();
         HandleShooting();
         HandleHealth();
+        HandleTimers();
     }
 
     void HandleMovement()
@@ -128,8 +140,8 @@ public class player_movement : MonoBehaviour
         Vector3 adjustedPos = transform.position;
         if(transform.position.x > borderX) adjustedPos.x = borderX;
         else if (transform.position.x < -borderX) adjustedPos.x = -borderX;
-        if (transform.position.y > borderY) adjustedPos.y = borderY;
-        else if (transform.position.y < -borderY) adjustedPos.y = -borderY;
+        if (transform.position.y > borderY - topUIHeight) adjustedPos.y = borderY - topUIHeight;
+        else if (transform.position.y < -borderY + bottomUIHeight) adjustedPos.y = -borderY + bottomUIHeight;
         transform.position = adjustedPos;
     }
 
@@ -145,13 +157,15 @@ public class player_movement : MonoBehaviour
                     float fireRange = 1f;
                     yOffset = new Vector3(0, (-fireRange / 2) + (i * fireRange / (projectileAmt - 1)));
                 }
-                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.identity);
+                float spreadAngle = Random.Range(-spread, spread);
+                GameObject bullet = Instantiate(bulletPrefab, firePoint.position + yOffset, Quaternion.Euler(0, 0, spreadAngle));
                 Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
                 Bullet bulletScript = bulletRb.GetComponent<Bullet>();
                 //Set bullet attributes
                 bullet.transform.localScale *= bulletSize;
-                bulletRb.linearVelocity = Vector2.right * bulletSpeed; // shoots to the right
-                bulletScript.bulletDamage = playerDamage * playerDamageMult;
+                bulletRb.linearVelocity = Vector2.right * bulletSpeed;
+                bulletRb.linearVelocity = new Vector2(Mathf.Cos(Mathf.Deg2Rad * spreadAngle),Mathf.Sin(Mathf.Deg2Rad*spreadAngle)) * bulletSpeed; // shoots to the right
+                bulletScript.bulletDamage = (playerDamage + (virusBoost*virusBonus*.5f)) * playerDamageMult;
                 if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
                 shootTimer = shootTimerMax;
@@ -165,21 +179,30 @@ public class player_movement : MonoBehaviour
         
         if(healthChange < 0 && (iFrameTimer<=0 || beatsIFrames)) {
             health += healthChange;
-            StartCoroutine(TakeDamage(beatsIFrames));
+            GetComponent<SpriteRenderer>().color = Color.red;
             if (!beatsIFrames) {
                 iFrameTimer = iFrameMax;
             }
-            if (enragesOnHit) {
-                if (enrageTimer <= 0) {
-                    playerDamage += enrageDamage;
-                }
-                enrageTimer = enrageLength;
-            }
-        } else if(healthChange > 0) {
+            OnTakeDamageUpgrades(healthChange);
+        } else if(healthChange >= 0) {
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
         }
         if (healthUI != null) { healthUI.text = ("Health:" + health); }
+        if (graphicsManager != null) { graphicsManager.UpdateHealthbar(health); }
+    }
+
+    private void OnTakeDamageUpgrades(float damage) {
+        if (enragesOnHit) {
+            if (enrageTimer <= 0) {
+                playerDamage += enrageDamage;
+            }
+            enrageTimer = enrageLength;
+        }
+        if (insuranceCreditsScalar > 0) {
+            AddCredits(1 + (int)Mathf.Ceil(damage * insuranceCreditsScalar));
+        }
+       
     }
     private void HandleHealth() {
         if (health <= 0) {
@@ -187,8 +210,9 @@ public class player_movement : MonoBehaviour
             roundCredits = 0;
             stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         }
-            iFrameTimer -= Time.deltaTime;
-        if (enrageTimer > 0) {
+        iFrameTimer -= Time.deltaTime;
+        if (iFrameTimer <= 0) { GetComponent<SpriteRenderer>().color = Color.white; }
+    if (enrageTimer > 0) {
             enrageTimer -= Time.deltaTime;
             if (enrageTimer <= 0) {
                 playerDamage -= enrageDamage;
@@ -197,6 +221,14 @@ public class player_movement : MonoBehaviour
 
     }
 
+    private void HandleTimers() {
+        if (killBoost && killBoostTimer > 0) {
+            killBoostTimer -= Time.deltaTime;
+            if(killBoostTimer <= 0) {
+                playerDamage -= killBoostDamage * killTriggers;
+            }
+        }
+    }
     public void TriggerHitEffects(Bullet bullet, Enemy hitEnemy) {
         if(explodeOnHit == true && bullet.GetType() != typeof(PlayerExplosion)) {
             GameObject hitObj = Instantiate(hitExplosion, bullet.transform.position, Quaternion.identity);
@@ -204,29 +236,35 @@ public class player_movement : MonoBehaviour
             hitExp.bulletDamage = playerDamage * playerDamageMult;
             hitObj.transform.localScale *= hitExplosionScale;
         }
+        if (hasPoison) { hitEnemy.EnablePoison(poisonLength, poisonDPS); }
     }
     public void TriggerKill(Enemy killedEnemy) {
-        AddCredits(killedEnemy.CreditsOnKill);
-        if (explodeOnHit == true ) {
-            GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
-            PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
-            killExp.bulletDamage *= hitExplosionScale;
-            killObj.transform.localScale *= hitExplosionScale;
+        AddCredits((int)Mathf.Ceil(killedEnemy.spawnCost));
+        for (int i = 0; i < killTriggers; i++) {
+            OnKillUpgrades(killedEnemy);
         }
-    }
-    public void AddCredits(int amount)
-    {
-        credits += amount;
-        roundCredits += amount;
     }
 
-    IEnumerator TakeDamage(bool piercing) {
-        GetComponent<SpriteRenderer>().color = Color.red;
-        if (piercing) {
-            yield return new WaitForSeconds(.1f);
-        } else {
-            yield return new WaitForSeconds(iFrameMax);
+    private void OnKillUpgrades(Enemy killedEnemy) {
+        //explosion on kill upgrade
+        if (explodeOnKill == true) {
+            GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
+            PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();
+            killExp.bulletDamage *= killExplosionScale;
+            killObj.transform.localScale *= killExplosionScale;
         }
-        GetComponent<SpriteRenderer>().color = Color.white;
+        //damage up on kill logic
+        if (killBoost) {
+            if (killBoostTimer <= 0) {
+                playerDamage += killBoostDamage * killTriggers;
+            }
+            killBoostTimer = killBoostLength;
+        }
+        if (hasHealthSteal) { ChangeHealth(killedEnemy.spawnCost*healthStealScalar); }
+        AddCredits(extraKillCredits);
+    }
+    public void AddCredits(int amount) {
+        credits += amount;
+        roundCredits += amount;
     }
 }

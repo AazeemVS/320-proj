@@ -14,6 +14,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] public float spawnCost;
     [SerializeField] public float spawnWeight;
     [SerializeField] public int unlockRound;
+    private float poisonTimer, poisonDamage;
 
     [SerializeField] private float fleeSpeed = 6f; // how fast they slide off
     [SerializeField] private float fleeDistance = 4f; // how far to move right before despawn
@@ -68,7 +69,9 @@ public abstract class Enemy : MonoBehaviour
 
         Movement();
 
-        if (health <= 0 && !hasDied)
+
+        ManageStatuses();
+        if (health <= 0)
         {
             Kill(true);
         }
@@ -144,6 +147,18 @@ public abstract class Enemy : MonoBehaviour
         {
             Kill(false);
         }
+    }
+
+    void ManageStatuses() {
+        if (poisonTimer >= 0) {
+            poisonTimer -= Time.deltaTime;
+            ChangeHealth(-poisonDamage * Time.deltaTime);
+        }
+    }
+
+    public void EnablePoison(float length, float DPS) {
+        poisonTimer = length;
+        poisonDamage = DPS;
     }
 
     IEnumerator FireLoop()
