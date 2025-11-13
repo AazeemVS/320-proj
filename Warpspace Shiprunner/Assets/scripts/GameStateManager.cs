@@ -112,4 +112,11 @@ public sealed class GameStateManager : MonoBehaviour
                 break;
         }
     }
+
+  public void OnStartButtonClicked()
+  {
+    LoadInventory();
+    Debug.Log("btn pressed");
+  }
+
 }
