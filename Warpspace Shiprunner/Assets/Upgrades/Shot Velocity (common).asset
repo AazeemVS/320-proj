@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Shot Velocity (common)
   m_EditorClassIdentifier: 
   id: 5e12bc2c086f4ead8892fcab4704cc95
-  displayName: Shot Velocity (Common)
-  description: Bullets travel faster and reach targets sooner
+  displayName: Shot Velocity
+  description: (Common) Bullets travel faster and reach targets sooner
   icon: {fileID: 21300000, guid: 4b1489bae931cec439bf49749dff0731, type: 3}
   tempUpgradeID: 4
