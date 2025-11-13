@@ -300,11 +300,7 @@ MonoBehaviour:
   inventoryCapacity: 20
   activeCapacity: 5
   player: {fileID: 0}
-  seedInventory:
-  - {fileID: 11400000, guid: 1c8e720886ff8fc41afc2cb3f674a9aa, type: 2}
-  - {fileID: 11400000, guid: 4a0855bff43471440b078a869382a540, type: 2}
-  - {fileID: 11400000, guid: 40b9d22736c90f6439a14da79294d84d, type: 2}
-  - {fileID: 11400000, guid: f551da32d3771d74a80474bc41b04fa8, type: 2}
+  seedInventory: []
   seedActive: []
 --- !u!4 &234227928
 Transform:
@@ -871,6 +867,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ffc30f00992126a45951d8d5dacb3f80, type: 2}
   - {fileID: 11400000, guid: 0a935b4d800e7b1499b93ac3f19dc95a, type: 2}
   - {fileID: 11400000, guid: 1816fcd6f5d689b47bfefa840afab3d8, type: 2}
+  - {fileID: 11400000, guid: 1816fcd6f5d689b47bfefa840afab3d8, type: 2}
+  - {fileID: 11400000, guid: ca295587359346a418d8aa5e937d4a99, type: 2}
+  - {fileID: 11400000, guid: 0f250dcc4561f114c8f332c3ad520070, type: 2}
+  - {fileID: 11400000, guid: 199781d0a1a7b0d4a9756a6954e483a4, type: 2}
+  - {fileID: 11400000, guid: b493fc8e410607d49bddd155df4597c7, type: 2}
+  - {fileID: 11400000, guid: be487236b7d25bd48bcf891dc950773f, type: 2}
+  - {fileID: 11400000, guid: 2d070b127bd8d8e4da96f4fc9b0b4470, type: 2}
+  - {fileID: 11400000, guid: d16cdd26edf51774d84eebf37baeb130, type: 2}
+  - {fileID: 11400000, guid: 483b541baa6b01042bec163fbeb7ca21, type: 2}
+  - {fileID: 11400000, guid: 7c1e76a1dc34a604e95606dbf9d6f392, type: 2}
+  - {fileID: 11400000, guid: b1ac58adf3470ee4db61267dcb5e393d, type: 2}
+  - {fileID: 11400000, guid: 9364e1f25e5c09f438d3546655ed0b47, type: 2}
+  - {fileID: 11400000, guid: 06fe055c0b7fe374097801b99480faf9, type: 2}
+  - {fileID: 11400000, guid: a5136185249d6cd43929424d46088ef7, type: 2}
+  - {fileID: 11400000, guid: dab9ac1b6051f3e47a6bac46e4e26f69, type: 2}
+  - {fileID: 11400000, guid: ba58e7336e6b2084b9dfdd547da5465c, type: 2}
+  - {fileID: 11400000, guid: 4699d1a075d87b04fa8ca096f7e7933c, type: 2}
 --- !u!1 &1004261291
 GameObject:
   m_ObjectHideFlags: 0

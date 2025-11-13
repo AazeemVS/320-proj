@@ -17,6 +17,21 @@ public enum upgradeID {
     PlayerRecoveryUpgrade = 7, //increases I-frames after being hit
     EnrageUpgrade = 8, //increases damage after being hit
     ExtraCannonUpgrade = 9, //1 extra projectile
+    ExplosiveHitUpgrade = 10,
+    ExplosiveKillUpgrade = 11,
+
+    ExtraKillTrigger = 12,
+    DamageOnKill = 13,
+    CreditsOnKill = 14,
+    HealthOnKill = 15,
+    VirusDamageBoost = 16,
+
+    PoisonUpgrade = 17,
+    HealthUpgrade = 18,
+    CreditsWhenHit = 19,
+
+    RailgunUpgrade = 20,
+    GattlingGunUpgrade = 21
 }
 
 public abstract class Upgrade
