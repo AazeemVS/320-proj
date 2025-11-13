@@ -237,8 +237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad489785a91b58e4c92ee1689e224385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xSpawn: 7.5
-  interval: 3
   enableBasicSpawning: 0
   enemyPrefabs:
   - {fileID: 6016493182574296120, guid: aef7b24dd1747bf49b359681d26be1d7, type: 3}
@@ -247,22 +245,19 @@ MonoBehaviour:
   - {fileID: 4155491973887891366, guid: 955c38827da1d37439108e3536ba6a4a, type: 3}
   - {fileID: 302044248354487368, guid: f6736d43d933b2d4a9ea5faf04d7879b, type: 3}
   - {fileID: 4975093252597253082, guid: ca208d201fd73c04986f8c36a56dacf6, type: 3}
+  - {fileID: 3758383038105805229, guid: 55b1d249308d9f74b98693b8a17a2dcd, type: 3}
+  - {fileID: 6102109521093253614, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
+  - {fileID: 3307765125186754606, guid: a5e8c0643de8a784f88cfad669837510, type: 3}
   enemyWarningPrefab: {fileID: 6106048496685461405, guid: c72bfd5218b3ce94487e7fb21546c442, type: 3}
   minWaveInterval: 2.5
   waveInterval: 7
   intervalDecayPerLevel: 0.15
   budgetPerLevel: 1
   budgetPerWave: 0.5
-  basicMin: 0.4
-  movingMax: 1.5
-  aimingMax: 1.6
-  chasingMax: 2
-  artilleryMax: 2.5
-  basicDeltaPerLevel: -0.04
-  movingPerLevel: 0.03
-  aimingDeltaPerLevel: 0.04
-  chasingDeltaPerLevel: 0.06
-  artilleryDeltaPerLevel: 0.07
+  roundDuration: 40
+  fleeTickInterval: 1
+  fleeChancePerTick: 0.1
+  advanceRoundOnClear: 1
 --- !u!4 &56867880
 Transform:
   m_ObjectHideFlags: 0
@@ -1849,6 +1844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creditsText: {fileID: 1801912098}
+  creditsInventoryText: {fileID: 0}
   player: {fileID: 710420283}
 --- !u!1 &1240451241
 GameObject:
