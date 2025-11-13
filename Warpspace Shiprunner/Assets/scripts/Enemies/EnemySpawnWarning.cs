@@ -41,13 +41,23 @@ public class EnemySpawnWarning : MonoBehaviour
         if (enemyToSpawn == null) return;
 
         Vector3 finalPos = transform.position;
-        Vector3 spawnPos = finalPos + Vector3.right * offscreenDistance;
 
-        GameObject enemy = Instantiate(enemyToSpawn, spawnPos, Quaternion.identity);
+        // If it's an Enemy, use the fly-in entrance (original behavior)
+        var enemyComp = enemyToSpawn.GetComponent<Enemy>();
+        if (enemyComp != null)
+        {
+            Vector3 spawnPos = finalPos + Vector3.right * offscreenDistance;
 
-        // make the enemy fly in to the warning position
-        EnemyFlyIn mover = enemy.AddComponent<EnemyFlyIn>();
-        mover.targetPosition = finalPos;
-        mover.moveDuration = flyInDuration;
+            GameObject enemy = Instantiate(enemyToSpawn, spawnPos, Quaternion.identity);
+
+            // make the enemy fly in to the warning position
+            EnemyFlyIn mover = enemy.AddComponent<EnemyFlyIn>();
+            mover.targetPosition = finalPos;
+            mover.moveDuration = flyInDuration;
+            return;
+        }
+        // spawn it directly on the warning spot (no fly-in)
+        GameObject fx = Instantiate(enemyToSpawn, finalPos, Quaternion.identity);
     }
+
 }

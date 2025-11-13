@@ -184,6 +184,7 @@ public class player_movement : MonoBehaviour
     private void HandleHealth() {
         if (health <= 0) {
             gameRound = 1;
+            roundCredits = 0;
             stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         }
             iFrameTimer -= Time.deltaTime;
@@ -205,7 +206,7 @@ public class player_movement : MonoBehaviour
         }
     }
     public void TriggerKill(Enemy killedEnemy) {
-        AddCredits((int)killedEnemy.spawnWeight);
+        AddCredits(killedEnemy.CreditsOnKill);
         if (explodeOnHit == true ) {
             GameObject killObj = Instantiate(killExplosion, killedEnemy.transform.position, Quaternion.identity);
             PlayerExplosion killExp = killObj.GetComponent<PlayerExplosion>();

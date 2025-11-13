@@ -112,7 +112,10 @@ MonoBehaviour:
   health: 8
   spawnCost: 2.5
   spawnWeight: 0.4
-  unlockRound: 4
+  unlockRound: 3
+  fleeSpeed: 6
+  fleeDistance: 4
+  creditsOnKill: 9
   playerMovement: {fileID: 0}
   state: 0
   chaseLength: 2
