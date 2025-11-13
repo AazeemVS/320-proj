@@ -53,6 +53,7 @@ public class player_movement : MonoBehaviour
     public float bottomUIHeight;
     private GameStateManager stateManager;
     private GraphicsManager graphicsManager;
+    private AudioManager audioManager;
     [SerializeField] PlayerAnimation animManager;
     [SerializeField] TextMeshProUGUI healthUI;
     [SerializeField] private float health;
@@ -76,6 +77,7 @@ public class player_movement : MonoBehaviour
         borderY -= GetComponent<SpriteRenderer>().bounds.size.y/2;
         stateManager = GameStateManager.Instance;
         health = maxHealth;
+        audioManager = GetComponentInChildren<AudioManager>();
         graphicsManager = FindAnyObjectByType<GraphicsManager>();
         if(graphicsManager != null) { graphicsManager.playerHealthMax = maxHealth; }
         InventoryManager inv = InventoryManager.Instance;
@@ -169,6 +171,8 @@ public class player_movement : MonoBehaviour
                 if (explodeOnHit) bulletScript.bulletDamage = 0;
                 bulletScript.piercing = piercing;
                 shootTimer = shootTimerMax;
+                audioManager.PlaySound(SoundID.PlayerShoot);
+                
             }
         } else {
             shootTimer -= Time.deltaTime;
@@ -184,6 +188,7 @@ public class player_movement : MonoBehaviour
                 iFrameTimer = iFrameMax;
             }
             OnTakeDamageUpgrades(healthChange);
+            audioManager.PlaySound(SoundID.PlayerHit);
         } else if(healthChange >= 0) {
             health += healthChange;
             if(health > maxHealth) health = maxHealth;
@@ -210,8 +215,13 @@ public class player_movement : MonoBehaviour
             roundCredits = 0;
             stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         }
-        iFrameTimer -= Time.deltaTime;
-        if (iFrameTimer <= 0) { GetComponent<SpriteRenderer>().color = Color.white; }
+        if (iFrameTimer > 0) {
+            iFrameTimer -= Time.deltaTime;
+            if (iFrameTimer <= 0) { 
+                GetComponent<SpriteRenderer>().color = Color.white;
+                audioManager.PlaySound(SoundID.PlayerIFrame);
+            }
+        }
     if (enrageTimer > 0) {
             enrageTimer -= Time.deltaTime;
             if (enrageTimer <= 0) {

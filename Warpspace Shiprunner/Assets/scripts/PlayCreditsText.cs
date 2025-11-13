@@ -19,7 +19,7 @@ public class PlayCreditsText : MonoBehaviour
         }
         else
         {
-                creditsInventoryText.text = "0";
+                //creditsInventoryText.text = "0";
         }
     }
 }

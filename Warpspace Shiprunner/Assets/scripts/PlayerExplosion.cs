@@ -7,6 +7,8 @@ public class PlayerExplosion : Bullet
     public float size;
     SpriteRenderer spriteRenderer;
     Color c = Color.white;
+    protected AudioManager audioManager;
+    bool playedSound = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,12 +16,17 @@ public class PlayerExplosion : Bullet
         piercing = 100;
         lifetime = lifeTimeMax;
         spriteRenderer = GetComponent<SpriteRenderer>();
-        Debug.Log("new explosion just showed up");
+        audioManager = GetComponentInChildren<AudioManager>();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!playedSound) {
+            audioManager.PlaySound(SoundID.Explosion);
+            playedSound = true;
+        }
         lifetime -= Time.deltaTime;
         c.a = lifetime / lifeTimeMax;
         spriteRenderer.color = c;

@@ -37,6 +37,7 @@ public class BasicEnemy : Enemy
 
         Vector2 dir = useLocalDown ? -(Vector2)transform.right : Vector2.left;
         proj.Fire(dir, bulletSpeed);
+        audioManager.PlaySound(SoundID.EnemyShoot);
     }
 
     public override void Movement() {
