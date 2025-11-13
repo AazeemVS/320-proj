@@ -205,10 +205,10 @@ public class player_movement : MonoBehaviour
        
     }
     private void HandleHealth() {
-
-        if(health <= 0) {
-         gameRound = 1;
-        stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
+        if (health <= 0) {
+            gameRound = 1;
+            roundCredits = 0;
+            stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         }
         iFrameTimer -= Time.deltaTime;
         if (iFrameTimer <= 0) { GetComponent<SpriteRenderer>().color = Color.white; }

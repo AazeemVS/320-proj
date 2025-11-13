@@ -15,20 +15,20 @@ public class EnemySpawner : MonoBehaviour
     float baseWaveStrength = 1f;
     float waveTimer = 0f;
 
-    // --- Wave pacing ---
-    [SerializeField] float minWaveInterval = 2.5f;     // floor
-    [SerializeField] float waveInterval = 15.0f;       // starting interval
+    // Wave pacing
+    [SerializeField] float minWaveInterval = 2.5f; // floor
+    [SerializeField] float waveInterval = 15.0f; // starting interval
     [SerializeField] float intervalDecayPerLevel = 0.1f; // faster per level
 
-    // --- Budget growth (enemy amount) ---
+    // Budget growth (enemy amount)
     [SerializeField] float budgetPerLevel = 1.0f; // add to budget each level
     [SerializeField] float budgetPerWave = 0.25f; // add to budget each wave this level
 
-    // --- Round timing / Flee phase ---
-    [SerializeField] float roundDuration = 40f;         // enter flee phase at 40s
-    [SerializeField] float fleeTickInterval = 1f;       // roll frequency (each second)
-    [SerializeField] float fleeChancePerTick = 0.10f;   // 10% per tick
-    [SerializeField] bool advanceRoundOnClear = true;   // auto-advance when clear
+    // Round timing / Flee phase
+    [SerializeField] float roundDuration = 40f; // enter flee phase at 40s
+    [SerializeField] float fleeTickInterval = 1f; // roll frequency (each second)
+    [SerializeField] float fleeChancePerTick = 0.10f; // 10% per tick
+    [SerializeField] bool advanceRoundOnClear = true; // auto-advance when clear
 
     float roundTimer = 0f;
     float fleeTickTimer = 0f;
@@ -169,7 +169,6 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    // --- SIMPLIFIED: fixed-weight pick, no per-level biasing ---
     GameObject GetWeightedEnemyFixed(int level)
     {
         if (enemyPrefabs == null || enemyPrefabs.Count == 0) return null;
@@ -218,9 +217,9 @@ public class EnemySpawner : MonoBehaviour
 
             var comp = prefab.GetComponent<Enemy>();
             if (comp == null) continue;
-            if (comp.unlockRound > level) continue; // not unlocked yet
+            if (comp.unlockRound > level) continue;
 
-            float cost = comp.spawnCost;            // <-- use COST, not weight
+            float cost = comp.spawnCost;
             if (cost > 0f && cost <= budgetRemaining)
                 return true;
         }
@@ -270,20 +269,12 @@ public class EnemySpawner : MonoBehaviour
         roundTimer = 0f;
         fleeTickTimer = 0f;
         wavesThisLevel = 0;
-
-        if (advanceRoundOnClear)
-        {
-            player_movement.gameRound++;
-            // If you have a shop/transition UI, trigger it here instead.
-            // Example:
-            // GameStateManager.Instance.RequestSceneChange(GameState.Playing, GameState.Win);
-        }
     }
 
     public void EnterFleePhaseExternal()
     {
         if (!inFleePhase)
-            EnterFleePhase(); // calls your private method that cancels warnings, etc.
+            EnterFleePhase();
     }
 
     public bool IsFieldClear()
