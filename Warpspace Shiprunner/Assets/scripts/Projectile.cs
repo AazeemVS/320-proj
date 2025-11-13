@@ -15,6 +15,7 @@ public class Projectile : MonoBehaviour
         if (overrideSpeed > 0f) speed = overrideSpeed;
         _age = 0f;
         gameObject.SetActive(true);
+        gameObject.transform.position = new Vector3(transform.position.x, transform.position.y, .1f);
     }
 
     void Update()

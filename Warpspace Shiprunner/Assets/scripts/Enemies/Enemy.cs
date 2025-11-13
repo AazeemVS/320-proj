@@ -95,6 +95,7 @@ public abstract class Enemy : MonoBehaviour
 
             firePoint = new GameObject("firePoint").transform;
             firePoint.SetParent(transform);
+            firePoint.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, firePoint.position.z + .1f);
             firePoint.localPosition = Vector3.down * 0.5f;
         }
     }

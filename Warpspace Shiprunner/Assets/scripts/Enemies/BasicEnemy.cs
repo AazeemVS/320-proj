@@ -31,7 +31,7 @@ public class BasicEnemy : Enemy
 
     public override void FireOnce() {
         if (bulletPool == null || firePoint == null) return;
-        var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, 270));
+        var go = bulletPool.Spawn(firePoint.position, Quaternion.identity);
         var proj = go.GetComponent<Projectile>();
         if (proj == null) return;
 
