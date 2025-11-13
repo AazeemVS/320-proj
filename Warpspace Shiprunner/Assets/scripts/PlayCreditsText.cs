@@ -11,7 +11,7 @@ public class PlayCreditsText : MonoBehaviour
     {
         if (creditsText != null)
         {
-            creditsText.text = "Credits: " + player_movement.credits.ToString();
+            creditsText.text = player_movement.credits.ToString();
         }
         if (creditsInventoryText != null)
         {
