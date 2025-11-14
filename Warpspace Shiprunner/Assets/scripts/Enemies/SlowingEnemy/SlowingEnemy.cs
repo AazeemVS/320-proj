@@ -28,7 +28,8 @@ public class SlowingEnemy : Enemy
         var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, angleDeg));
 
         var sr = go.GetComponent<SpriteRenderer>();
-        if (sr) sr.color = Color.cyan;
+        if (sr) sr.color = new Color(0.3f, 0.1f, 1f);
+
 
         var slowProj = go.GetComponent<SlowingProjectile>();
         if (slowProj == null) slowProj = go.AddComponent<SlowingProjectile>();

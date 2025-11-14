@@ -27,7 +27,7 @@ public class EnemySpawner : MonoBehaviour
     // Round timing / Flee phase
     [SerializeField] float roundDuration = 40f; // enter flee phase at 40s
     [SerializeField] float fleeTickInterval = 1f; // roll frequency (each second)
-    [SerializeField] float fleeChancePerTick = 0.10f; // 10% per tick
+    [SerializeField] float fleeChancePerTick = 0.25f; // 10% per tick
     [SerializeField] bool advanceRoundOnClear = true; // auto-advance when clear
 
     float roundTimer = 0f;

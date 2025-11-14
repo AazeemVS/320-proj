@@ -354,5 +354,34 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
+    public void ClearActiveUpgrades()
+    {
+        // Unequip all currently active items from the player
+        foreach (var it in active)
+        {
+            SafeUnequip(it);
+        }
+
+        // Clear active list
+        active.Clear();
+
+        // Let UI know things changed
+        OnChanged?.Invoke();
+    }
+
+    public void ClearAllUpgrades()
+    {
+        // Unequip everything in Active
+        foreach (var it in active)
+        {
+            SafeUnequip(it);
+        }
+
+        active.Clear();
+        inventory.Clear();
+
+        OnChanged?.Invoke();
+    }
+
 
 }

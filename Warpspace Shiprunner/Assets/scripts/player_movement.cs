@@ -36,7 +36,7 @@ public class player_movement : MonoBehaviour
     public float dashCooldown = 1.5f;
     public float maxHealth = 5;
     // Credits
-    public static int credits = 1500;
+    public static int credits = 0;
     public static int roundCredits = 0;
     public int extraKillCredits = 0; // modified by "CreditsOnKill" upgrade
     public float insuranceCreditsScalar = 0; // modified by "CreditsWhenHit" upgrade
@@ -211,6 +211,14 @@ public class player_movement : MonoBehaviour
     }
     private void HandleHealth() {
         if (health <= 0) {
+
+            // Remove all equipped upgrades when the player dies
+            var inv = InventoryManager.Instance;
+            if (inv != null)
+            {
+                inv.ClearAllUpgrades();
+            }
+
             gameRound = 1;
             roundCredits = 0;
             stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
@@ -249,7 +257,7 @@ public class player_movement : MonoBehaviour
         if (hasPoison) { hitEnemy.EnablePoison(poisonLength, poisonDPS); }
     }
     public void TriggerKill(Enemy killedEnemy) {
-        AddCredits((int)Mathf.Ceil(killedEnemy.spawnCost));
+        //AddCredits((int)Mathf.Ceil(killedEnemy.spawnCost)); Credits are given in enemy
         for (int i = 0; i < killTriggers; i++) {
             OnKillUpgrades(killedEnemy);
         }

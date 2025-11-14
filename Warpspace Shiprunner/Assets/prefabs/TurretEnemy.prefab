@@ -173,13 +173,13 @@ MonoBehaviour:
   bulletSpeed: 5
   warmupDelay: 1
   useLocalDown: 0
-  health: 3
-  spawnCost: 1
-  spawnWeight: 2.2
-  unlockRound: 0
+  health: 6
+  spawnCost: 3.25
+  spawnWeight: 0.2
+  unlockRound: 8
   fleeSpeed: 6
   fleeDistance: 4
-  creditsOnKill: 1
+  creditsOnKill: 10
   playerMovement: {fileID: 0}
   rotateSpeedDegPerSec: 360
   arcDegrees: 180
