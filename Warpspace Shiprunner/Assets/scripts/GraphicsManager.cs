@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class GraphicsManager : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class GraphicsManager : MonoBehaviour
     [SerializeField] GameObject healthBar;
     [SerializeField] GameObject timerIcon;
     [SerializeField] float roundLength;
+    [SerializeField] TextMeshProUGUI creditsText;
     float roundTimer;
     float timerIconX;
     float[] bgLastX = new float[6];
@@ -34,6 +36,8 @@ public class GraphicsManager : MonoBehaviour
         float UIScaling = 2*borderX/UIWidth;
         TopUI.transform.localScale *= UIScaling;
         BottomUI.transform.localScale *= UIScaling;
+        creditsText.fontSize *= UIScaling;
+        creditsText.rectTransform.localScale *= UIScaling;
         TopUI.transform.position = new Vector3(0, borderY - TopUI.bounds.size.y / 2, -9);
         BottomUI.transform.position = new Vector3(0, -borderY + BottomUI.bounds.size.y / 2, -9);
         healthbarMaxWidth = healthBar.transform.localScale.x;
@@ -52,8 +56,8 @@ public class GraphicsManager : MonoBehaviour
         UpdateBackground(2, 2.5f);
         UpdateBackground(4, 5.5f);
         roundTimer += Time.deltaTime;
-        //move timer icon (assumes the timer is perfectly centered on screen like in current UI)
-        timerIcon.transform.position = new Vector3(timerIconX + (2 * (-timerIconX) * roundTimer / roundLength), timerIcon.transform.position.y, timerIcon.transform.position.z);
+        //move timer icon (assumes the timer is perfectly centered on screen like in current UI). Timer movement is clamped when flee phase would begin
+        timerIcon.transform.position = new Vector3(timerIconX + Mathf.Clamp((2 * (-timerIconX) * roundTimer / roundLength), 0, 2 * (-timerIconX)), timerIcon.transform.position.y, timerIcon.transform.position.z);
 
     }
 

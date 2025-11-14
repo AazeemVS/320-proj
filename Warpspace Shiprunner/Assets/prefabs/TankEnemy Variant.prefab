@@ -186,3 +186,8 @@ MonoBehaviour:
   projectileScale: 0.3
   projectileDamage: 3
   inaccuracyDeg: 3
+--- !u!4 &4514371476632854886 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8322830030425356245, guid: 4811e0f7c40200f4b83d1a411df9dcba, type: 3}
+  m_PrefabInstance: {fileID: 5559382722510558899}
+  m_PrefabAsset: {fileID: 0}
