@@ -129,6 +129,10 @@ public sealed class GameStateManager : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-
+    public void OnReturnToStartMenuButton()
+    {
+        LoadStart();
+        Debug.Log("Returning to Start Menu...");
+    }
 
 }
