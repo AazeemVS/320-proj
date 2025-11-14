@@ -6,7 +6,8 @@ public class EnemySpawner : MonoBehaviour
     // float interval = 1.5f; // For basic enemy spawning
     [SerializeField] bool enableBasicSpawning = false;
     float basicSpawningTimer;
-    float borderY;
+    public float borderY;
+    public float borderYLower;
 
     [SerializeField] List<GameObject> enemyPrefabs;
     [SerializeField] GameObject enemyWarningPrefab;
@@ -157,7 +158,7 @@ public class EnemySpawner : MonoBehaviour
             // only spawn if it fits within remaining budget
             if (enemyValue <= remaining)
             {
-                float y = Random.Range(-borderY, borderY);
+                float y = Random.Range(borderYLower, borderY);
                 float finalX = Random.Range(6.25f, 8.25f);
 
                 Vector3 finalPos = new Vector3(finalX, y, 0f);

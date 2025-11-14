@@ -12,6 +12,7 @@ public class GraphicsManager : MonoBehaviour
     [SerializeField] GameObject timerIcon;
     [SerializeField] float roundLength;
     [SerializeField] TextMeshProUGUI creditsText;
+    [SerializeField] EnemySpawner enemySpawner;
     float roundTimer;
     float timerIconX;
     float[] bgLastX = new float[6];
@@ -46,6 +47,10 @@ public class GraphicsManager : MonoBehaviour
         player_movement player = GameObject.FindGameObjectWithTag("Player").GetComponent<player_movement>();
         player.topUIHeight = TopUI.bounds.size.y;
         player.bottomUIHeight = BottomUI.bounds.size.y;
+        if (enemySpawner != null) {
+            enemySpawner.borderY = borderY - TopUI.GetComponent<SpriteRenderer>().bounds.size.y;
+            enemySpawner.borderYLower = -borderY + BottomUI.GetComponent<SpriteRenderer>().bounds.size.y;
+        }
 
     }
 

@@ -297,6 +297,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableBasicSpawning: 0
+  borderY: 0
+  borderYLower: 0
   enemyPrefabs:
   - {fileID: 6016493182574296120, guid: aef7b24dd1747bf49b359681d26be1d7, type: 3}
   - {fileID: 6016493182574296120, guid: da769faec2bf367449b24031b19222c4, type: 3}
@@ -767,6 +769,7 @@ MonoBehaviour:
   timerIcon: {fileID: 172681836}
   roundLength: 40
   creditsText: {fileID: 1801912098}
+  enemySpawner: {fileID: 56867879}
   playerHealthMax: 0
   playerHealthCurrent: 0
 --- !u!4 &317801357
