@@ -28,6 +28,7 @@ public abstract class Enemy : MonoBehaviour
 
     Coroutine _loop;
     public player_movement playerMovement;
+    protected AudioManager audioManager;
     protected float borderX;
     protected float borderY;
 
@@ -54,7 +55,7 @@ public abstract class Enemy : MonoBehaviour
                 Debug.LogWarning("Player GameObject not found! Make sure it's tagged 'Player'");
             }
         }
-
+        audioManager = GetComponentInChildren<AudioManager>();
         EnsureFirePoint();
         Camera cam = Camera.main;
         borderY = cam.orthographicSize;
@@ -95,6 +96,7 @@ public abstract class Enemy : MonoBehaviour
 
             firePoint = new GameObject("firePoint").transform;
             firePoint.SetParent(transform);
+            firePoint.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, firePoint.position.z + .1f);
             firePoint.localPosition = Vector3.down * 0.5f;
         }
     }
@@ -114,6 +116,7 @@ public abstract class Enemy : MonoBehaviour
 
     public void ChangeHealth(float healthChange)
     {
+        audioManager.PlaySound(SoundID.EnemyHit);
         if (isFleeing && healthChange < 0) return;
         health += healthChange;
         if (health <= 0 && !hasDied)
@@ -124,6 +127,8 @@ public abstract class Enemy : MonoBehaviour
 
     public void Kill(bool awardCredits)
     {
+        AudioController ac = FindAnyObjectByType<AudioController>();
+        if (ac != null) { ac.PlayClip(SoundID.EnemyDeath); }
         if (hasDied) return;
         hasDied = true;
 

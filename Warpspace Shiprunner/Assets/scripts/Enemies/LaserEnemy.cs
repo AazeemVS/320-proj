@@ -35,6 +35,8 @@ public class LaserEnemy : Enemy
     bool isFiring = false;
     float lastShotTime = -999f;
 
+    AudioManager am2;
+
     void Start()
     {
         startPos = transform.position;
@@ -46,6 +48,7 @@ public class LaserEnemy : Enemy
         lr.sortingOrder = 10;
         lr.numCapVertices = 4;
         lr.material = new Material(Shader.Find("Sprites/Default"));
+        am2 = GetComponentsInChildren<AudioManager>()[1];
     }
 
     public override void Movement()
@@ -77,6 +80,7 @@ public class LaserEnemy : Enemy
 
     IEnumerator FireLaserRoutine()
     {
+        am2.PlaySound(SoundID.LaserCharge);
         isFiring = true;
 
         // follow red 0-100% opacity
@@ -122,6 +126,7 @@ public class LaserEnemy : Enemy
         Vector3 shotEnd = shotStart + lockedDir * range;
 
         // Impact frame
+        am2.PlaySound(SoundID.LaserFire);
         lr.startWidth = beamWidth;
         lr.endWidth = beamWidth;
         lr.startColor = whiteFull;

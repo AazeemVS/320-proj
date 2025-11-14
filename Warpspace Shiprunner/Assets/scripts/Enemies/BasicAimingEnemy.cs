@@ -21,8 +21,8 @@ public class BasicAimingEnemy : Enemy
         var proj = go.GetComponent<Projectile>();
         go.GetComponent<SpriteRenderer>().color = Color.green;
         if (proj == null) return;
+        audioManager.PlaySound(SoundID.EnemyShoot);
 
-        
         proj.Fire(dir, bulletSpeed);
     }
 
