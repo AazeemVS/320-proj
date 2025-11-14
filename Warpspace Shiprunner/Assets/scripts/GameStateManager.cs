@@ -63,11 +63,13 @@ public sealed class GameStateManager : MonoBehaviour
                 break;
         }
     }
-    public void RequestSceneChange(GameState senderState, GameState newState) {
-        if (state != senderState) return;
-        ChangeState(newState);
-    }
-    private void ChangeState(GameState newState) {
+  public void RequestSceneChange(GameState senderState, GameState newState)
+  {
+    // Don't block the change just because 'state' doesn't match senderState
+    ChangeState(newState);
+  }
+
+  private void ChangeState(GameState newState) {
         switch (newState) {
             case GameState.Start:
                 LoadStart();
