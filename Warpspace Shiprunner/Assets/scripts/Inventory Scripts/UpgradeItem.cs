@@ -12,8 +12,28 @@ public class UpgradeItem : ScriptableObject
   public int tempUpgradeID;
   public Upgrade[] tempUpgrades =
   {
-        new AttackUpgrade(), new EngineUpgrade(), new DamageUpgrade(),
-        new DashUpgrade(), new BulletSpeedUpgrade(), new ExtraCannonUpgrade()
+        new EngineUpgrade(),        // 0
+        new DamageUpgrade(),        // 1
+        new AttackUpgrade(),        // 2
+        new DashUpgrade(),          // 3
+        new SuperDashUpgrade(),     // 4
+        new BulletSpeedUpgrade(),   // 5
+        new BulletPierceUpgrade(),  // 6
+        new PlayerRecoveryUpgrade(),// 7
+        new EnrageUpgrade(),        // 8
+        new ExtraCannonUpgrade(),   // 9
+        new ExplosiveHitUpgrade(),  // 10
+        new ExplosiveKillUpgrade(), // 11
+        new ExtraKillTrigger(),     // 12
+        new DamageOnKill(),         // 13
+        new CreditsOnKill(),        // 14
+        new HealthOnKill(),         // 15
+        new VirusDamageBoost(),     // 16
+        new PoisonUpgrade(),        // 17
+        new HealthUpgrade(),        // 18
+        new CreditsWhenHit(),       // 19
+        new RailgunUpgrade(),
+        new GattlingGunUpgrade(),
     };
 
   public Upgrade upgrade;
