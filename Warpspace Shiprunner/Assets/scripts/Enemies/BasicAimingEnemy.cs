@@ -17,7 +17,7 @@ public class BasicAimingEnemy : Enemy
 
     public override void FireOnce() {
         Vector2 dir = player.transform.position - transform.position;
-        var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, 90 + (Mathf.Atan2(dir.y, dir.x)*180/Mathf.PI)));
+        var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, (Mathf.Atan2(dir.y, dir.x)*180/Mathf.PI)));
         var proj = go.GetComponent<Projectile>();
         go.GetComponent<SpriteRenderer>().color = Color.green;
         if (proj == null) return;

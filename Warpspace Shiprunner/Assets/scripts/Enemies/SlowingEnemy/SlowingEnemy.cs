@@ -24,11 +24,11 @@ public class SlowingEnemy : Enemy
 
         Vector2 dir = player.transform.position - transform.position;
 
-        float angleDeg = 90f + Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        float angleDeg = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         var go = bulletPool.Spawn(firePoint.position, Quaternion.Euler(0, 0, angleDeg));
 
         var sr = go.GetComponent<SpriteRenderer>();
-        if (sr) sr.color = new Color(0.3f, 0.1f, 1f);
+        if (sr) sr.color = new Color(1f, 1f, 1f);
 
 
         var slowProj = go.GetComponent<SlowingProjectile>();

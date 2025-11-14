@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8322830030425356245}
   - component: {fileID: 3284547480686372733}
   - component: {fileID: 8957520859894057920}
-  - component: {fileID: 6865648856780535576}
   - component: {fileID: 7798443302759877009}
+  - component: {fileID: 6346701064477727572}
   m_Layer: 0
   m_Name: TurretEnemy
   m_TagString: Enemy
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 6102109521093253614}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 615.08215, y: 580.9792, z: -13.02638}
+  m_LocalPosition: {x: 615.08215, y: 580.9792, z: 0}
   m_LocalScale: {x: 0.15, y: 0.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 484935225551943318, guid: 8b27eb71c6fccf14d95e9522c1b1f4a1, type: 3}
+  m_Sprite: {fileID: -2610809047584036694, guid: abca2d49562fb814d856fb35a6d16a1a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -118,8 +118,38 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!70 &6865648856780535576
-CapsuleCollider2D:
+--- !u!114 &7798443302759877009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6102109521093253614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af29c678f1a498b4e98abd9ce9acf662, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPool: {fileID: 0}
+  firePoint: {fileID: 0}
+  shotsPerSecond: 0.5
+  bulletSpeed: 3
+  warmupDelay: 1
+  useLocalDown: 0
+  health: 6
+  spawnCost: 3.25
+  spawnWeight: 0.2
+  unlockRound: 8
+  fleeSpeed: 6
+  fleeDistance: 4
+  creditsOnKill: 10
+  playerMovement: {fileID: 0}
+  rotateSpeedDegPerSec: 360
+  arcDegrees: 180
+  bulletsPerVolley: 10
+  spriteForwardOffset: 180
+--- !u!58 &6346701064477727572
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -148,43 +178,12 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.5397233, y: 0.052511238}
-  m_Size: {x: 9.86945, y: 5.816256}
-  m_Direction: 1
---- !u!114 &7798443302759877009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6102109521093253614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af29c678f1a498b4e98abd9ce9acf662, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPool: {fileID: 0}
-  firePoint: {fileID: 0}
-  shotsPerSecond: 0.5
-  bulletSpeed: 5
-  warmupDelay: 1
-  useLocalDown: 0
-  health: 6
-  spawnCost: 3.25
-  spawnWeight: 0.2
-  unlockRound: 8
-  fleeSpeed: 6
-  fleeDistance: 4
-  creditsOnKill: 10
-  playerMovement: {fileID: 0}
-  rotateSpeedDegPerSec: 360
-  arcDegrees: 180
-  bulletsPerVolley: 15
-  spriteForwardOffset: 90
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 5
 --- !u!1001 &836592484688249538
 PrefabInstance:
   m_ObjectHideFlags: 0

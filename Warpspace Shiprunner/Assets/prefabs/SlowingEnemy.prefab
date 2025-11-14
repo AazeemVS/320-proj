@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 680690361088503756}
   - component: {fileID: 7630284434528614443}
   - component: {fileID: 2433585207225300137}
-  - component: {fileID: 7662801903517115557}
+  - component: {fileID: 5533958573661073273}
   m_Layer: 0
   m_Name: SlowingEnemy
   m_TagString: Enemy
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3758383038105805229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 615.08215, y: 580.9792, z: -13.02638}
+  m_LocalPosition: {x: 615.08215, y: 580.9792, z: 0}
   m_LocalScale: {x: 0.15, y: 0.15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 484935225551943318, guid: 8b27eb71c6fccf14d95e9522c1b1f4a1, type: 3}
+  m_Sprite: {fileID: 2298887895780252471, guid: 14e1bf5b9fc9e8b4896ef97a4c180b3e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -146,8 +146,8 @@ MonoBehaviour:
   playerMovement: {fileID: 0}
   slowPercent: 0.45
   slowDuration: 2
---- !u!70 &7662801903517115557
-CapsuleCollider2D:
+--- !u!61 &5533958573661073273
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -176,13 +176,22 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.5397233, y: 0.052511238}
-  m_Size: {x: 9.86945, y: 5.816256}
-  m_Direction: 1
+  m_Offset: {x: 0.011245012, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 12.51, y: 7.79}
+    newSize: {x: 8.79, y: 5.93}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 12.53249, y: 7.79}
+  m_EdgeRadius: 0
 --- !u!1001 &8004693096120901010
 PrefabInstance:
   m_ObjectHideFlags: 0
