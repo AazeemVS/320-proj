@@ -2,169 +2,196 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
-using Mono.Cecil.Cil;
 
-// Identifies which grid this slot belongs to
 public enum SlotGroup { Inventory, Active }
 
+[RequireComponent(typeof(RectTransform))]
 public class UISlot : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
     IPointerEnterHandler, IPointerExitHandler
 {
-  [HideInInspector] public SlotGroup group;  // Which grid this slot is in
-  [HideInInspector] public int index;        // Slot index in its grid
+    [HideInInspector] public SlotGroup group;
+    [HideInInspector] public int index;
 
-  [SerializeField] private Image icon;       // The item's icon image
-  [SerializeField] private Image frame;      // Optional highlight border
+    [SerializeField] private Image icon;        // item icon (child)
+    [SerializeField] private Image frame;       // hover highlight (optional)
+    [SerializeField] private Canvas dragCanvas; // top-most canvas (assign in Inspector or auto-find)
 
-  // Static drag context (shared during dragging)
-  private static UISlot dragSource;          // Slot being dragged from
-  private static UpgradeItem dragItem;       // Item being dragged
-  private static Image dragGhost;            // Floating image under cursor
+    private static UISlot dragSource;
+    private static UpgradeItem dragItem;
+    private static Image dragGhost;
+  
 
-  public Action<UpgradeItem, UISlot> OnSlotClicked; // Callback for click
+    public Action<UpgradeItem, UISlot> OnSlotClicked;
 
-  private UpgradeItem item;                  // Item currently in this slot
+    private UpgradeItem item;
 
-  // Public API from UI builder 
-  public void Set(SlotGroup g, int idx, UpgradeItem i)
-  {
-    group = g; index = idx; item = i;
-
-    if (icon)
+    void Awake()
     {
-      if (i == null || i.icon == null) { icon.enabled = false; icon.sprite = null; }
-      else { icon.enabled = true; icon.sprite = i.icon; icon.transform.localScale *= .5f; }
+        // Ensure the slot itself can receive drops (must have a raycastable Graphic)
+        var g = GetComponent<Graphic>();
+        if (g == null)
+        {
+            var slotImg = gameObject.AddComponent<Image>();
+            slotImg.color = new Color(0, 0, 0, 0.001f); // nearly transparent but still hit-testable
+            slotImg.raycastTarget = true;
+        }
+        else
+        {
+            g.raycastTarget = true;
+        }
+
+        // Auto-find a top canvas if not assigned
+        if (dragCanvas == null)
+        {
+            var root = GetComponentInParent<Canvas>();
+            dragCanvas = root != null ? root.rootCanvas : null;
+        }
     }
-    SetHighlight(false);
-  }
 
-  // Handles button click
-  public void OnClick() => OnSlotClicked?.Invoke(item, this);
-
-  // Start dragging
-  public void OnBeginDrag(PointerEventData eventData)
-  {
-    if (item == null || icon == null) return;
-
-    dragSource = this;
-    dragItem = item;
-
-    // Ensure CanvasGroup exists, then disable raycast blocking
-    if (!TryGetComponent<CanvasGroup>(out var cg))
-      cg = gameObject.AddComponent<CanvasGroup>();
-      cg.blocksRaycasts = false;
-
-    // Create ghost icon in topmost DragLayer
-    var rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
-    var dragLayer = GetOrCreateDragLayer(rootCanvas);
-
-    var go = new GameObject("DragGhost", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-    go.transform.SetParent(dragLayer, false);
-    var img = go.GetComponent<Image>();
-    img.sprite = icon.sprite;
-    img.raycastTarget = false;
-    img.color = new Color(1, 1, 1, 1);
-    dragGhost = img;
-
-    var rtGhost = (RectTransform)go.transform;
-    var rtIcon = (RectTransform)icon.transform;
-    rtGhost.sizeDelta = rtIcon.rect.size;
-    rtGhost.position = eventData.position;
-
-    // visual dim on source
-    icon.color = new Color(icon.color.r, icon.color.g, icon.color.b, 0.6f);
-  }
-
-  // While dragging, moves the ghost to mouse position
-  public void OnDrag(PointerEventData eventData)
-  {
-    if (dragGhost != null)
-      ((RectTransform)dragGhost.transform).position = eventData.position;
-  }
-
-  // When drag ends (The mouse is released)
-  public void OnEndDrag(PointerEventData eventData)
-  {
-    CleanupDrag();       // your helper that destroys ghost + restores alpha + blocksRaycasts true
-    SetHighlight(false);
-  }
-
-
-  // When something is dropped on this slot
-  public void OnDrop(PointerEventData eventData)
-  {
-    if (dragSource == null || dragItem == null) return;
-
-    // Move between or reorder within grids
-    bool ok = (dragSource.group != this.group)
-        ? InventoryManager.Instance.MoveBetween(dragSource.group, dragSource.index, this.group, this.index)
-        : InventoryManager.Instance.ReorderWithin(this.group, dragSource.index, this.index);
-
-    if (!ok) Debug.Log("Drop failed (capacity/index).");
-    SetHighlight(false);
-  }
-
-
-  // Highlight slot when hovered over during drag
-  public void OnPointerEnter(PointerEventData eventData)
-  {
-    if (dragSource != null) SetHighlight(true);
-  }
-
-  // Remove highlight when cursor leaves
-  public void OnPointerExit(PointerEventData eventData)
-  {
-    SetHighlight(false);
-  }
-
-  // Toggle frame highlight visibility
-  private void SetHighlight(bool on)
-  {
-    if (frame != null)
+    public void Set(SlotGroup g, int idx, UpgradeItem i)
     {
-      frame.enabled = on;
-    }
-  }
+        group = g; index = idx; item = i;
 
-  // Clean up after drag ends
+        if (icon)
+        {
+            if (i == null || i.icon == null) { icon.enabled = false; icon.sprite = null; }
+            else { icon.enabled = true; icon.sprite = i.icon; }
+        }
+        SetHighlight(false);
+    }
+
+    public void OnClick() => OnSlotClicked?.Invoke(item, this);
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (item == null || icon == null) return;
+
+        dragSource = this;
+        dragItem = item;
+
+        // 🔹 Show the details for the item being dragged
+        OnSlotClicked?.Invoke(item, this);
+
+        // Ensure CanvasGroup exists, then disable raycast blocking
+        if (!TryGetComponent<CanvasGroup>(out var cg))
+            cg = gameObject.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = false;
+
+        // Create ghost icon in topmost DragLayer
+        var rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+        var dragLayer = GetOrCreateDragLayer(rootCanvas);
+
+        var go = new GameObject("DragGhost", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        go.transform.SetParent(dragLayer, false);
+        var img = go.GetComponent<Image>();
+        img.sprite = icon.sprite;
+        img.raycastTarget = false;
+        img.color = new Color(1, 1, 1, 1);
+        dragGhost = img;
+
+        var rtGhost = (RectTransform)go.transform;
+        var rtIcon = (RectTransform)icon.transform;
+        rtGhost.sizeDelta = rtIcon.rect.size;
+        rtGhost.position = eventData.position;
+
+        // visual dim on source
+        icon.color = new Color(icon.color.r, icon.color.g, icon.color.b, 0.6f);
+    }
+
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (dragGhost != null)
+            ((RectTransform)dragGhost.transform).position = eventData.position;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        CleanupDrag();
+        SetHighlight(false);
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        if (dragSource == null || dragItem == null) return;
+
+        var mgr = InventoryManager.Instance;
+        if (mgr == null) return;
+
+        bool ok = (dragSource.group != this.group)
+            ? mgr.MoveBetween(dragSource.group, dragSource.index, this.group, this.index)
+            : mgr.ReorderWithin(this.group, dragSource.index, this.index);
+
+        if (ok)
+        {
+            // Select the destination slot so details + Sell show for the dropped item
+            OnSlotClicked?.Invoke(dragItem, this);
+        }
+
+        SetHighlight(false);
+    }
+
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (dragSource != null) SetHighlight(true);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        SetHighlight(false);
+    }
+
+    private void SetHighlight(bool on)
+    {
+        if (frame != null) frame.enabled = on;
+    }
+
   private static void CleanupDrag()
   {
     if (dragGhost != null) Destroy(dragGhost.gameObject);
     dragGhost = null;
 
-    if (dragSource != null && dragSource.icon != null)
-      dragSource.icon.color = new Color(
-          dragSource.icon.color.r,
-          dragSource.icon.color.g,
-          dragSource.icon.color.b,
-          1f);
+    if (dragSource != null)
+    {
+      // restore icon visuals
+      if (dragSource.icon != null)
+      {
+        var c = dragSource.icon.color; c.a = 1f;
+        dragSource.icon.color = c;
+        dragSource.icon.raycastTarget = true;
+      }
 
-    // restore raycast blocking on the source
-    var cg = dragSource ? dragSource.GetComponent<CanvasGroup>() : null;
-    if (cg) cg.blocksRaycasts = true;
+      // ✅ restore raycast blocking on the source slot
+      var cg = dragSource.GetComponent<CanvasGroup>();
+      if (cg) cg.blocksRaycasts = true;
+    }
 
     dragItem = null;
     dragSource = null;
   }
 
 
-  // Finds or creates a top-level canvas layer for dragging
-  private static RectTransform GetOrCreateDragLayer(Canvas root)
-  {
-    var t = root.transform.Find("DragLayer") as RectTransform;
-    if (t != null) return t;
+  private static RectTransform GetOrCreateDragLayer(Canvas topCanvas)
+    {
+        if (topCanvas == null)
+        {
+            // last resort: make a screen-space overlay canvas
+            var fallback = new GameObject("DragCanvas(Fallback)", typeof(Canvas), typeof(GraphicRaycaster));
+            var c = fallback.GetComponent<Canvas>();
+            c.renderMode = RenderMode.ScreenSpaceOverlay;
+            topCanvas = c;
+        }
 
-    var go = new GameObject("DragLayer", typeof(RectTransform), typeof(Canvas), typeof(GraphicRaycaster));
-    var rt = go.GetComponent<RectTransform>();
-    rt.SetParent(root.transform, false);
-    rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-    rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+        var t = topCanvas.transform.Find("DragLayer") as RectTransform;
+        if (t != null) return t;
 
-    var c = go.GetComponent<Canvas>();
-    c.overrideSorting = true;
-    c.sortingOrder = 9999; // always on top
-
-    return rt;
-  }
+        var go = new GameObject("DragLayer", typeof(RectTransform));
+        var rt = go.GetComponent<RectTransform>();
+        rt.SetParent(topCanvas.transform, false);
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+        return rt;
+    }
 }

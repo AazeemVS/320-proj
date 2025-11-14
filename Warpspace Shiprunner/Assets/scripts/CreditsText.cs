@@ -11,12 +11,12 @@ public class CreditsText : MonoBehaviour
     {
         if (creditsText != null)
         {
-            creditsText.text = "Total credits: " + player_movement.credits.ToString();
+            creditsText.text =  player_movement.credits.ToString();
         }
 
         if (roundCreditsText != null)
         {
-            roundCreditsText.text = "Credits this round: " + player_movement.roundCredits.ToString();
+            roundCreditsText.text =  player_movement.roundCredits.ToString();
         }
         
     }

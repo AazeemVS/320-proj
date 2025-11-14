@@ -4,8 +4,8 @@ using UnityEngine;
 public abstract class Enemy : MonoBehaviour
 {
     [Header("Firing")]
-    [SerializeField] protected SimplePool bulletPool;  // ok if left empty on prefab
-    [SerializeField] protected Transform firePoint;    // ok if missing; we'll create one
+    [SerializeField] protected SimplePool bulletPool;
+    [SerializeField] protected Transform firePoint;
     [SerializeField] protected float shotsPerSecond = 2f;
     [SerializeField] protected float bulletSpeed = 10f;
     [SerializeField] protected float warmupDelay = 0.25f;
@@ -14,20 +14,24 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] public float spawnCost;
     [SerializeField] public float spawnWeight;
     [SerializeField] public int unlockRound;
+    private float poisonTimer, poisonDamage;
 
-    [SerializeField] private float fleeSpeed = 6f;     // how fast they slide off
-    [SerializeField] private float fleeDistance = 4f;  // how far to move right before despawn
+    [SerializeField] private float fleeSpeed = 6f; // how fast they slide off
+    [SerializeField] private float fleeDistance = 4f; // how far to move right before despawn
+
+    [SerializeField] private int creditsOnKill = 1;
+    public int CreditsOnKill => creditsOnKill;
 
     private bool isFleeing = false;
     private float fleeTargetX = 0f;
-
+    private bool hasDied = false;
 
     Coroutine _loop;
     public player_movement playerMovement;
+    protected AudioManager audioManager;
     protected float borderX;
     protected float borderY;
 
-    // Allow spawner to inject dependencies if you want
     public void Init(SimplePool pool)
     {
         bulletPool = pool;
@@ -37,10 +41,8 @@ public abstract class Enemy : MonoBehaviour
 
     void Awake()
     {
-        // Fallbacks so spawned copies work without manual wiring
         if (bulletPool == null) bulletPool = FindAnyObjectByType<SimplePool>();
 
-        // Finds playerMovement script
         if (playerMovement == null)
         {
             GameObject player = GameObject.FindWithTag("Player");
@@ -53,7 +55,7 @@ public abstract class Enemy : MonoBehaviour
                 Debug.LogWarning("Player GameObject not found! Make sure it's tagged 'Player'");
             }
         }
-
+        audioManager = GetComponentInChildren<AudioManager>();
         EnsureFirePoint();
         Camera cam = Camera.main;
         borderY = cam.orthographicSize;
@@ -64,13 +66,15 @@ public abstract class Enemy : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (isFleeing) { FleeUpdate(); return; }  // <- short-circuit to flee
+        if (isFleeing) { FleeUpdate(); return; }
+
         Movement();
 
+
+        ManageStatuses();
         if (health <= 0)
         {
-            playerMovement.TriggerKill(this);
-            Destroy(gameObject);
+            Kill(true);
         }
     }
 
@@ -87,40 +91,54 @@ public abstract class Enemy : MonoBehaviour
     {
         if (firePoint == null)
         {
-            // Try find existing child named "firePoint"
             var t = transform.Find("firePoint");
             if (t != null) { firePoint = t; return; }
 
-            // Otherwise create one
             firePoint = new GameObject("firePoint").transform;
             firePoint.SetParent(transform);
+            firePoint.transform.position = new Vector3(firePoint.position.x, firePoint.position.y, firePoint.position.z + .1f);
             firePoint.localPosition = Vector3.down * 0.5f;
         }
     }
 
     public void BeginFlee()
     {
-        if (isFleeing) return;           // only once
+        if (isFleeing) return;
         isFleeing = true;
 
-        // stop firing
         if (_loop != null) StopCoroutine(_loop);
 
-        // make bullets not hurt: easiest is to disable collider
         var col = GetComponent<Collider2D>();
         if (col) col.enabled = false;
 
-        // set flee target
         fleeTargetX = transform.position.x + fleeDistance;
-
-        // optional: visual cue (tint, flash, trail, etc.)
-        // GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.75f);
     }
 
     public void ChangeHealth(float healthChange)
     {
-        if (isFleeing && healthChange < 0) return; // invulnerable while fleeing
+        audioManager.PlaySound(SoundID.EnemyHit);
+        if (isFleeing && healthChange < 0) return;
         health += healthChange;
+        if (health <= 0 && !hasDied)
+        {
+            Kill(true);
+        }
+    }
+
+    public void Kill(bool awardCredits)
+    {
+        AudioController ac = FindAnyObjectByType<AudioController>();
+        if (ac != null) { ac.PlayClip(SoundID.EnemyDeath); }
+        if (hasDied) return;
+        hasDied = true;
+
+        if (awardCredits && playerMovement != null)
+        {
+            playerMovement.AddCredits(creditsOnKill); //gave double ecredits for some reason
+            playerMovement.TriggerKill(this);
+        }
+
+        Destroy(gameObject);
     }
 
     private void FleeUpdate()
@@ -132,10 +150,21 @@ public abstract class Enemy : MonoBehaviour
 
         if (Mathf.Approximately(p.x, fleeTargetX))
         {
-            Destroy(gameObject); // finally disappear
+            Kill(false);
         }
     }
 
+    void ManageStatuses() {
+        if (poisonTimer >= 0) {
+            poisonTimer -= Time.deltaTime;
+            ChangeHealth(-poisonDamage * Time.deltaTime);
+        }
+    }
+
+    public void EnablePoison(float length, float DPS) {
+        poisonTimer = length;
+        poisonDamage = DPS;
+    }
 
     IEnumerator FireLoop()
     {

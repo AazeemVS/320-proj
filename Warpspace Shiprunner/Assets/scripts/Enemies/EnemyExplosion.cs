@@ -8,12 +8,15 @@ public class EnemyExplosion : Projectile
     public List<Enemy> hitEnemies = new List<Enemy>();
     [SerializeField] bool friendlyFire = true;
     SpriteRenderer spriteRenderer;
+    AudioManager audioManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         lifetimeTimer = lifetime;
         c = Color.white;
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audioManager = GetComponentInChildren<AudioManager>();
+        audioManager.PlaySound(SoundID.Explosion);
     }
 
     // Update is called once per frame

@@ -16,16 +16,16 @@ public class DebugInventory : MonoBehaviour
         inventory = gameObject.GetComponent<PlayerInventory>();
         playerLogic = gameObject.GetComponent<player_movement>();
         if (playerLogic == null) enabled = false;
-        playerUpgrades.Add(new EngineUpgrade());
+        playerUpgrades.Add(new HealthOnKill());
         playerUpgrades.Add(new SuperDashUpgrade());
-        playerUpgrades.Add(new BulletPierceUpgrade());
-        playerUpgrades.Add(new DamageUpgrade());
-        playerUpgrades.Add(new ExplosiveKillUpgrade());
-        playerUpgrades.Add(new ExplosiveHitUpgrade());
+        playerUpgrades.Add(new PoisonUpgrade());
+        playerUpgrades.Add(new DamageOnKill());
+        playerUpgrades.Add(new ExtraKillTrigger());
+        playerUpgrades.Add(new GattlingGunUpgrade());
         playerUpgrades.Add(new ExplosiveHitUpgrade(Rarity.Rare));
         playerUpgrades.Add(new DashUpgrade());
         playerUpgrades.Add(new ExtraCannonUpgrade());
-        playerUpgrades.Add(new DamageUpgrade());
+        playerUpgrades.Add(new VirusDamageBoost());
 
         Canvas canvas = FindAnyObjectByType<Canvas> ();
         for(int i = 0; i <playerUpgrades.Count; i++) {

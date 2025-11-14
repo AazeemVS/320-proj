@@ -119,4 +119,20 @@ public sealed class GameStateManager : MonoBehaviour
     Debug.Log("btn pressed");
   }
 
+    public void ExitGame()
+    {
+        Debug.Log("Exit button pressed. Quitting game...");
+
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+    public void OnReturnToStartMenuButton()
+    {
+        LoadStart();
+        Debug.Log("Returning to Start Menu...");
+    }
+
 }
