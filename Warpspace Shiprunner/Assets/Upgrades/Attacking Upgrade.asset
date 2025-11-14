@@ -15,5 +15,5 @@ MonoBehaviour:
   id: 188bef80872b4cc3838d97cd6f81db53
   displayName: Attacking Upgrade
   description: Upgrade that speeds up your attack.
-  icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
+  icon: {fileID: -2116097294281567457, guid: 7df52a4f23efce94faffe07343feed10, type: 3}
   tempUpgradeID: 0

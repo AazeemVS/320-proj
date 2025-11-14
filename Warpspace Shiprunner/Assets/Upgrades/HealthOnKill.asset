@@ -15,5 +15,5 @@ MonoBehaviour:
   id: bc330fa305904ea384ce01ef337259eb
   displayName: 'Virus: Shielding Data Extraction'
   description: Gain a small amount of health on kill.
-  icon: {fileID: 21300000, guid: 4b1489bae931cec439bf49749dff0731, type: 3}
+  icon: {fileID: 2726731406326643588, guid: d9dccfe13fe3a76499ffe172caf0010d, type: 3}
   tempUpgradeID: 15

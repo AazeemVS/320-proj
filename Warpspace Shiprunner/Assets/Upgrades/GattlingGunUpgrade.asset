@@ -15,5 +15,5 @@ MonoBehaviour:
   id: 6f11ce82cccf46209eaa151d0b785197
   displayName: Gattling Adapter
   description: Faster fire rate, reduced accuracy & smaller bullets.
-  icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
+  icon: {fileID: -6483724542170863373, guid: 1d162679ab5bef64aafa20c57ed0f36d, type: 3}
   tempUpgradeID: 21

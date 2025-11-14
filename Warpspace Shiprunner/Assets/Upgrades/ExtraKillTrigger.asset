@@ -15,5 +15,5 @@ MonoBehaviour:
   id: 1148e1b69bd447829eb4a781fe6e5fc3
   displayName: 'Virus: Trojan Payload'
   description: Doubles the effects of other Virus (on kill) upgrades
-  icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
+  icon: {fileID: 3528154439952004137, guid: 93343a3529013954d919d0c33a5e5531, type: 3}
   tempUpgradeID: 12

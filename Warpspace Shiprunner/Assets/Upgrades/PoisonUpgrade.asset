@@ -15,5 +15,5 @@ MonoBehaviour:
   id: d0de120d25494d8fa389dbf57ee56393
   displayName: Corrosive Rounds
   description: Attacks inflict poison damage over time.
-  icon: {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
+  icon: {fileID: 21300000, guid: 32bd6aa0ee261d4449382a0c50175344, type: 3}
   tempUpgradeID: 17

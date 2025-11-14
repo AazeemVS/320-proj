@@ -15,5 +15,5 @@ MonoBehaviour:
   id: 3669a9f1952e4139ada9f22c53666682
   displayName: Backup Shields
   description: Increases maximum health.
-  icon: {fileID: 21300000, guid: 4b1489bae931cec439bf49749dff0731, type: 3}
+  icon: {fileID: 2726731406326643588, guid: d9dccfe13fe3a76499ffe172caf0010d, type: 3}
   tempUpgradeID: 18
