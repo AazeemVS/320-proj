@@ -36,7 +36,7 @@ public class player_movement : MonoBehaviour
     public float dashCooldown = 1.5f;
     public float maxHealth = 5;
     // Credits
-    public static int credits = 1500;
+    public static int credits = 0;
     public static int roundCredits = 0;
     public int extraKillCredits = 0; // modified by "CreditsOnKill" upgrade
     public float insuranceCreditsScalar = 0; // modified by "CreditsWhenHit" upgrade
