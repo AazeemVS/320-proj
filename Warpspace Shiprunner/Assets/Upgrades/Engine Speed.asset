@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: Improved Munitions
   description: (Common) Increases base projectile damage.
   icon: {fileID: 3528154439952004137, guid: 93343a3529013954d919d0c33a5e5531, type: 3}
-  tempUpgradeID: 1
+  tempUpgradeID: 0

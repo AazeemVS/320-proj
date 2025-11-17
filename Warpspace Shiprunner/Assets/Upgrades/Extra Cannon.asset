@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: Extra Cannon
   description: Fires a second projectile.
   icon: {fileID: -2116097294281567457, guid: 7df52a4f23efce94faffe07343feed10, type: 3}
-  tempUpgradeID: 0
+  tempUpgradeID: 9
