@@ -221,6 +221,7 @@ public class player_movement : MonoBehaviour
 
             gameRound = 1;
             roundCredits = 0;
+            credits = 0;
             stateManager.RequestSceneChange(GameState.Playing, GameState.GameOver);
         }
         if (iFrameTimer > 0) {
@@ -230,7 +231,7 @@ public class player_movement : MonoBehaviour
                 audioManager.PlaySound(SoundID.PlayerIFrame);
             }
         }
-    if (enrageTimer > 0) {
+        if (enrageTimer > 0) {
             enrageTimer -= Time.deltaTime;
             if (enrageTimer <= 0) {
                 playerDamage -= enrageDamage;
