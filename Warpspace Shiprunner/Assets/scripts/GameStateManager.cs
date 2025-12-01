@@ -43,7 +43,7 @@ public sealed class GameStateManager : MonoBehaviour
         switch (state) {
             case GameState.Start:
                 if (Input.GetKey(KeyCode.Return)) {
-                    LoadInventory();
+                    LoadPlaying();
                 }
                 break;
             case GameState.Playing:
@@ -117,8 +117,7 @@ public sealed class GameStateManager : MonoBehaviour
 
   public void OnStartButtonClicked()
   {
-    LoadInventory();
-    Debug.Log("btn pressed");
+    LoadPlaying();
   }
 
     public void ExitGame()
