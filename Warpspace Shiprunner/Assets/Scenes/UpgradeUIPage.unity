@@ -884,6 +884,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dab9ac1b6051f3e47a6bac46e4e26f69, type: 2}
   - {fileID: 11400000, guid: ba58e7336e6b2084b9dfdd547da5465c, type: 2}
   - {fileID: 11400000, guid: 4699d1a075d87b04fa8ca096f7e7933c, type: 2}
+  templateItem: {fileID: 11400000, guid: de9c9ecd537465a449b99a90e759d2af, type: 2}
+  upgradeSprites:
+  - {fileID: 21300000, guid: 4b97d95d3f518f44d95e41dcd2535765, type: 3}
+  - {fileID: 21300000, guid: c89dfe0c830f459428028165074277dd, type: 3}
+  - {fileID: 7012761177666003978, guid: 600c0d6c75c356746addd804bedf6832, type: 3}
+  - {fileID: 21300000, guid: 79835e26ab8df314f9316216831ecb62, type: 3}
+  - {fileID: 21300000, guid: 4b1489bae931cec439bf49749dff0731, type: 3}
+  - {fileID: 6370377274722705767, guid: c7cf4933fe67db64fb85199f95534775, type: 3}
+  - {fileID: 21300000, guid: d7293e6a8a126f34194079922a7f82c1, type: 3}
+  - {fileID: 21300000, guid: 847f4bc4088b3be43b6cd03f115ab1a1, type: 3}
+  - {fileID: 21300000, guid: e545b6d154a14994ca3531e1dee517dc, type: 3}
 --- !u!1 &1004261291
 GameObject:
   m_ObjectHideFlags: 0
