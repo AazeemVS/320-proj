@@ -1,4 +1,4 @@
-using System;                      // for Action<>
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,10 +15,10 @@ public class UpgradeDetailsPanel : MonoBehaviour
     [SerializeField] private Button sellButton;
 
     [Header("Price Labels (optional)")]
-    [SerializeField] private TMP_Text buyText;   // e.g. “Buy: 300”
-    [SerializeField] private TMP_Text sellText;  // e.g. “Sell: 150”
+    [SerializeField] private TMP_Text buyText;
+    [SerializeField] private TMP_Text sellText;
 
-    // Events (if you’ve been using them already)
+    // Events
     public event Action<UpgradeItem> OnBuyRequested;
     public event Action<UpgradeItem> OnSellRequested;
 
@@ -38,7 +38,7 @@ public class UpgradeDetailsPanel : MonoBehaviour
             {
                 if (CurrentItem == null) return;
 
-                // 1) Try to purchase directly (robust across rounds)
+                // 1) Try to purchase directly
                 var inv = InventoryManager.Instance ?? FindObjectOfType<InventoryManager>(true);
                 if (inv != null && inv.TryPurchase(CurrentItem, out var created))
                 {
@@ -68,14 +68,11 @@ public class UpgradeDetailsPanel : MonoBehaviour
 
     void OnEnable()
     {
-        // Don’t flash the wrong controls when re-enabled
         HideBothButtons();
         HidePrices();
     }
 
-    // ---------- Public API (backwards compatible) ----------
 
-    // Your existing generic Show
     public void Show(UpgradeItem item)
     {
         CurrentItem = item;
@@ -86,7 +83,6 @@ public class UpgradeDetailsPanel : MonoBehaviour
         if (description) description.text = item.description;
 
         gameObject.SetActive(true);
-        // Do not force buttons; caller decides (ShowBuyOnly / ShowSellOnly)
     }
 
     public void Clear()
@@ -134,7 +130,6 @@ public class UpgradeDetailsPanel : MonoBehaviour
         }
     }
 
-    // ---------- Convenience helpers (optional to use) ----------
 
     // Call this from shop item clicks when you already know the price shown in the shop
     public void ShowShop(UpgradeItem item, int price)
@@ -158,8 +153,6 @@ public class UpgradeDetailsPanel : MonoBehaviour
         SetSellText(sell);
         ClearBuyText();
     }
-
-    // ---------- Internal helpers ----------
 
     private void HideBothButtons()
     {

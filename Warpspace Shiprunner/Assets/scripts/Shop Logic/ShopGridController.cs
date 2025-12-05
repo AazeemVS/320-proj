@@ -5,10 +5,10 @@ using UnityEngine.UI; // for LayoutRebuilder
 public class ShopGridController : MonoBehaviour
 {
     [Header("UI/Scene")]
-    [SerializeField] private Transform gridParent;                // Parent with GridLayoutGroup
-    [SerializeField] private ShopItemView itemPrefab;             // Icon-only prefab
-    [SerializeField] private InventoryManager inventory;          // InventoryManager in scene
-    [SerializeField] private UpgradeDetailsPanel detailsPanel;    // Right-side panel
+    [SerializeField] private Transform gridParent; // Parent with GridLayoutGroup
+    [SerializeField] private ShopItemView itemPrefab; // Icon-only prefab
+    [SerializeField] private InventoryManager inventory; // InventoryManager in scene
+    [SerializeField] private UpgradeDetailsPanel detailsPanel; // Right-side panel
     [SerializeField] private int defaultPrice = 100;
 
     [Header("Roll Settings")]
@@ -30,7 +30,7 @@ public class ShopGridController : MonoBehaviour
 
     private void OnEnable()
     {
-        // Auto-find missing refs (helps after scene/page swaps)
+        // Auto find missing refs
         if (!_grid && gridParent) _grid = gridParent.GetComponent<GridLayoutGroup>();
         if (!inventory) inventory = FindObjectOfType<InventoryManager>(true);
         if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
@@ -38,7 +38,7 @@ public class ShopGridController : MonoBehaviour
         if (detailsPanel) detailsPanel.OnBuyRequested += HandlePanelBuy;
 
         if (rerollOnEnable) BuildShopFromMock();
-        else ForceGridRebuild(); // still ensure layout is correct
+        else ForceGridRebuild(); // Ensures layout is correct
     }
 
     private void OnDisable()
@@ -88,7 +88,7 @@ public class ShopGridController : MonoBehaviour
             var item = ScriptableObject.Instantiate(mock);
             item.EnsureId(); // stable id at runtime
 
-            // 5) Hydrate concrete Upgrade (if using tempUpgrades)
+            // 5) Hydrate concrete Upgrade
             if (item.upgrade == null && item.tempUpgrades != null && item.tempUpgrades.Length > 0)
             {
                 int id = Mathf.Clamp(item.tempUpgradeID, 0, item.tempUpgrades.Length - 1);
@@ -99,11 +99,11 @@ public class ShopGridController : MonoBehaviour
             if (string.IsNullOrWhiteSpace(item.displayName) && item.upgrade != null)
                 item.displayName = item.upgrade.name;
 
-            // 7) Spawn icon card; click shows panel (Buy happens from the panel)
+            // 7) Spawn icon card; click shows panel
             var view = Instantiate(itemPrefab, gridParent, false);
-            SnapChildToGridCell(view.transform as RectTransform);   // <— add this call
+            SnapChildToGridCell(view.transform as RectTransform);
             int price = (item.upgrade != null) ? item.upgrade.value : defaultPrice;
-            view.Bind(item, price, null);       // null => buying is done from the details panel
+            view.Bind(item, price, null);
             var grid = gridParent.GetComponent<GridLayoutGroup>();
             ConformToGrid(view.transform as RectTransform, grid);
 
@@ -116,7 +116,7 @@ public class ShopGridController : MonoBehaviour
         ReflowGridNow();
     }
 
-    // Called when the DETAILS PANEL Buy button is pressed
+    // Called when the DETAILS PANEL Buy btn is pressed
     private void HandlePanelBuy(UpgradeItem item)
     {
         if (item == null || item.upgrade == null || inventory == null)
@@ -125,9 +125,7 @@ public class ShopGridController : MonoBehaviour
         // Attempt purchase (deduct credits, create inventory item)
         if (inventory.TryPurchase(item, out var created))
         {
-            // Do NOT destroy the shop card anymore — leave it on the grid
-            // Optionally: give UI feedback or keep the panel open
-            detailsPanel.Clear(); // or detailsPanel.ShowShop(item, item.upgrade.value);
+            detailsPanel.Clear();
             ReflowGridNow();
             Debug.Log($"[Shop] Purchased {created.displayName}. Item remains available in shop.");
         }
@@ -176,7 +174,7 @@ public class ShopGridController : MonoBehaviour
             ConformToGrid(crt, _grid);
         }
 
-        // force a layout pass (twice is safest with UI)
+        // force a layout pass
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
         Canvas.ForceUpdateCanvases();
@@ -217,7 +215,7 @@ public class ShopGridController : MonoBehaviour
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.localScale = Vector3.one;
 
-        // Size exactly to the grid’s cell
+        // Size exactly to the gridâ€™s cell
         rt.sizeDelta = _grid.cellSize;
 
         // If the prefab has a LayoutElement, set preferred size too
@@ -226,7 +224,7 @@ public class ShopGridController : MonoBehaviour
         {
             le.preferredWidth = _grid.cellSize.x;
             le.preferredHeight = _grid.cellSize.y;
-            le.minWidth = le.minHeight = -1;   // let preferred drive it
+            le.minWidth = le.minHeight = -1;
             le.flexibleWidth = le.flexibleHeight = 0f;
             le.ignoreLayout = false;
         }

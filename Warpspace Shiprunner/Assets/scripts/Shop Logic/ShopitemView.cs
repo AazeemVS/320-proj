@@ -1,4 +1,4 @@
-using System;                      // for Action<>
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,12 +8,12 @@ public class ShopItemView : MonoBehaviour, IPointerClickHandler
 {
   [Header("Icon-only card UI")]
   [SerializeField] private Image icon;
-  [SerializeField] private TMP_Text title;      // optional (we’ll leave blank)
-  [SerializeField] private TMP_Text priceText;  // optional (we’ll leave blank)
-  [SerializeField] private Button buyButton;    // optional; leave unassigned if you buy via panel
+  [SerializeField] private TMP_Text title;
+  [SerializeField] private TMP_Text priceText;
+  [SerializeField] private Button buyButton;
 
   [Header("Details Panel")]
-  [SerializeField] private UpgradeDetailsPanel detailsPanel; // can be auto-found
+  [SerializeField] private UpgradeDetailsPanel detailsPanel;
 
   // runtime
   private UpgradeItem item;
@@ -32,7 +32,7 @@ public class ShopItemView : MonoBehaviour, IPointerClickHandler
     _price = price;
     _onBuy = onBuy;
 
-    // wire card-level Buy if a button exists AND a callback is supplied
+    // wire card-level Buy if a button exists, and a callback is supplied
     if (buyButton != null)
     {
       buyButton.onClick.RemoveAllListeners();
@@ -44,7 +44,7 @@ public class ShopItemView : MonoBehaviour, IPointerClickHandler
 
   private void Awake()
   {
-    // auto-find the panel if not set
+    // auto find the panel if not set
     if (!detailsPanel) detailsPanel = FindObjectOfType<UpgradeDetailsPanel>(true);
   }
 
@@ -60,7 +60,6 @@ public class ShopItemView : MonoBehaviour, IPointerClickHandler
       icon.preserveAspect = true;
     }
 
-    // You said you don’t want text on the card grid:
     if (title) title.text = "";
     if (priceText) priceText.text = "";
   }

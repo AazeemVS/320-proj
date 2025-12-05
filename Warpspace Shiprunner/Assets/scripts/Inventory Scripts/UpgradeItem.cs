@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewUpgrade", menuName = "Upgrades/Upgrade Item")]
 public class UpgradeItem : ScriptableObject
 {
-  [SerializeField] public string id;   // <-- unique identifier for tracking items
+  [SerializeField] public string id;   // unique identifier for tracking items
   public string displayName;
   [TextArea] public string description;
   public Sprite icon;
@@ -45,7 +45,7 @@ public class UpgradeItem : ScriptableObject
       id = Guid.NewGuid().ToString("N");
   }
 
-  // These automatically make sure IDs exist even if you forget manually
+  // These automatically make sure IDs exist
   private void OnValidate() => EnsureId();
   private void OnEnable() => EnsureId();
 }

@@ -1,4 +1,3 @@
-// UpgradeFactory.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +15,7 @@ public static class UpgradeFactory
         typeof(PlayerRecoveryUpgrade)
     };
 
-    // Types with fixed ctor (no tier param):
+    // Types with fixed ctor:
     private static readonly List<Type> FixedTypes = new()
     {
         typeof(DashUpgrade),
@@ -36,7 +35,7 @@ public static class UpgradeFactory
 
     public static Upgrade CreateRandomUpgrade()
     {
-        // 70% chance choose a tiered upgrade, else fixed (tweak if you like)
+        // 70% chance choose a tiered upgrade, else fixed
         bool chooseTiered = UnityEngine.Random.value < 0.7f;
 
         if (chooseTiered)
