@@ -13,9 +13,9 @@ public class UISlot : MonoBehaviour,
     [HideInInspector] public SlotGroup group;
     [HideInInspector] public int index;
 
-    [SerializeField] private Image icon;        // item icon (child)
-    [SerializeField] private Image frame;       // hover highlight (optional)
-    [SerializeField] private Canvas dragCanvas; // top-most canvas (assign in Inspector or auto-find)
+    [SerializeField] private Image icon; // item icon
+    [SerializeField] private Image frame; // hover highlight
+    [SerializeField] private Canvas dragCanvas; // top most canvas 
 
     private static UISlot dragSource;
     private static UpgradeItem dragItem;
@@ -28,12 +28,12 @@ public class UISlot : MonoBehaviour,
 
     void Awake()
     {
-        // Ensure the slot itself can receive drops (must have a raycastable Graphic)
+        // Ensure the slot itself can receive drops
         var g = GetComponent<Graphic>();
         if (g == null)
         {
             var slotImg = gameObject.AddComponent<Image>();
-            slotImg.color = new Color(0, 0, 0, 0.001f); // nearly transparent but still hit-testable
+            slotImg.color = new Color(0, 0, 0, 0.001f); // nearly transparent but still hit testable
             slotImg.raycastTarget = true;
         }
         else
@@ -70,7 +70,7 @@ public class UISlot : MonoBehaviour,
         dragSource = this;
         dragItem = item;
 
-        // 🔹 Show the details for the item being dragged
+        // Show the details for the item being dragged
         OnSlotClicked?.Invoke(item, this);
 
         // Ensure CanvasGroup exists, then disable raycast blocking
@@ -163,7 +163,7 @@ public class UISlot : MonoBehaviour,
         dragSource.icon.raycastTarget = true;
       }
 
-      // ✅ restore raycast blocking on the source slot
+      // restore raycast blocking on the source slot
       var cg = dragSource.GetComponent<CanvasGroup>();
       if (cg) cg.blocksRaycasts = true;
     }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-  // Singleton instance (only one exists)
+  // Singleton instance
   public static InventoryManager Instance { get; private set; }
 
   [SerializeField] private int inventoryCapacity = 20; // Max number of inventory items
@@ -61,7 +61,7 @@ public class InventoryManager : MonoBehaviour
     return true;
   }
 
-  // Adds an item to the active slots (if not full)
+  // Adds an item to the active slots (if slots aren't full)
   public bool TryAddToActive(UpgradeItem item)
   {
     if (active.Count >= activeCapacity) return false;
@@ -98,8 +98,7 @@ public class InventoryManager : MonoBehaviour
     // for UI to refresh when data changes
     public System.Action OnChanged;
 
-  // TEMP: seed a few items at start to see UI working
-  [Header("Seed (Optional)")]
+ [Header("Seed (Optional)")]
   public UpgradeItem[] seedInventory;
   public UpgradeItem[] seedActive;
 
@@ -149,7 +148,7 @@ public class InventoryManager : MonoBehaviour
                 if (invToAct) SafeEquip(item);
             }
 
-            // remove from source *after* placing in target
+            // remove from source after placing in target
             fromList.RemoveAt(fromIndex);
 
             // if we displaced something, put it back into the source list
@@ -158,7 +157,7 @@ public class InventoryManager : MonoBehaviour
                 int insertAt = Mathf.Min(fromIndex, fromList.Count);
                 fromList.Insert(insertAt, displaced);
 
-                // If source was Active, we’re putting the displaced item back into Active → re-equip it.
+                // If source was Active, we put the displaced item back into Active AKA re-equip it
                 if (from == SlotGroup.Active) SafeEquip(displaced);
             }
 
@@ -221,10 +220,9 @@ public class InventoryManager : MonoBehaviour
 
         newItem.description = shopItem.description ?? "";
 
-        newItem.icon = shopItem.icon; // ok to share Sprite refs
+        newItem.icon = shopItem.icon;
 
         // use the same upgrade logic object
-        // (If upgrades ever hold mutable runtime state, consider cloning the Upgrade here)
         newItem.upgrade = shopItem.upgrade;
 
         inventory.Add(newItem);
@@ -300,7 +298,7 @@ public class InventoryManager : MonoBehaviour
         // if selling from Active, unequip first
         if (group == SlotGroup.Active) SafeUnequip(item);
 
-        // compute refund = half the upgrade value (rounds down)
+        // compute refund (half the upgrade value)
         int baseValue = (item.upgrade != null) ? item.upgrade.value : 0;
         refund = Mathf.Max(0, baseValue / 2);
 

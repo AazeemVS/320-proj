@@ -6,7 +6,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 {
     [HideInInspector] public Transform OriginalParent;
     [HideInInspector] public int OriginalIndex;
-    [SerializeField] private Canvas dragCanvas;          // Canvas used while dragging (top-most UI canvas)
+    [SerializeField] private Canvas dragCanvas;
     private CanvasGroup cg;
     private RectTransform rt;
     private LayoutElement layoutElement;
@@ -32,7 +32,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
         // Move to a top-level canvas so it follows the mouse cleanly
         if (dragCanvas == null)
-            dragCanvas = GetComponentInParent<Canvas>(); // fallback
+            dragCanvas = GetComponentInParent<Canvas>();
 
         transform.SetParent(dragCanvas.transform, worldPositionStays: true);
     }
@@ -49,7 +49,7 @@ public class UIDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         cg.alpha = 1f;
         layoutElement.ignoreLayout = false;
 
-        // If we didn’t get dropped on a slot, snap back
+        // If we didnâ€™t get dropped on a slot, snap back
         if (transform.parent == dragCanvas.transform)
         {
             transform.SetParent(OriginalParent, worldPositionStays: false);
