@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // for LayoutRebuilder
@@ -17,11 +18,18 @@ public class ShopGridController : MonoBehaviour
 
     [Header("Mock Catalog (ScriptableObjects)")]
     [Tooltip("Assign your UpgradeItem assets here")]
-    [SerializeField] private List<UpgradeItem> mockCatalog = new();
+    //[SerializeField] private List<UpgradeItem> mockCatalog = new();
+    [SerializeField] UpgradeItem templateItem;
     private GridLayoutGroup _grid;
     // Track spawned cards so we can destroy the one the player buys
     private readonly Dictionary<string, ShopItemView> _viewsById = new();
 
+    Type[] upgradeList = { typeof(EngineUpgrade), typeof(DamageUpgrade), typeof(AttackUpgrade), typeof(DashUpgrade), typeof(SuperDashUpgrade), typeof(BulletSpeedUpgrade),
+    typeof(BulletPierceUpgrade), typeof(PlayerRecoveryUpgrade), typeof(EnrageUpgrade), typeof(ExplosiveHitUpgrade), typeof(ExplosiveKillUpgrade), typeof(ExtraCannonUpgrade),
+    typeof(ExtraKillTrigger), typeof(DamageOnKill), typeof(CreditsOnKill), typeof(HealthOnKill), typeof(VirusDamageBoost), typeof(PoisonUpgrade), typeof(HealthUpgrade),
+    typeof(CreditsWhenHit), typeof(RailgunUpgrade), typeof(GattlingGunUpgrade)};
+
+    [SerializeField] List<Sprite> upgradeSprites;
 
     private void Awake()
     {
@@ -65,39 +73,52 @@ public class ShopGridController : MonoBehaviour
         _viewsById.Clear();
 
         // 2) Validate
-        if (mockCatalog == null || mockCatalog.Count == 0 || !itemPrefab || !gridParent)
+        if (!itemPrefab || !gridParent)
         {
             Debug.LogWarning("[Shop] Missing catalog or bindings.");
             return;
         }
+        
+        int take = itemsToShow;
+        List<int> usedItems = new List<int>();
 
-        // 3) Choose up to itemsToShow unique entries
-        var pool = new List<int>(mockCatalog.Count);
-        for (int i = 0; i < mockCatalog.Count; i++) pool.Add(i);
-        int take = Mathf.Min(itemsToShow, pool.Count);
+        for (int k = 0; k < take; k++) {
+            //int swap = UnityEngine.Random.Range(k, pool.Count);
+            //(pool[k], pool[swap]) = (pool[swap], pool[k]);
 
-        for (int k = 0; k < take; k++)
-        {
-            int swap = Random.Range(k, pool.Count);
-            (pool[k], pool[swap]) = (pool[swap], pool[k]);
+            //var mock = mockCatalog[pool[k]];
+            //if (!mock) continue;
 
-            var mock = mockCatalog[pool[k]];
-            if (!mock) continue;
+            //// 4) Clone the ScriptableObject so each card has its own instance/state
+            //var item = ScriptableObject.Instantiate(mock);
+            //item.EnsureId(); // stable id at runtime
 
-            // 4) Clone the ScriptableObject so each card has its own instance/state
-            var item = ScriptableObject.Instantiate(mock);
-            item.EnsureId(); // stable id at runtime
-
-            // 5) Hydrate concrete Upgrade
-            if (item.upgrade == null && item.tempUpgrades != null && item.tempUpgrades.Length > 0)
-            {
-                int id = Mathf.Clamp(item.tempUpgradeID, 0, item.tempUpgrades.Length - 1);
-                item.upgrade = item.tempUpgrades[id];
-            }
-
-            // 6) Optional: fill visuals if left blank
-            if (string.IsNullOrWhiteSpace(item.displayName) && item.upgrade != null)
-                item.displayName = item.upgrade.name;
+            //// 5) Hydrate concrete Upgrade (if using tempUpgrades)
+            //if (item.upgrade == null && item.tempUpgrades != null && item.tempUpgrades.Length > 0) {
+            //    int id = Mathf.Clamp(item.tempUpgradeID, 0, item.tempUpgrades.Length - 1);
+            //    item.upgrade = item.tempUpgrades[id];
+            //}
+            int toSpawnID = UnityEngine.Random.Range(0, upgradeList.Length);
+            //ensure we spawn unique upgrades
+            while (usedItems.Contains(toSpawnID)) { toSpawnID = UnityEngine.Random.Range(0, upgradeList.Length); }
+            usedItems.Add(toSpawnID);
+            UpgradeItem item = Instantiate(templateItem);
+            Type[] filterType = { typeof(Rarity) };
+            //if upgrade has a constructor that accepts a rarity, roll for rarity
+            if (upgradeList[toSpawnID].GetConstructor(filterType) != null) {
+                int rarityRoll = UnityEngine.Random.Range(0, 10);
+                Rarity itemRarity;
+                //rarity checks, ratios could be adjusted for balance
+                if (rarityRoll < 6) itemRarity = Rarity.Common;
+                else if (rarityRoll < 9) itemRarity = Rarity.Uncommon;
+                else itemRarity = Rarity.Rare;
+                item.upgrade = (Upgrade)Activator.CreateInstance(upgradeList[toSpawnID], itemRarity);
+            } else item.upgrade = (Upgrade)Activator.CreateInstance(upgradeList[toSpawnID]);
+            //update data object's parameters to match the created upgrade
+            item.name = item.upgrade.name;
+            item.displayName = item.upgrade.name;
+            item.description = item.upgrade.description;
+            item.icon = upgradeSprites[item.upgrade.spriteID];
 
             // 7) Spawn icon card; click shows panel
             var view = Instantiate(itemPrefab, gridParent, false);

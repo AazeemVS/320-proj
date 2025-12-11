@@ -194,7 +194,7 @@ public class player_movement : MonoBehaviour
             if(health > maxHealth) health = maxHealth;
         }
         //if (healthUI != null) { healthUI.text = ("Health:" + health); }
-        if (graphicsManager != null) { graphicsManager.UpdateHealthbar(health); }
+        if (graphicsManager != null) { graphicsManager.UpdateHealthbar(health, maxHealth); }
     }
 
     private void OnTakeDamageUpgrades(float damage) {

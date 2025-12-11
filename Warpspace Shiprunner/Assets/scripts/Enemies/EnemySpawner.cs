@@ -158,7 +158,8 @@ public class EnemySpawner : MonoBehaviour
             // only spawn if it fits within remaining budget
             if (enemyValue <= remaining)
             {
-                float y = Random.Range(borderYLower, borderY);
+                float enemyHeight = enemy.GetComponent<SpriteRenderer>().bounds.size.y / 2;
+                float y = Random.Range(borderYLower + enemyHeight, borderY - enemyHeight);
                 float finalX = Random.Range(6.25f, 8.25f);
 
                 Vector3 finalPos = new Vector3(finalX, y, 0f);

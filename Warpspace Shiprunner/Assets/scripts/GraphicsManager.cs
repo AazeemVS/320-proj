@@ -66,7 +66,8 @@ public class GraphicsManager : MonoBehaviour
 
     }
 
-    public void UpdateHealthbar(float newHealth){
+    public void UpdateHealthbar(float newHealth, float maxHealth){
+        playerHealthMax = maxHealth;
         playerHealthCurrent = newHealth;
         healthBar.transform.localScale = new Vector3(healthbarMaxWidth*playerHealthCurrent/playerHealthMax, healthBar.transform.localScale.y, healthBar.transform.localScale.z);
         float newWidth = healthBar.GetComponent<SpriteRenderer>().bounds.size.x/2;
